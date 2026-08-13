@@ -10,12 +10,9 @@
     }
   },
   "1": {
-    "cat": "AUDIOCENTER",
+    "cat": "Power Amp",
     "brand": "AudioCenter",
     "name": "UTA902DSP",
-    "qty": 1,
-    "msrp": 730000,
-    "dcRate": 15,
     "price": 620500,
     "specs": {
       "브랜드": "AudioCenter",
