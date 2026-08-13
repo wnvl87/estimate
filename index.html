@@ -286,7 +286,6 @@
             <button class="close-btn" onclick="closeAddCatalogModal()">&times;</button>
         </div>
         <div>
-            <!-- [추가] 기존 장비 수정 모드 선택용 드롭다운 -->
             <div class="form-group" style="background: #eff6ff; padding: 10px; border-radius: 6px; border: 1px solid #bfdbfe;">
                 <label style="color: #1e40af;">🔄 기존 장비 불러와서 수정하기 (선택사항)</label>
                 <select id="editTargetSelect" onchange="loadExistingProductForEdit()">
@@ -325,6 +324,7 @@
 </div>
 
 <script>
+    // ⚙️ [설정] 브랜드별 기본 할인율(%) 세팅
     const BRAND_DEFAULT_DC = {
         "Audiocenter": 15,
         "Shure": 0,    
@@ -333,7 +333,7 @@
 
     let productCatalog = {};
     let quoteItems = [];
-    let editingProductKey = null; // 현재 수정 중인 장비의 고유 키값 저장용
+    let editingProductKey = null; 
 
     window.onload = async function() {
         await loadCatalogFromJSON();
@@ -343,13 +343,25 @@
 
     async function loadCatalogFromJSON() {
         try {
+            const localCustom = localStorage.getItem('arthur_local_custom_catalog');
+            if (localCustom) {
+                productCatalog = JSON.parse(localCustom);
+            }
+
             const response = await fetch('b2b_quotation_data.json?t=' + new Date().getTime());
-            if (!response.ok) throw new Error("JSON 파일을 찾을 수 없습니다.");
-            productCatalog = await response.json();
+            if (response.ok) {
+                const serverData = await response.json();
+                productCatalog = { ...serverData, ...productCatalog };
+                localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
+            }
         } catch (error) {
-            console.error('카탈로그 로딩 실패:', error);
-            alert("카탈로그 데이터를 불러오지 못했습니다. Github 저장소를 확인해주세요.");
-            productCatalog = {}; 
+            console.error('서버 카탈로그 로딩 실패 (로컬 백업 사용):', error);
+            const localCustom = localStorage.getItem('arthur_local_custom_catalog');
+            if (localCustom) {
+                productCatalog = JSON.parse(localCustom);
+            } else {
+                productCatalog = {}; 
+            }
         }
     }
 
@@ -459,12 +471,15 @@
         if (!key || !productCatalog[key]) return;
         
         const prod = productCatalog[key];
-        const defaultDc = BRAND_DEFAULT_DC[prod.brand.trim()] || 0;
+        const brandName = prod.brand ? prod.brand.trim() : "";
+        
+        // 브랜드별 할인율 자동 적용 (설정된 값이 없으면 0%)
+        const defaultDc = BRAND_DEFAULT_DC[brandName] !== undefined ? BRAND_DEFAULT_DC[brandName] : 0;
         const discountedPrice = Math.round(prod.price * (1 - (defaultDc / 100)));
 
         quoteItems.push({ 
             cat: prod.cat, 
-            brand: prod.brand, 
+            brand: brandName, 
             name: prod.name, 
             qty: 1, 
             msrp: prod.price, 
@@ -520,9 +535,8 @@
 
     function closeModal() { document.getElementById("specModal").style.display = "none"; }
     
-    /* === 팝업창 모달 로직 (수정 모드 선택 기능 포함) === */
     function openAddCatalogModal() { 
-        editingProductKey = null; // 신규 모드로 초기화
+        editingProductKey = null; 
         
         document.getElementById("newCat").value = "";
         document.getElementById("newBrand").value = "";
@@ -530,7 +544,6 @@
         document.getElementById("newPrice").value = "";
         document.getElementById("newSpecs").value = "";
         
-        // Datalist 채우기
         const catDatalist = document.getElementById("modalCatList");
         const brandDatalist = document.getElementById("modalBrandList");
         catDatalist.innerHTML = "";
@@ -545,9 +558,8 @@
         cats.forEach(c => catDatalist.innerHTML += `<option value="${escapeHtml(c)}">`);
         brands.forEach(b => brandDatalist.innerHTML += `<option value="${escapeHtml(b)}">`);
 
-        // 수정 대상 선택 드롭다운 채우기
         const editSelect = document.getElementById("editTargetSelect");
-        editSelect.innerHTML = `<option value="">-- 신규 등록하려면 비워두세요 (선택하면 수정 모드) --</option>`;
+        editSelect.innerHTML = `<option value="">-- 신규 등록하려면 비워두세요 (여기서 선택하면 수정 모드) --</option>`;
         for (const [key, prod] of Object.entries(productCatalog)) {
             editSelect.innerHTML += `<option value="${key}">[${prod.brand}] ${prod.name}</option>`;
         }
@@ -562,14 +574,12 @@
     
     function closeAddCatalogModal() { document.getElementById("addCatalogModal").style.display = "none"; }
 
-    // 수정할 장비를 드롭다운에서 골랐을 때 실행되는 함수
     function loadExistingProductForEdit() {
         const key = document.getElementById("editTargetSelect").value;
         const mainTitle = document.getElementById("modalMainTitle");
         const submitBtn = document.getElementById("modalSubmitBtn");
 
         if (!key) {
-            // 신규 등록 모드로 복귀
             editingProductKey = null;
             document.getElementById("newCat").value = "";
             document.getElementById("newBrand").value = "";
@@ -584,7 +594,6 @@
             return;
         }
 
-        // 기존 장비 데이터 폼에 불러오기
         editingProductKey = key;
         const prod = productCatalog[key];
         if (!prod) return;
@@ -633,7 +642,6 @@
             localStorage.setItem('arthur_github_token', githubToken);
         }
 
-        // 수정 모드면 기존 키 사용, 아니면 새로운 고유 키 생성
         let targetKey = editingProductKey ? editingProductKey : ("CAT_" + Date.now());
         let isUpdate = (editingProductKey !== null);
 
@@ -647,6 +655,7 @@
         }
         
         productCatalog[targetKey] = { cat: cat, brand: brand, name: name, price: price, specs: specObj };
+        localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
 
         const owner = "wnvl87";
         const repo = "estimate";
@@ -693,7 +702,7 @@
 
         } catch (error) {
             console.error(error);
-            alert("오류 발생: " + error.message);
+            alert("오류 발생 (단, 브라우저 로컬에는 임시 저장되었습니다): " + error.message);
             const saveBtn = document.getElementById("modalSubmitBtn");
             saveBtn.innerText = "GitHub 서버에 저장";
             saveBtn.disabled = false;
