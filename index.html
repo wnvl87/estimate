@@ -127,22 +127,22 @@
             <table class="info-table">
                 <tr><td class="label">상 호 명</td><td>주식회사 아더 (ARTHUR Co., Ltd.)</td></tr>
                 <tr><td class="label">사업자번호</td><td>419-88-03010</td></tr>
-                <tr><td class="label">대 표 자</td><td>김상복 / 최동주</td></tr>
+                <tr><td class="label">대 표 자</td><td>김상복</td></tr>
                 <tr><td class="label">업태 / 종목</td><td>제조, 도소매 / 음향, 영상, 조명장비</td></tr>
                 <tr><td class="label">사업장주소</td><td>경기 시흥시 매화산단로 95, 215호</td></tr>
                 <tr><td class="label">담당 / 연락처</td><td>최동주 이사 (010-9773-8904)</td></tr>
-                <tr><td class="label">이 메 일</td><td>wnvl87@gmail.com / wnvl87@arthur25.com</td></tr>
+                <tr><td class="label">이 메 일</td><td>wnvl87@arthur25.com</td></tr>
             </table>
         </div>
         <div class="info-card">
             <h3>수신자 정보 (Client / Dealer)</h3>
             <table class="info-table">
-                <tr><td class="label">업 체 명</td><td><input type="text" value="(주)파트너음향시스템" id="clientCompany"></td></tr>
-                <tr><td class="label">사업자번호</td><td><input type="text" value="123-86-00000" id="clientBizNo"></td></tr>
-                <tr><td class="label">대 표 자</td><td><input type="text" value="홍길동 대표" id="clientCEO"></td></tr>
-                <tr><td class="label">담 당 자</td><td><input type="text" value="김철수 팀장 (010-1234-5678)" id="clientContact"></td></tr>
-                <tr><td class="label">이 메 일</td><td><input type="text" value="partner@example.com" id="clientEmail"></td></tr>
-                <tr><td class="label">현 장 명</td><td><input type="text" value="○○교회 / 공연장 음향 시스템 보강" id="clientProject"></td></tr>
+                <tr><td class="label">업 체 명</td><td><input type="text" value="(주)파트너음향시스템" id="clientCompany" onchange="saveLocalData()"></td></tr>
+                <tr><td class="label">사업자번호</td><td><input type="text" value="123-86-00000" id="clientBizNo" onchange="saveLocalData()"></td></tr>
+                <tr><td class="label">대 표 자</td><td><input type="text" value="홍길동 대표" id="clientCEO" onchange="saveLocalData()"></td></tr>
+                <tr><td class="label">담 당 자</td><td><input type="text" value="김철수 팀장 (010-1234-5678)" id="clientContact" onchange="saveLocalData()"></td></tr>
+                <tr><td class="label">이 메 일</td><td><input type="text" value="partner@example.com" id="clientEmail" onchange="saveLocalData()"></td></tr>
+                <tr><td class="label">현 장 명</td><td><input type="text" value="○○교회 / 공연장 음향 시스템 보강" id="clientProject" onchange="saveLocalData()"></td></tr>
             </table>
         </div>
     </div>
@@ -150,7 +150,7 @@
     <div class="b2b-terms-bar">
         <div>
             <label>💳 결제 조건</label>
-            <select id="paymentTerms">
+            <select id="paymentTerms" onchange="saveLocalData()">
                 <option value="발주 시 현금 완불">발주 시 현금 완불 (선입금)</option>
                 <option value="계약금 50%, 출고 전 50%">계약금 50%, 출고 전 50%</option>
                 <option value="납품 후 익월 말 정산">납품 후 익월 말 정산 (여신 거래)</option>
@@ -158,15 +158,15 @@
         </div>
         <div>
             <label>⏱️ 견적 유효기간</label>
-            <input type="text" value="견적일로부터 30일" id="validityPeriod">
+            <input type="text" value="견적일로부터 30일" id="validityPeriod" onchange="saveLocalData()">
         </div>
         <div>
             <label>🚚 인도 / 납품 조건</label>
-            <input type="text" value="화물/택배 (현장 하도급 설치)" id="deliveryTerms">
+            <input type="text" value="화물/택배 (현장 하도급 설치)" id="deliveryTerms" onchange="saveLocalData()">
         </div>
         <div>
             <label>🧾 부가세 구분</label>
-            <select id="vatType" onchange="calculateTotals()">
+            <select id="vatType" onchange="calculateTotals(); saveLocalData();">
                 <option value="EXCLUDE">VAT 별도 (10% 계산)</option>
                 <option value="INCLUDE">VAT 포함가</option>
             </select>
@@ -299,12 +299,7 @@
 
     window.onload = function() {
         filterCatalog();
-        quoteItems = [
-            { cat: "AUDIOCENTER", brand: "Audiocenter", name: productCatalog.AC_SA310.name, qty: 2, msrp: 800000, dcRate: 0, price: 800000, specs: productCatalog.AC_SA310.specs },
-            { cat: "MIXER_DSP", brand: "Behringer", name: productCatalog.BEHRINGER_XR18.name, qty: 1, msrp: 1100000, dcRate: 0, price: 1100000, specs: productCatalog.BEHRINGER_XR18.specs },
-            { cat: "RACK_CABLE", brand: "KANALS", name: productCatalog.KANALS_BHJ70.name, qty: 1, msrp: 330000, dcRate: 0, price: 330000, specs: productCatalog.KANALS_BHJ70.specs }
-        ];
-        renderTable();
+        loadLocalData();
     };
 
     function filterCatalog() {
@@ -327,6 +322,7 @@
         if (quoteItems.length === 0) {
             tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: var(--text-muted); padding:20px;">선택된 장비 항목이 없습니다. 상단에서 제품을 선택하세요.</td></tr>`;
             calculateTotals();
+            saveLocalData();
             return;
         }
         quoteItems.forEach((item, index) => {
@@ -346,6 +342,7 @@
             tbody.appendChild(tr);
         });
         calculateTotals();
+        saveLocalData();
     }
 
     function addSelectedProduct() {
@@ -370,7 +367,14 @@
     function updateDC(i, v) { quoteItems[i].dcRate = Math.min(100, Math.max(0, parseFloat(v) || 0)); recalcRow(i); renderTable(); }
     function recalcRow(i) { const item = quoteItems[i]; item.price = Math.round(item.msrp * (1 - (item.dcRate / 100))); }
     function removeItem(i) { quoteItems.splice(i, 1); renderTable(); }
-    function resetQuote() { if (confirm("초기화하시겠습니까?")) { quoteItems = []; renderTable(); } }
+    
+    function resetQuote() { 
+        if (confirm("견적 내용을 전부 초기화하시겠습니까?")) { 
+            quoteItems = []; 
+            localStorage.removeItem('arthur_quote_data'); 
+            renderTable(); 
+        } 
+    }
 
     function calculateTotals() {
         let subtotal = quoteItems.reduce((sum, item) => sum + (item.qty * item.price), 0);
@@ -410,7 +414,7 @@
         if (specsText) {
             specsText.split(",").forEach(s => {
                 let parts = s.split(":");
-                if (parts.length === 2) specObj[parts[0].trim()] = parts.trim();
+                if (parts.length === 2) specObj[parts[0].trim()] = parts[1].trim();
                 else specObj["요약"] = s.trim();
             });
         }
@@ -433,18 +437,44 @@
     function escapeHtml(text) {
         return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
+
+    function saveLocalData() {
+        const dataToSave = {
+            items: quoteItems,
+            clientCompany: document.getElementById('clientCompany').value,
+            clientBizNo: document.getElementById('clientBizNo').value,
+            clientCEO: document.getElementById('clientCEO').value,
+            clientContact: document.getElementById('clientContact').value,
+            clientEmail: document.getElementById('clientEmail').value,
+            clientProject: document.getElementById('clientProject').value,
+            paymentTerms: document.getElementById('paymentTerms').value,
+            validityPeriod: document.getElementById('validityPeriod').value,
+            deliveryTerms: document.getElementById('deliveryTerms').value,
+            vatType: document.getElementById('vatType').value
+        };
+        localStorage.setItem('arthur_quote_data', JSON.stringify(dataToSave));
+    }
+
+    function loadLocalData() {
+        const savedData = localStorage.getItem('arthur_quote_data');
+        if (savedData) {
+            const parsed = JSON.parse(savedData);
+            quoteItems = parsed.items || [];
+            
+            if(parsed.clientCompany) document.getElementById('clientCompany').value = parsed.clientCompany;
+            if(parsed.clientBizNo) document.getElementById('clientBizNo').value = parsed.clientBizNo;
+            if(parsed.clientCEO) document.getElementById('clientCEO').value = parsed.clientCEO;
+            if(parsed.clientContact) document.getElementById('clientContact').value = parsed.clientContact;
+            if(parsed.clientEmail) document.getElementById('clientEmail').value = parsed.clientEmail;
+            if(parsed.clientProject) document.getElementById('clientProject').value = parsed.clientProject;
+            if(parsed.paymentTerms) document.getElementById('paymentTerms').value = parsed.paymentTerms;
+            if(parsed.validityPeriod) document.getElementById('validityPeriod').value = parsed.validityPeriod;
+            if(parsed.deliveryTerms) document.getElementById('deliveryTerms').value = parsed.deliveryTerms;
+            if(parsed.vatType) document.getElementById('vatType').value = parsed.vatType;
+        }
+        renderTable();
+    }
 </script>
 
 </body>
 </html>
-async function loadCatalog() {
-  try {
-    const res = await fetch('b2b_quotation_data.json');
-    const data = await res.json();
-    renderCatalog(data); // 카탈로그 렌더링 함수
-  } catch (e) {
-    console.error('카탈로그 로딩 실패:', e);
-  }
-}
-
-loadCatalog();
