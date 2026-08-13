@@ -95,7 +95,7 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(3px); z-index: 1000; justify-content: center; align-items: center; }
         .modal-card { background: #ffffff; width: 90%; max-width: 500px; border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; }
-        .modal-header h2 { font-size: 18px; color: var(--primary); font-weight: 700; }
+        .modal-header h2 { font-size: 18px; color: var(--primary); font-weight: 700; transition: color 0.3s; }
         .close-btn { background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; }
         .spec-list { list-style: none; font-size: 13px; }
         .spec-list li { padding: 8px 0; border-bottom: 1px dashed var(--border-color); display: flex; justify-content: space-between; }
@@ -155,15 +155,13 @@
     </div>
 
     <div class="catalog-control-box">
-        <!-- 상단: 카탈로그 장비 등록 영역 -->
         <div class="catalog-add-row">
             <span style="font-size: 13px; color: var(--primary); font-weight: 600;">
-                💡 찾는 장비가 없다면 카탈로그에 먼저 등록하세요.
+                💡 찾는 장비가 없다면 카탈로그에 먼저 등록하거나 수정하세요.
             </span>
-            <button class="btn btn-outline" onclick="openAddCatalogModal()">+ 카탈로그에 새 장비 등록</button>
+            <button class="btn btn-outline" onclick="openAddCatalogModal()">+ 카탈로그 장비 등록 / 수정</button>
         </div>
 
-        <!-- 하단: 3단계 종속 필터링 (품목 -> 브랜드 -> 모델) -->
         <div class="control-row">
             <label>📦 장비 선택:</label>
             <select class="filter-select" id="categoryFilter" onchange="updateBrandFilter()"></select>
@@ -262,28 +260,29 @@
     </div>
 </div>
 
-<!-- 새 장비 등록 팝업 (datalist 적용) -->
+<!-- 카탈로그 장비 등록 / 수정 팝업 -->
 <div class="modal-overlay" id="addCatalogModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h2>신규 장비 카탈로그 등록</h2>
+            <h2>장비 카탈로그 등록 및 수정</h2>
             <button class="close-btn" onclick="closeAddCatalogModal()">&times;</button>
         </div>
         <div>
             <div class="form-group">
                 <label>품목 (Category)</label>
-                <!-- datalist를 활용하여 입력과 선택을 동시에 지원 -->
-                <input type="text" id="newCat" list="modalCatList" placeholder="목록에서 선택하거나 직접 입력하세요">
+                <input type="text" id="newCat" list="modalCatList" placeholder="목록에서 선택하거나 직접 입력하세요" oninput="updateModalFilters()">
                 <datalist id="modalCatList"></datalist>
             </div>
             <div class="form-group">
                 <label>브랜드 (Brand)</label>
-                <input type="text" id="newBrand" list="modalBrandList" placeholder="목록에서 선택하거나 직접 입력하세요">
+                <input type="text" id="newBrand" list="modalBrandList" placeholder="목록에서 선택하거나 직접 입력하세요" oninput="updateModalFilters()">
                 <datalist id="modalBrandList"></datalist>
             </div>
             <div class="form-group">
                 <label>모델 (Model Name)</label>
-                <input type="text" id="newName" placeholder="예: QLXD24/B87A">
+                <!-- 모델명에도 datalist를 연결하여 기존 모델 덮어쓰기가 가능하게 함 -->
+                <input type="text" id="newName" list="modalModelList" placeholder="목록에서 선택(수정)하거나 직접 입력(신규추가)하세요" oninput="checkExistingModel()">
+                <datalist id="modalModelList"></datalist>
             </div>
             <div class="form-group">
                 <label>MSRP (소비자가격)</label>
@@ -296,23 +295,29 @@
         </div>
         <div style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 8px;">
             <button class="btn btn-outline" onclick="closeAddCatalogModal()">취소</button>
-            <button class="btn btn-primary" onclick="saveNewCatalogProduct()">GitHub 서버에 영구 저장</button>
+            <button class="btn btn-primary" id="modalSubmitBtn" onclick="saveNewCatalogProduct()">GitHub 서버에 신규 저장</button>
         </div>
     </div>
 </div>
 
 <script>
+    // ⚙️ [설정] 브랜드별 기본 할인율(%) 세팅
+    // 나중에 할인율이 변경되거나 새로운 브랜드를 추가할 때 여기서 숫자만 바꾸시면 됩니다.
+    const BRAND_DEFAULT_DC = {
+        "Audiocenter": 15,
+        "Shure": 0,    // 예: 슈어가 10%라면 10으로 변경
+        "Yamaha": 0    // 예: 야마하가 20%라면 20으로 변경
+    };
+
     let productCatalog = {};
     let quoteItems = [];
 
-    // 페이지 로드 시 실행
     window.onload = async function() {
         await loadCatalogFromJSON();
-        initDynamicFilters(); // 데이터를 바탕으로 카테고리와 브랜드 동적 추출
+        initDynamicFilters(); 
         loadLocalData();
     };
 
-    // GitHub JSON 파일 가져오기
     async function loadCatalogFromJSON() {
         try {
             const response = await fetch('b2b_quotation_data.json?t=' + new Date().getTime());
@@ -325,29 +330,18 @@
         }
     }
 
-    // JSON 데이터를 분석하여 등록 팝업과 메인 필터 구성
+    // 메인 UI의 필터 설정
     function initDynamicFilters() {
         const categories = new Set();
         const brands = new Set();
 
-        // 전체 카탈로그 스캔
         for (const prod of Object.values(productCatalog)) {
             if (prod.cat) categories.add(prod.cat.trim());
             if (prod.brand) brands.add(prod.brand.trim());
         }
 
-        // 1. 등록 팝업(Modal)용 Datalist 업데이트 (입력+선택 콤보박스)
-        const catDatalist = document.getElementById("modalCatList");
-        const brandDatalist = document.getElementById("modalBrandList");
-        catDatalist.innerHTML = "";
-        brandDatalist.innerHTML = "";
-        
-        categories.forEach(c => catDatalist.innerHTML += `<option value="${escapeHtml(c)}">`);
-        brands.forEach(b => brandDatalist.innerHTML += `<option value="${escapeHtml(b)}">`);
-
-        // 2. 메인 화면 최상위 '품목(Category)' 필터 업데이트
         const catFilter = document.getElementById("categoryFilter");
-        const currentCat = catFilter.value; // 기존 선택값 기억
+        const currentCat = catFilter.value; 
         
         catFilter.innerHTML = `<option value="ALL">전체 품목</option>`;
         categories.forEach(c => {
@@ -355,19 +349,15 @@
         });
         
         catFilter.value = currentCat && categories.has(currentCat) ? currentCat : "ALL";
-        
-        // 카테고리가 세팅되었으니 브랜드 필터 갱신 로직 호출
         updateBrandFilter();
     }
 
-    // 선택된 품목(Category)에 따라 '브랜드(Brand)' 필터의 목록을 변경
     function updateBrandFilter() {
         const selectedCat = document.getElementById("categoryFilter").value;
         const brandFilter = document.getElementById("brandFilter");
         const currentBrand = brandFilter.value;
 
         const filteredBrands = new Set();
-        
         for (const prod of Object.values(productCatalog)) {
             if (selectedCat === "ALL" || prod.cat === selectedCat) {
                 if (prod.brand) filteredBrands.add(prod.brand.trim());
@@ -379,14 +369,10 @@
             brandFilter.innerHTML += `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`;
         });
 
-        // 이전에 선택했던 브랜드가 현재 필터된 목록에 있으면 유지, 없으면 전체로 초기화
         brandFilter.value = currentBrand && filteredBrands.has(currentBrand) ? currentBrand : "ALL";
-
-        // 필터 조건이 바뀌었으므로 최종 장비(모델) 목록 갱신
         filterCatalog();
     }
 
-    // 품목 + 브랜드 + 모델명 검색어를 종합하여 최종 모델 선택 드롭다운 갱신
     function filterCatalog() {
         const cat = document.getElementById("categoryFilter").value;
         const brand = document.getElementById("brandFilter").value;
@@ -400,7 +386,6 @@
             const matchBrand = (brand === "ALL" || prod.brand === brand);
             const matchSearch = (prod.name.toLowerCase().includes(searchKeyword));
 
-            // 세 가지 조건을 모두 만족하는 장비만 표시
             if (matchCat && matchBrand && matchSearch) {
                 const opt = document.createElement("option");
                 opt.value = key;
@@ -450,8 +435,25 @@
         const select = document.getElementById("productSelect");
         const key = select.value;
         if (!key || !productCatalog[key]) return;
+        
         const prod = productCatalog[key];
-        quoteItems.push({ cat: prod.cat, brand: prod.brand, name: prod.name, qty: 1, msrp: prod.price, dcRate: 0, price: prod.price, specs: prod.specs });
+        
+        // 설정된 브랜드 할인율 찾기 (설정 목록에 없으면 0%)
+        const defaultDc = BRAND_DEFAULT_DC[prod.brand.trim()] || 0;
+        
+        // 할인율을 즉시 적용하여 실제 공급 단가 계산
+        const discountedPrice = Math.round(prod.price * (1 - (defaultDc / 100)));
+
+        quoteItems.push({ 
+            cat: prod.cat, 
+            brand: prod.brand, 
+            name: prod.name, 
+            qty: 1, 
+            msrp: prod.price, 
+            dcRate: defaultDc,  // 자동 세팅된 할인율
+            price: discountedPrice, // 자동 세팅된 공급단가
+            specs: prod.specs 
+        });
         renderTable();
     }
 
@@ -500,16 +502,111 @@
 
     function closeModal() { document.getElementById("specModal").style.display = "none"; }
     
+    /* === 팝업창 모달 필터 및 자동완성 로직 시작 === */
     function openAddCatalogModal() { 
         document.getElementById("newCat").value = "";
         document.getElementById("newBrand").value = "";
         document.getElementById("newName").value = "";
         document.getElementById("newPrice").value = "";
         document.getElementById("newSpecs").value = "";
+        
+        // 모달 열 때 전체 카테고리 목록을 datalist에 주입
+        const catDatalist = document.getElementById("modalCatList");
+        catDatalist.innerHTML = "";
+        const cats = new Set();
+        for (const prod of Object.values(productCatalog)) {
+            if (prod.cat) cats.add(prod.cat.trim());
+        }
+        cats.forEach(c => catDatalist.innerHTML += `<option value="${escapeHtml(c)}">`);
+        
+        updateModalFilters(); // 브랜드와 모델 목록 연동
+        
+        document.querySelector("#addCatalogModal h2").innerText = "신규 장비 카탈로그 등록";
+        document.querySelector("#addCatalogModal h2").style.color = "var(--primary)";
+        document.getElementById("modalSubmitBtn").innerText = "GitHub 서버에 신규 저장";
+        
         document.getElementById("addCatalogModal").style.display = "flex"; 
     }
     
     function closeAddCatalogModal() { document.getElementById("addCatalogModal").style.display = "none"; }
+
+    // 모달창 내부에서 품목이나 브랜드를 입력/선택할 때 하위 목록을 갱신하는 함수
+    function updateModalFilters() {
+        const cat = document.getElementById("newCat").value.trim();
+        const brand = document.getElementById("newBrand").value.trim();
+        
+        const brandDatalist = document.getElementById("modalBrandList");
+        const modelDatalist = document.getElementById("modalModelList");
+        
+        brandDatalist.innerHTML = "";
+        modelDatalist.innerHTML = "";
+
+        const brands = new Set();
+        const models = new Set();
+
+        for (const prod of Object.values(productCatalog)) {
+            // 브랜드 목록은 선택된 품목에 종속됨
+            if (!cat || prod.cat.trim() === cat) {
+                if (prod.brand) brands.add(prod.brand.trim());
+                // 모델 목록은 선택된 품목과 브랜드에 모두 종속됨
+                if (!brand || prod.brand.trim() === brand) {
+                    if (prod.name) models.add(prod.name.trim());
+                }
+            }
+        }
+
+        brands.forEach(b => brandDatalist.innerHTML += `<option value="${escapeHtml(b)}">`);
+        models.forEach(m => modelDatalist.innerHTML += `<option value="${escapeHtml(m)}">`);
+        
+        checkExistingModel(); // 입력값 변경 시 기존 모델인지 확인
+    }
+
+    // 모델명을 입력/선택했을 때, 기존 데이터베이스에 존재하는 장비인지 확인하여 폼을 덮어쓰기 모드로 변경
+    function checkExistingModel() {
+        const cat = document.getElementById("newCat").value.trim();
+        const brand = document.getElementById("newBrand").value.trim();
+        const name = document.getElementById("newName").value.trim();
+        const modalTitle = document.querySelector("#addCatalogModal h2");
+        const submitBtn = document.getElementById("modalSubmitBtn");
+        
+        if (!name) {
+            modalTitle.innerText = "신규 장비 카탈로그 등록";
+            modalTitle.style.color = "var(--primary)";
+            submitBtn.innerText = "GitHub 서버에 신규 저장";
+            submitBtn.classList.replace("btn-dark", "btn-primary");
+            return;
+        }
+
+        for (const prod of Object.values(productCatalog)) {
+            if (prod.cat.trim() === cat && prod.brand.trim() === brand && prod.name.trim() === name) {
+                // 기존 데이터가 존재하면 가격과 스펙을 불러와 덮어씌움 (Auto-fill)
+                document.getElementById("newPrice").value = prod.price;
+                
+                let specArr = [];
+                if (prod.specs) {
+                    for (const [k, v] of Object.entries(prod.specs)) {
+                        if (k !== "브랜드") {
+                            if (k === "요약") specArr.push(v);
+                            else specArr.push(`${k}: ${v}`);
+                        }
+                    }
+                }
+                document.getElementById("newSpecs").value = specArr.join(", ");
+                
+                modalTitle.innerText = "카탈로그 장비 수정 (기존 데이터 덮어쓰기)";
+                modalTitle.style.color = "#ef4444"; // 수정 모드임을 시각적으로 강조
+                submitBtn.innerText = "GitHub 서버에 수정(Update) 저장";
+                submitBtn.classList.replace("btn-primary", "btn-dark");
+                return;
+            }
+        }
+        
+        // 일치하는 기존 데이터가 없으면 다시 신규 등록 모드로 전환
+        modalTitle.innerText = "신규 장비 카탈로그 등록";
+        modalTitle.style.color = "var(--primary)";
+        submitBtn.innerText = "GitHub 서버에 신규 저장";
+        submitBtn.classList.replace("btn-dark", "btn-primary");
+    }
 
     // GitHub API를 통해 JSON 파일을 직접 덮어쓰고, 필터 목록을 갱신하는 함수
     async function saveNewCatalogProduct() {
@@ -534,7 +631,18 @@
             localStorage.setItem('arthur_github_token', githubToken);
         }
 
-        const key = "CAT_" + Date.now();
+        // 기존 데이터베이스에서 고유 키(Key) 찾기
+        let targetKey = "CAT_" + Date.now(); // 기본값: 신규 생성
+        let isUpdate = false;
+        
+        for (const [k, prod] of Object.entries(productCatalog)) {
+            if (prod.cat.trim() === cat && prod.brand.trim() === brand && prod.name.trim() === name) {
+                targetKey = k; // 기존 키를 찾아내어 덮어쓰기 준비
+                isUpdate = true;
+                break;
+            }
+        }
+
         let specObj = { "브랜드": brand };
         if (specsText) {
             specsText.split(",").forEach(s => {
@@ -544,8 +652,8 @@
             });
         }
         
-        // 메모리 상의 DB 업데이트
-        productCatalog[key] = { cat: cat, brand: brand, name: name, price: price, specs: specObj };
+        // 메모리 상의 DB 업데이트 (신규 추가 또는 덮어쓰기)
+        productCatalog[targetKey] = { cat: cat, brand: brand, name: name, price: price, specs: specObj };
 
         const owner = "wnvl87";
         const repo = "estimate";
@@ -553,9 +661,9 @@
         const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
 
         try {
-            const saveBtn = document.querySelector("#addCatalogModal .btn-primary");
+            const saveBtn = document.getElementById("modalSubmitBtn");
             const originalBtnText = saveBtn.innerText;
-            saveBtn.innerText = "GitHub에 저장 중...";
+            saveBtn.innerText = "GitHub에 통신 중...";
             saveBtn.disabled = true;
 
             let fileSha = "";
@@ -570,11 +678,16 @@
 
             const updatedJsonStr = JSON.stringify(productCatalog, null, 2);
             const base64Content = btoa(unescape(encodeURIComponent(updatedJsonStr)));
+            
+            // 신규 등록인지 수정인지에 따라 커밋 메시지 구분
+            const commitMessage = isUpdate 
+                ? `카탈로그 장비 수정: [${cat}] - [${brand}] ${name}` 
+                : `신규 카탈로그 등록: [${cat}] - [${brand}] ${name}`;
 
             const putResponse = await fetch(apiUrl, {
                 method: "PUT",
                 headers: { "Authorization": `Bearer ${githubToken}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ message: `신규 카탈로그 등록: [${cat}] - [${brand}] ${name}`, content: base64Content, sha: fileSha || undefined })
+                body: JSON.stringify({ message: commitMessage, content: base64Content, sha: fileSha || undefined })
             });
 
             if (!putResponse.ok) throw new Error("GitHub 저장소 업데이트에 실패했습니다.");
@@ -582,17 +695,16 @@
             saveBtn.innerText = originalBtnText;
             saveBtn.disabled = false;
             
-            // 데이터가 새로 추가되었으므로 필터 목록(Category, Brand) 재구축
-            initDynamicFilters(); 
+            initDynamicFilters(); // 데이터가 변경되었으므로 메인 UI 필터 재구축
             
             closeAddCatalogModal();
-            alert(`[${brand}] ${name} 장비가 성공적으로 등록되었습니다!\n\n새로운 품목이나 브랜드라면 필터 목록에도 자동 추가됩니다.`);
+            alert(isUpdate ? `[${brand}] ${name} 장비의 데이터가 성공적으로 수정(덮어쓰기)되었습니다.` : `[${brand}] ${name} 장비가 성공적으로 신규 등록되었습니다.`);
 
         } catch (error) {
             console.error(error);
             alert("오류 발생: " + error.message);
-            const saveBtn = document.querySelector("#addCatalogModal .btn-primary");
-            saveBtn.innerText = "GitHub 서버에 영구 저장";
+            const saveBtn = document.getElementById("modalSubmitBtn");
+            saveBtn.innerText = "GitHub 서버에 저장";
             saveBtn.disabled = false;
         }
     }
