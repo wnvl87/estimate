@@ -147,32 +147,6 @@
         </div>
     </div>
 
-    <div class="b2b-terms-bar">
-        <div>
-            <label>💳 결제 조건</label>
-            <select id="paymentTerms" onchange="saveLocalData()">
-                <option value="발주 시 현금 완불">발주 시 현금 완불 (선입금)</option>
-                <option value="계약금 50%, 출고 전 50%">계약금 50%, 출고 전 50%</option>
-                <option value="납품 후 익월 말 정산">납품 후 익월 말 정산 (여신 거래)</option>
-            </select>
-        </div>
-        <div>
-            <label>⏱️ 견적 유효기간</label>
-            <input type="text" value="견적일로부터 30일" id="validityPeriod" onchange="saveLocalData()">
-        </div>
-        <div>
-            <label>🚚 인도 / 납품 조건</label>
-            <input type="text" value="화물/택배 (현장 하도급 설치)" id="deliveryTerms" onchange="saveLocalData()">
-        </div>
-        <div>
-            <label>🧾 부가세 구분</label>
-            <select id="vatType" onchange="calculateTotals(); saveLocalData();">
-                <option value="EXCLUDE">VAT 별도 (10% 계산)</option>
-                <option value="INCLUDE">VAT 포함가</option>
-            </select>
-        </div>
-    </div>
-
     <div class="catalog-control-box">
         <div class="control-row">
             <label>📦 장비 선택:</label>
@@ -227,6 +201,32 @@
                 <tr><td class="label">부가세 (VAT 10%):</td><td id="vatVal">0 원</td></tr>
                 <tr class="total-row"><td class="label">최종 합계금액:</td><td id="totalVal">0 원</td></tr>
             </table>
+        </div>
+    </div>
+
+    <div class="b2b-terms-bar">
+        <div>
+            <label>💳 결제 조건</label>
+            <select id="paymentTerms" onchange="saveLocalData()">
+                <option value="발주 시 현금 완불">발주 시 현금 완불 (선입금)</option>
+                <option value="계약금 50%, 출고 전 50%">계약금 50%, 출고 전 50%</option>
+                <option value="납품 후 익월 말 정산">납품 후 익월 말 정산 (여신 거래)</option>
+            </select>
+        </div>
+        <div>
+            <label>⏱️ 견적 유효기간</label>
+            <input type="text" value="견적일로부터 30일" id="validityPeriod" onchange="saveLocalData()">
+        </div>
+        <div>
+            <label>🚚 인도 / 납품 조건</label>
+            <input type="text" value="화물/택배 (현장 하도급 설치)" id="deliveryTerms" onchange="saveLocalData()">
+        </div>
+        <div>
+            <label>🧾 부가세 구분</label>
+            <select id="vatType" onchange="calculateTotals(); saveLocalData();">
+                <option value="EXCLUDE">VAT 별도 (10% 계산)</option>
+                <option value="INCLUDE">VAT 포함가</option>
+            </select>
         </div>
     </div>
 
