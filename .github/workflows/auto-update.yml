@@ -1,0 +1,26 @@
+name: Auto Update Catalog
+
+on:
+  workflow_dispatch:  # 수동 실행 버튼
+  schedule:
+    - cron: '0 0 * * *'  # 매일 00시에 자동 실행
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Update JSON
+        run: |
+          echo '{ "updated": "true", "time": "'$(date)'" }' > b2b_quotation_data.json
+
+      - name: Commit and Push changes
+        run: |
+          git config user.name "dongjoo"
+          git config user.email "you@example.com"
+          git add .
+          git commit -m "Auto update catalog"
+          git push
