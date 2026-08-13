@@ -1,14 +1,4 @@
 {
-  "1": {
-    "cat": "Power Amp",
-    "brand": "AudioCenter",
-    "name": "UTA902DSP",
-    "price": 620500,
-    "specs": {
-      "브랜드": "AudioCenter",
-      "요약": "2채널 DSP Class D앰프  2 x 500W@ 8Ω Stereo  2 x 900W@ 4Ω Stereo  2 x 900W@ 2Ω Stereo"
-    }
-  },
   "CAT_1786612572131": {
     "cat": "스피커",
     "brand": "AudioCenter",
