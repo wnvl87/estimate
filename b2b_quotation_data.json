@@ -1,0 +1,28 @@
+[
+  {
+    "cat": "AUDIOCENTER",
+    "brand": "AudioCenter",
+    "name": "DS06",
+    "qty": 2,
+    "msrp": 620000,
+    "dcRate": 15,
+    "price": 527000,
+    "specs": {
+      "브랜드": "AudioCenter",
+      "요약": "6인치 패시브 풀 레인지 스피커  Rated power(AES) : 100W  Impendance: 8Ω  Max SPL: 118dB"
+    }
+  },
+  {
+    "cat": "AUDIOCENTER",
+    "brand": "AudioCenter",
+    "name": "UTA902DSP",
+    "qty": 1,
+    "msrp": 730000,
+    "dcRate": 15,
+    "price": 620500,
+    "specs": {
+      "브랜드": "AudioCenter",
+      "요약": "2채널 DSP Class D앰프  2 x 500W@ 8Ω Stereo  2 x 900W@ 4Ω Stereo  2 x 900W@ 2Ω Stereo"
+    }
+  }
+]
