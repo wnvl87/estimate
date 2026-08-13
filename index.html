@@ -41,6 +41,7 @@
 
         /* Product Selector Controls */
         .catalog-control-box { background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 18px; margin-bottom: 25px; }
+        .catalog-add-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px; margin-bottom: 15px; }
         .control-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
         .control-row:last-child { margin-bottom: 0; }
         .control-row label { font-size: 13px; font-weight: 700; width: 110px; color: var(--primary); }
@@ -74,7 +75,7 @@
         .input-dc { width: 50px; text-align: center; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; }
 
         /* Summary Section */
-        .summary-wrapper { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .summary-wrapper { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
         .bank-info-box { width: 55%; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; background: #fafafa; font-size: 12px; }
         .bank-info-box h4 { font-size: 13px; color: var(--primary); margin-bottom: 8px; }
         .bank-info-box p { color: var(--text-muted); line-height: 1.6; }
@@ -90,12 +91,16 @@
 
         /* Spec Modal Popup */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(3px); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-card { background: #ffffff; width: 90%; max-width: 550px; border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+        .modal-card { background: #ffffff; width: 90%; max-width: 500px; border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; }
         .modal-header h2 { font-size: 18px; color: var(--primary); }
         .close-btn { background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; }
         .spec-list { list-style: none; font-size: 13px; }
         .spec-list li { padding: 8px 0; border-bottom: 1px dashed var(--border-color); display: flex; justify-content: space-between; }
+        
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-weight: 600; color: var(--primary); font-size: 13px; margin-bottom: 4px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; }
 
         /* Print CSS */
         @media print {
@@ -127,11 +132,11 @@
             <table class="info-table">
                 <tr><td class="label">상 호 명</td><td>주식회사 아더 (ARTHUR Co., Ltd.)</td></tr>
                 <tr><td class="label">사업자번호</td><td>419-88-03010</td></tr>
-                <tr><td class="label">대 표 자</td><td>김상복</td></tr>
+                <tr><td class="label">대 표 자</td><td>김상복 / 최동주</td></tr>
                 <tr><td class="label">업태 / 종목</td><td>제조, 도소매 / 음향, 영상, 조명장비</td></tr>
                 <tr><td class="label">사업장주소</td><td>경기 시흥시 매화산단로 95, 215호</td></tr>
                 <tr><td class="label">담당 / 연락처</td><td>최동주 이사 (010-9773-8904)</td></tr>
-                <tr><td class="label">이 메 일</td><td>wnvl87@arthur25.com</td></tr>
+                <tr><td class="label">이 메 일</td><td>wnvl87@gmail.com / wnvl87@arthur25.com</td></tr>
             </table>
         </div>
         <div class="info-card">
@@ -148,6 +153,15 @@
     </div>
 
     <div class="catalog-control-box">
+        <!-- 상단: 카탈로그 장비 등록 영역 -->
+        <div class="catalog-add-row">
+            <span style="font-size: 13px; color: var(--primary); font-weight: 600;">
+                💡 찾는 장비가 없다면 카탈로그에 먼저 등록하세요.
+            </span>
+            <button class="btn btn-outline" onclick="openAddCatalogModal()">+ 카탈로그에 새 장비 등록</button>
+        </div>
+
+        <!-- 하단: 장비 선택 및 견적 추가 영역 -->
         <div class="control-row">
             <label>📦 장비 선택:</label>
             <select class="select-category" id="categoryFilter" onchange="filterCatalog()">
@@ -162,10 +176,7 @@
             <button class="btn btn-primary" onclick="addSelectedProduct()">+ 견적 추가</button>
         </div>
         <div class="control-row" style="margin-top: 12px; justify-content: space-between;">
-            <div style="display: flex; gap: 8px;">
-                <button class="btn btn-outline" onclick="addCustomRow()">+ 수동 항목 추가</button>
-                <button class="btn btn-outline" onclick="openAddCatalogModal()">+ 카탈로그에 새 장비 추가</button>
-            </div>
+            <button class="btn btn-outline" onclick="addCustomRow()">+ 일회성 수동 항목 추가</button>
             <span style="font-size: 12px; color: var(--text-muted);">💡 모델명을 클릭하면 상세 스펙 팝업이 표시됩니다.</span>
         </div>
     </div>
@@ -239,6 +250,7 @@
     </div>
 </div>
 
+<!-- 상세 스펙 팝업 -->
 <div class="modal-overlay" id="specModal">
     <div class="modal-card">
         <div class="modal-header">
@@ -252,16 +264,17 @@
     </div>
 </div>
 
+<!-- 새 장비 등록 팝업 -->
 <div class="modal-overlay" id="addCatalogModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h2>카탈로그에 새 장비 등록</h2>
+            <h2>신규 장비 카탈로그 등록</h2>
             <button class="close-btn" onclick="closeAddCatalogModal()">&times;</button>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px;">
-            <div>
-                <label>카테고리:</label>
-                <select id="newCat" style="width:100%; padding:6px; margin-top:4px;">
+        <div>
+            <div class="form-group">
+                <label>품목 (Category)</label>
+                <select id="newCat">
                     <option value="AUDIOCENTER">Audiocenter 스피커</option>
                     <option value="MIXER_DSP">믹서 & DSP 프로세서</option>
                     <option value="MIC_SYSTEM">무선/유선 마이크</option>
@@ -269,14 +282,26 @@
                     <option value="INSTALL_ENGINEERING">설치 자재 & 인건비</option>
                 </select>
             </div>
-            <div><label>브랜드:</label><input type="text" id="newBrand" placeholder="예: Audiocenter, Shure, Canare" style="width:100%; padding:6px; margin-top:4px;"></div>
-            <div><label>품명 및 모델명:</label><input type="text" id="newName" placeholder="예: Audiocenter Artist T45-DSP" style="width:100%; padding:6px; margin-top:4px;"></div>
-            <div><label>권장 소비자가 (MSRP):</label><input type="number" id="newPrice" placeholder="원 단위 금액" style="width:100%; padding:6px; margin-top:4px;"></div>
-            <div><label>주요 스펙 요약 (쉼표로 구분):</label><input type="text" id="newSpecs" placeholder="예: 주파수: 55Hz-20kHz, RMS: 1400W, Max SPL: 133dB" style="width:100%; padding:6px; margin-top:4px;"></div>
+            <div class="form-group">
+                <label>브랜드 (Brand)</label>
+                <input type="text" id="newBrand" placeholder="예: Shure, Yamaha, Canare">
+            </div>
+            <div class="form-group">
+                <label>모델 (Model Name)</label>
+                <input type="text" id="newName" placeholder="예: QLXD24/B87A">
+            </div>
+            <div class="form-group">
+                <label>MSRP (소비자가격)</label>
+                <input type="number" id="newPrice" placeholder="숫자만 입력 (예: 1850000)">
+            </div>
+            <div class="form-group">
+                <label>스펙 요약 (선택사항 - 쉼표로 구분)</label>
+                <input type="text" id="newSpecs" placeholder="예: 주파수: 900MHz, 특징: 디지털 무선">
+            </div>
         </div>
-        <div style="margin-top: 20px; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+        <div style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 8px;">
             <button class="btn btn-outline" onclick="closeAddCatalogModal()">취소</button>
-            <button class="btn btn-primary" onclick="saveNewCatalogProduct()">등록하기</button>
+            <button class="btn btn-primary" onclick="saveNewCatalogProduct()">카탈로그에 저장</button>
         </div>
     </div>
 </div>
@@ -355,7 +380,7 @@
     }
 
     function addCustomRow() {
-        const customName = prompt("품명 및 모델명을 입력하세요:");
+        const customName = prompt("일회성으로 추가할 품명 및 모델명을 입력하세요:");
         if (!customName) return;
         const customPrice = parseInt(prompt("공급 단가(원):", "500000")) || 0;
         quoteItems.push({ cat: "CUSTOM", brand: "기타", name: customName, qty: 1, msrp: customPrice, dcRate: 0, price: customPrice, specs: { "비고": "수동 입력 장비" } });
@@ -398,7 +423,16 @@
     }
 
     function closeModal() { document.getElementById("specModal").style.display = "none"; }
-    function openAddCatalogModal() { document.getElementById("addCatalogModal").style.display = "flex"; }
+    
+    function openAddCatalogModal() { 
+        // 모달창을 열 때 입력 필드 초기화
+        document.getElementById("newBrand").value = "";
+        document.getElementById("newName").value = "";
+        document.getElementById("newPrice").value = "";
+        document.getElementById("newSpecs").value = "";
+        document.getElementById("addCatalogModal").style.display = "flex"; 
+    }
+    
     function closeAddCatalogModal() { document.getElementById("addCatalogModal").style.display = "none"; }
 
     function saveNewCatalogProduct() {
@@ -407,7 +441,11 @@
         const name = document.getElementById("newName").value.trim();
         const price = parseInt(document.getElementById("newPrice").value) || 0;
         const specsText = document.getElementById("newSpecs").value.trim();
-        if (!name) return;
+        
+        if (!name) {
+            alert("모델(Model Name)은 필수 입력 항목입니다.");
+            return;
+        }
 
         const key = "CAT_" + Date.now();
         let specObj = { "브랜드": brand };
@@ -419,9 +457,10 @@
             });
         }
         productCatalog[key] = { cat: cat, brand: brand, name: name, price: price, specs: specObj };
+        
         filterCatalog();
         closeAddCatalogModal();
-        alert(`[${brand}] ${name} 장비가 카탈로그에 추가되었습니다.`);
+        alert(`[${brand}] ${name} 장비가 카탈로그에 성공적으로 등록되었습니다.`);
     }
 
     function exportDataJSON() {
