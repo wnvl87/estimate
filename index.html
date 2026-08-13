@@ -2,9 +2,9 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>B2B 스마트 견적 관리 시스템</title>
+    <title>B2B 스마트 견적 시스템</title>
     <style>
-        :root { --primary: #0f172a; --primary-accent: #2563eb; --bg-gray: #f1f5f9; --border-color: #cbd5e1; --text-main: #1e293b; --text-muted: #64748b; }
+        :root { --primary: #0f172a; --primary-accent: #2563eb; --bg-gray: #f1f5f9; --border-color: #cbd5e1; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
         body { background-color: var(--bg-gray); padding: 50px 20px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 1100px; background: #ffffff; border-radius: 12px; padding: 40px; position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
@@ -15,18 +15,12 @@
         .page-section { display: none; }
         .page-section.active-page { display: block; }
         
-        /* 견적서/카탈로그 공통 */
-        .header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
         .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
-        .items-table th { background: #f1f5f9; padding: 12px; border-bottom: 2px solid var(--border-color); }
+        .items-table th { background: #f1f5f9; padding: 12px; border-bottom: 2px solid var(--border-color); text-align: left; }
         .items-table td { padding: 12px; border-bottom: 1px solid var(--border-color); }
-        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
-        .btn-primary { background: var(--primary-accent); color: white; }
-        .modal-overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.6); z-index:1000; justify-content: center; align-items: center; }
-        .modal-card { background: #fff; width: 500px; border-radius: 12px; padding: 25px; }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; background: var(--primary-accent); color: white; }
         .signature-section { margin-top: 40px; text-align: right; border-top: 2px solid var(--primary); padding-top: 20px; }
-        .sign-stamp { display: inline-block; width: 45px; height: 45px; border: 2px solid #dc2626; border-radius: 50%; color: #dc2626; text-align: center; line-height: 41px; font-weight: 800; }
-        @media print { .bookmark-tabs, .btn, .catalog-control-box, .actions-bar { display: none !important; } }
+        .sign-stamp { display: inline-block; width: 45px; height: 45px; border: 2px solid #dc2626; border-radius: 50%; color: #dc2626; text-align: center; line-height: 41px; font-weight: 800; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -37,34 +31,35 @@
         <button class="tab-btn" id="tabCatalog" onclick="switchPage('catalog')">📦 카탈로그 관리</button>
     </div>
 
-    <!-- 견적서 페이지 -->
-    <div class="page-section active-page" id="pageQuote">
+    <div class="page-section active-page" id="page-quote">
         <div class="header"><h1>B2B 사업자 견 적 서</h1></div>
-        <table class="items-table" id="quotationItems"></table>
+        <table class="items-table" id="quotationItems">
+            <thead><tr><th>품목</th><th>모델명</th><th>수량</th><th>공급단가</th></tr></thead>
+            <tbody></tbody>
+        </table>
         <div class="signature-section">
             <div style="font-size: 18px; font-weight: 800;">주식회사 아더 (ARTHUR Co., Ltd.)</div>
             <div style="font-size: 16px; margin-top: 10px;">대표이사 김 상 복 <span class="sign-stamp">(인)</span></div>
         </div>
-        <button class="btn btn-primary" onclick="window.print()">🖨️ 인쇄/PDF</button>
+        <button class="btn" onclick="window.print()">🖨️ 인쇄/PDF</button>
     </div>
 
-    <!-- 카탈로그 페이지 -->
-    <div class="page-section" id="pageCatalog">
+    <div class="page-section" id="page-catalog">
         <div class="header"><h1>장비 카탈로그 관리</h1></div>
         <div style="margin-bottom:20px;">
-            <button class="btn" onclick="exportCatalogCSV()">📥 CSV 다운로드</button>
-            <button class="btn btn-primary" onclick="document.getElementById('csvFile').click()">📤 일괄 업로드</button>
+            <button class="btn" onclick="document.getElementById('csvFile').click()">📤 일괄 업로드</button>
             <input type="file" id="csvFile" style="display:none" onchange="importCatalogCSV(event)">
         </div>
-        <table class="items-table" id="catalogTableBody"></table>
+        <table class="items-table" id="catalogTableBody">
+            <thead><tr><th>품목</th><th>브랜드</th><th>모델명</th><th>가격</th></tr></thead>
+            <tbody></tbody>
+        </table>
     </div>
 </div>
 
 <script>
-    const BRAND_DEFAULT_DC = { "Audiocenter": 15, "Shure": 0, "Yamaha": 0 };
-    let productCatalog = {}, quoteItems = [];
+    let productCatalog = {};
 
-    // 페이지 전환
     function switchPage(p) {
         document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active-page'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -73,38 +68,27 @@
         if(p === 'catalog') renderCatalogTable();
     }
 
-    // 할인율 로직 (대소문자 무시)
-    function getDiscountRate(brand) {
-        const b = (brand || "").trim().toLowerCase();
-        const settings = Object.keys(BRAND_DEFAULT_DC).reduce((acc, k) => ({...acc, [k.toLowerCase()]: BRAND_DEFAULT_DC[k]}), {});
-        return settings[b] || 0;
-    }
-
-    // 로딩 및 초기화
-    window.onload = async () => {
+    async function init() {
         const local = localStorage.getItem('arthur_local_custom_catalog');
         if (local) productCatalog = JSON.parse(local);
-        
         try {
             const res = await fetch('b2b_quotation_data.json?t=' + Date.now());
             if (res.ok) {
                 productCatalog = await res.json();
                 localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
             }
-        } catch (e) { console.error("서버 연결 실패, 로컬 데이터 사용"); }
+        } catch(e) { console.error("서버 데이터 로드 실패"); }
         renderCatalogTable();
-    };
+    }
 
-    // 카탈로그 테이블 렌더링
     function renderCatalogTable() {
-        const tbody = document.getElementById('catalogTableBody');
-        tbody.innerHTML = `<tr><th>품목</th><th>브랜드</th><th>모델명</th><th>소비자가</th></tr>`;
+        const tbody = document.querySelector('#catalogTableBody tbody');
+        tbody.innerHTML = "";
         for (const [key, prod] of Object.entries(productCatalog)) {
             tbody.innerHTML += `<tr><td>${prod.cat}</td><td>${prod.brand}</td><td>${prod.name}</td><td>₩${prod.price.toLocaleString()}</td></tr>`;
         }
     }
 
-    // CSV 업로드
     function importCatalogCSV(event) {
         const file = event.target.files[0];
         const reader = new FileReader();
@@ -112,16 +96,16 @@
             e.target.result.split('\n').forEach((line, i) => {
                 if (i === 0 || !line.trim()) return;
                 const [cat, brand, name, price] = line.split(',');
-                productCatalog["CAT_" + Date.now() + i] = { cat, brand, name, price: parseInt(price), specs: {} };
+                productCatalog["CAT_" + Date.now() + i] = { cat, brand, name, price: parseInt(price) };
             });
             localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
-            alert("카탈로그 업데이트 완료");
+            alert("업로드 완료");
             renderCatalogTable();
         };
         reader.readAsText(file);
     }
-
-    function exportCatalogCSV() { /* CSV 다운로드 로직 */ }
+    
+    init();
 </script>
 </body>
 </html>
