@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B2B 전문 스마트 견적 시스템 (Audiocenter & Pro Audio)</title>
+    <title>B2B 전문 스마트 견적 시스템</title>
     <style>
         :root {
             --primary: #0f172a;
@@ -16,7 +16,7 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg-gray); color: var(--text-main); padding: 30px 15px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 1050px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); padding: 40px; }
+        .container { width: 100%; max-width: 1100px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); padding: 40px; }
 
         /* Header */
         .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
@@ -42,14 +42,16 @@
         /* Product Selector Controls */
         .catalog-control-box { background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 18px; margin-bottom: 25px; }
         .catalog-add-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px; margin-bottom: 15px; }
-        .control-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .control-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
         .control-row:last-child { margin-bottom: 0; }
-        .control-row label { font-size: 13px; font-weight: 700; width: 110px; color: var(--primary); }
+        .control-row label { font-size: 13px; font-weight: 700; min-width: 80px; color: var(--primary); }
         .control-row select, .control-row input { padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #fff; }
-        .select-category { width: 160px; }
-        .select-product { flex: 1; }
+        
+        .filter-select { width: 140px; }
+        .search-input { width: 140px; }
+        .select-product { flex: 1; min-width: 200px; }
 
-        .btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
         .btn-primary { background-color: var(--primary-accent); color: white; }
         .btn-primary:hover { background-color: #1d4ed8; }
         .btn-dark { background-color: var(--primary); color: white; }
@@ -93,14 +95,14 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(3px); z-index: 1000; justify-content: center; align-items: center; }
         .modal-card { background: #ffffff; width: 90%; max-width: 500px; border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; }
-        .modal-header h2 { font-size: 18px; color: var(--primary); }
+        .modal-header h2 { font-size: 18px; color: var(--primary); font-weight: 700; }
         .close-btn { background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; }
         .spec-list { list-style: none; font-size: 13px; }
         .spec-list li { padding: 8px 0; border-bottom: 1px dashed var(--border-color); display: flex; justify-content: space-between; }
         
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-weight: 600; color: var(--primary); font-size: 13px; margin-bottom: 4px; }
-        .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-weight: 700; color: var(--primary); font-size: 13px; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; }
 
         /* Print CSS */
         @media print {
@@ -132,11 +134,11 @@
             <table class="info-table">
                 <tr><td class="label">상 호 명</td><td>주식회사 아더 (ARTHUR Co., Ltd.)</td></tr>
                 <tr><td class="label">사업자번호</td><td>419-88-03010</td></tr>
-                <tr><td class="label">대 표 자</td><td>김상복 / 최동주</td></tr>
+                <tr><td class="label">대 표 자</td><td>김상복</td></tr>
                 <tr><td class="label">업태 / 종목</td><td>제조, 도소매 / 음향, 영상, 조명장비</td></tr>
                 <tr><td class="label">사업장주소</td><td>경기 시흥시 매화산단로 95, 215호</td></tr>
                 <tr><td class="label">담당 / 연락처</td><td>최동주 이사 (010-9773-8904)</td></tr>
-                <tr><td class="label">이 메 일</td><td>wnvl87@gmail.com / wnvl87@arthur25.com</td></tr>
+                <tr><td class="label">이 메 일</td><td>wnvl87@arthur25.com</td></tr>
             </table>
         </div>
         <div class="info-card">
@@ -161,19 +163,13 @@
             <button class="btn btn-outline" onclick="openAddCatalogModal()">+ 카탈로그에 새 장비 등록</button>
         </div>
 
-        <!-- 하단: 장비 선택 및 견적 추가 영역 -->
+        <!-- 하단: 3단계 종속 필터링 (품목 -> 브랜드 -> 모델) -->
         <div class="control-row">
             <label>📦 장비 선택:</label>
-            <select class="select-category" id="categoryFilter" onchange="filterCatalog()">
-                <option value="ALL">전체 카테고리</option>
-                <option value="AUDIOCENTER">Audiocenter 스피커</option>
-                <option value="MIXER_DSP">믹서 & DSP 프로세서</option>
-                <option value="MIC_SYSTEM">무선/유선 마이크</option>
-                <option value="RACK_CABLE">랙 / 순차전원 / 케이블</option>
-                <option value="INSTALL_ENGINEERING">설치 자재 & 인건비</option>
-            </select>
-            <!-- 검색창 추가 -->
-            <input type="text" id="searchInput" placeholder="브랜드 또는 모델명 검색..." style="width: 160px;" onkeyup="filterCatalog()">
+            <select class="filter-select" id="categoryFilter" onchange="updateBrandFilter()"></select>
+            <select class="filter-select" id="brandFilter" onchange="filterCatalog()"></select>
+            <input type="text" class="search-input" id="searchInput" placeholder="모델명 검색..." onkeyup="filterCatalog()">
+            
             <select class="select-product" id="productSelect"></select>
             <button class="btn btn-primary" onclick="addSelectedProduct()">+ 견적 추가</button>
         </div>
@@ -266,7 +262,7 @@
     </div>
 </div>
 
-<!-- 새 장비 등록 팝업 -->
+<!-- 새 장비 등록 팝업 (datalist 적용) -->
 <div class="modal-overlay" id="addCatalogModal">
     <div class="modal-card">
         <div class="modal-header">
@@ -276,17 +272,14 @@
         <div>
             <div class="form-group">
                 <label>품목 (Category)</label>
-                <select id="newCat">
-                    <option value="AUDIOCENTER">Audiocenter 스피커</option>
-                    <option value="MIXER_DSP">믹서 & DSP 프로세서</option>
-                    <option value="MIC_SYSTEM">무선/유선 마이크</option>
-                    <option value="RACK_CABLE">랙 / 순차전원 / 케이블</option>
-                    <option value="INSTALL_ENGINEERING">설치 자재 & 인건비</option>
-                </select>
+                <!-- datalist를 활용하여 입력과 선택을 동시에 지원 -->
+                <input type="text" id="newCat" list="modalCatList" placeholder="목록에서 선택하거나 직접 입력하세요">
+                <datalist id="modalCatList"></datalist>
             </div>
             <div class="form-group">
                 <label>브랜드 (Brand)</label>
-                <input type="text" id="newBrand" placeholder="예: Shure, Yamaha, Canare">
+                <input type="text" id="newBrand" list="modalBrandList" placeholder="목록에서 선택하거나 직접 입력하세요">
+                <datalist id="modalBrandList"></datalist>
             </div>
             <div class="form-group">
                 <label>모델 (Model Name)</label>
@@ -309,47 +302,106 @@
 </div>
 
 <script>
-    // 전역 변수: 하드코딩된 데이터 제거하고 빈 객체로 시작
     let productCatalog = {};
     let quoteItems = [];
 
-    // 페이지 로드 시 GitHub의 JSON 파일을 불러오고 견적 데이터를 복구함
+    // 페이지 로드 시 실행
     window.onload = async function() {
         await loadCatalogFromJSON();
-        filterCatalog();
+        initDynamicFilters(); // 데이터를 바탕으로 카테고리와 브랜드 동적 추출
         loadLocalData();
     };
 
-    // GitHub JSON 파일 가져오기 함수 (비동기)
+    // GitHub JSON 파일 가져오기
     async function loadCatalogFromJSON() {
         try {
-            // 캐시를 방지하기 위해 쿼리 파라미터(t=현재시간) 추가
             const response = await fetch('b2b_quotation_data.json?t=' + new Date().getTime());
             if (!response.ok) throw new Error("JSON 파일을 찾을 수 없습니다.");
             productCatalog = await response.json();
         } catch (error) {
             console.error('카탈로그 로딩 실패:', error);
-            alert("카탈로그 데이터를 불러오지 못했습니다. Github에 b2b_quotation_data.json 파일이 존재하는지 확인해주세요.");
+            alert("카탈로그 데이터를 불러오지 못했습니다. Github 저장소를 확인해주세요.");
             productCatalog = {}; 
         }
     }
 
-    // 카테고리 선택 및 텍스트 검색 통합 필터링 함수
+    // JSON 데이터를 분석하여 등록 팝업과 메인 필터 구성
+    function initDynamicFilters() {
+        const categories = new Set();
+        const brands = new Set();
+
+        // 전체 카탈로그 스캔
+        for (const prod of Object.values(productCatalog)) {
+            if (prod.cat) categories.add(prod.cat.trim());
+            if (prod.brand) brands.add(prod.brand.trim());
+        }
+
+        // 1. 등록 팝업(Modal)용 Datalist 업데이트 (입력+선택 콤보박스)
+        const catDatalist = document.getElementById("modalCatList");
+        const brandDatalist = document.getElementById("modalBrandList");
+        catDatalist.innerHTML = "";
+        brandDatalist.innerHTML = "";
+        
+        categories.forEach(c => catDatalist.innerHTML += `<option value="${escapeHtml(c)}">`);
+        brands.forEach(b => brandDatalist.innerHTML += `<option value="${escapeHtml(b)}">`);
+
+        // 2. 메인 화면 최상위 '품목(Category)' 필터 업데이트
+        const catFilter = document.getElementById("categoryFilter");
+        const currentCat = catFilter.value; // 기존 선택값 기억
+        
+        catFilter.innerHTML = `<option value="ALL">전체 품목</option>`;
+        categories.forEach(c => {
+            catFilter.innerHTML += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`;
+        });
+        
+        catFilter.value = currentCat && categories.has(currentCat) ? currentCat : "ALL";
+        
+        // 카테고리가 세팅되었으니 브랜드 필터 갱신 로직 호출
+        updateBrandFilter();
+    }
+
+    // 선택된 품목(Category)에 따라 '브랜드(Brand)' 필터의 목록을 변경
+    function updateBrandFilter() {
+        const selectedCat = document.getElementById("categoryFilter").value;
+        const brandFilter = document.getElementById("brandFilter");
+        const currentBrand = brandFilter.value;
+
+        const filteredBrands = new Set();
+        
+        for (const prod of Object.values(productCatalog)) {
+            if (selectedCat === "ALL" || prod.cat === selectedCat) {
+                if (prod.brand) filteredBrands.add(prod.brand.trim());
+            }
+        }
+
+        brandFilter.innerHTML = `<option value="ALL">전체 브랜드</option>`;
+        filteredBrands.forEach(b => {
+            brandFilter.innerHTML += `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`;
+        });
+
+        // 이전에 선택했던 브랜드가 현재 필터된 목록에 있으면 유지, 없으면 전체로 초기화
+        brandFilter.value = currentBrand && filteredBrands.has(currentBrand) ? currentBrand : "ALL";
+
+        // 필터 조건이 바뀌었으므로 최종 장비(모델) 목록 갱신
+        filterCatalog();
+    }
+
+    // 품목 + 브랜드 + 모델명 검색어를 종합하여 최종 모델 선택 드롭다운 갱신
     function filterCatalog() {
         const cat = document.getElementById("categoryFilter").value;
+        const brand = document.getElementById("brandFilter").value;
         const searchKeyword = document.getElementById("searchInput").value.toLowerCase();
+        
         const select = document.getElementById("productSelect");
         select.innerHTML = "";
         
         for (const [key, prod] of Object.entries(productCatalog)) {
-            // 카테고리 조건 체크
             const matchCat = (cat === "ALL" || prod.cat === cat);
-            
-            // 검색어 조건 체크 (브랜드 또는 모델명에 검색어가 포함되는지)
-            const matchSearch = (prod.brand.toLowerCase().includes(searchKeyword) || prod.name.toLowerCase().includes(searchKeyword));
+            const matchBrand = (brand === "ALL" || prod.brand === brand);
+            const matchSearch = (prod.name.toLowerCase().includes(searchKeyword));
 
-            // 두 조건 모두 만족할 때만 드롭다운에 추가
-            if (matchCat && matchSearch) {
+            // 세 가지 조건을 모두 만족하는 장비만 표시
+            if (matchCat && matchBrand && matchSearch) {
                 const opt = document.createElement("option");
                 opt.value = key;
                 opt.innerText = `[${prod.brand}] ${prod.name} - MSRP ₩${prod.price.toLocaleString()}`;
@@ -357,11 +409,10 @@
             }
         }
 
-        // 검색 결과가 없을 경우 안내 문구 추가
         if (select.options.length === 0) {
             const opt = document.createElement("option");
             opt.value = "";
-            opt.innerText = "검색 결과가 없습니다.";
+            opt.innerText = "조건에 맞는 장비가 없습니다.";
             select.appendChild(opt);
         }
     }
@@ -450,7 +501,7 @@
     function closeModal() { document.getElementById("specModal").style.display = "none"; }
     
     function openAddCatalogModal() { 
-        // 모달창을 열 때 입력 필드 초기화
+        document.getElementById("newCat").value = "";
         document.getElementById("newBrand").value = "";
         document.getElementById("newName").value = "";
         document.getElementById("newPrice").value = "";
@@ -460,10 +511,10 @@
     
     function closeAddCatalogModal() { document.getElementById("addCatalogModal").style.display = "none"; }
 
-    // GitHub API를 통해 JSON 파일을 직접 덮어쓰는 핵심 함수
+    // GitHub API를 통해 JSON 파일을 직접 덮어쓰고, 필터 목록을 갱신하는 함수
     async function saveNewCatalogProduct() {
-        const cat = document.getElementById("newCat").value;
-        const brand = document.getElementById("newBrand").value.trim() || "기타";
+        const cat = document.getElementById("newCat").value.trim() || "기타 품목";
+        const brand = document.getElementById("newBrand").value.trim() || "기타 브랜드";
         const name = document.getElementById("newName").value.trim();
         const price = parseInt(document.getElementById("newPrice").value) || 0;
         const specsText = document.getElementById("newSpecs").value.trim();
@@ -473,7 +524,6 @@
             return;
         }
 
-        // 1. 브라우저에 저장된 GitHub 토큰 확인
         let githubToken = localStorage.getItem('arthur_github_token');
         if (!githubToken) {
             githubToken = prompt("GitHub 저장소를 업데이트하기 위한 Personal Access Token을 입력하세요.\n(이 토큰은 현재 PC에만 안전하게 저장됩니다.)");
@@ -484,7 +534,6 @@
             localStorage.setItem('arthur_github_token', githubToken);
         }
 
-        // 2. 새 장비 객체 생성
         const key = "CAT_" + Date.now();
         let specObj = { "브랜드": brand };
         if (specsText) {
@@ -495,28 +544,22 @@
             });
         }
         
-        // 현재 productCatalog에 새 장비 병합
+        // 메모리 상의 DB 업데이트
         productCatalog[key] = { cat: cat, brand: brand, name: name, price: price, specs: specObj };
 
-        // 3. GitHub API 통신 시작
         const owner = "wnvl87";
         const repo = "estimate";
         const path = "b2b_quotation_data.json";
         const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
 
         try {
-            // 버튼 상태 변경 (로딩 중)
             const saveBtn = document.querySelector("#addCatalogModal .btn-primary");
             const originalBtnText = saveBtn.innerText;
             saveBtn.innerText = "GitHub에 저장 중...";
             saveBtn.disabled = true;
 
-            // (1) 기존 파일의 SHA(고유값) 가져오기 (파일 덮어쓰기에 필수)
             let fileSha = "";
-            const getResponse = await fetch(apiUrl, {
-                headers: { "Authorization": `Bearer ${githubToken}` }
-            });
-            
+            const getResponse = await fetch(apiUrl, { headers: { "Authorization": `Bearer ${githubToken}` } });
             if (getResponse.ok) {
                 const data = await getResponse.json();
                 fileSha = data.sha;
@@ -525,33 +568,25 @@
                 throw new Error("토큰이 만료되었거나 권한이 없습니다. 다시 시도해서 새 토큰을 입력하세요.");
             }
 
-            // (2) 업데이트할 JSON 데이터를 문자열로 만들고 Base64 인코딩 (한글 깨짐 방지)
             const updatedJsonStr = JSON.stringify(productCatalog, null, 2);
             const base64Content = btoa(unescape(encodeURIComponent(updatedJsonStr)));
 
-            // (3) GitHub 파일 업데이트 (PUT 요청)
             const putResponse = await fetch(apiUrl, {
                 method: "PUT",
-                headers: {
-                    "Authorization": `Bearer ${githubToken}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: `카탈로그 신규 장비 추가: [${brand}] ${name}`,
-                    content: base64Content,
-                    sha: fileSha || undefined
-                })
+                headers: { "Authorization": `Bearer ${githubToken}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ message: `신규 카탈로그 등록: [${cat}] - [${brand}] ${name}`, content: base64Content, sha: fileSha || undefined })
             });
 
             if (!putResponse.ok) throw new Error("GitHub 저장소 업데이트에 실패했습니다.");
 
-            // 완료 처리
             saveBtn.innerText = originalBtnText;
             saveBtn.disabled = false;
             
-            filterCatalog(); // 드롭다운 재렌더링
+            // 데이터가 새로 추가되었으므로 필터 목록(Category, Brand) 재구축
+            initDynamicFilters(); 
+            
             closeAddCatalogModal();
-            alert(`[${brand}] ${name} 장비가 GitHub 카탈로그(JSON)에 성공적으로 영구 등록되었습니다!`);
+            alert(`[${brand}] ${name} 장비가 성공적으로 등록되었습니다!\n\n새로운 품목이나 브랜드라면 필터 목록에도 자동 추가됩니다.`);
 
         } catch (error) {
             console.error(error);
@@ -562,7 +597,6 @@
         }
     }
 
-    // JSON 내보내기 및 유틸리티 함수들
     function exportDataJSON() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(quoteItems, null, 2));
         const a = document.createElement('a');
