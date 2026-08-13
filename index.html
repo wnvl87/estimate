@@ -172,6 +172,8 @@
                 <option value="RACK_CABLE">랙 / 순차전원 / 케이블</option>
                 <option value="INSTALL_ENGINEERING">설치 자재 & 인건비</option>
             </select>
+            <!-- 검색창 추가 -->
+            <input type="text" id="searchInput" placeholder="브랜드 또는 모델명 검색..." style="width: 160px;" onkeyup="filterCatalog()">
             <select class="select-product" id="productSelect"></select>
             <button class="btn btn-primary" onclick="addSelectedProduct()">+ 견적 추가</button>
         </div>
@@ -301,43 +303,66 @@
         </div>
         <div style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 8px;">
             <button class="btn btn-outline" onclick="closeAddCatalogModal()">취소</button>
-            <button class="btn btn-primary" onclick="saveNewCatalogProduct()">카탈로그에 저장</button>
+            <button class="btn btn-primary" onclick="saveNewCatalogProduct()">GitHub 서버에 영구 저장</button>
         </div>
     </div>
 </div>
 
 <script>
-    let productCatalog = {
-        "AC_SA310": { cat: "AUDIOCENTER", brand: "Audiocenter", name: "Audiocenter SA310+ (10\" Active DSP Monitor)", price: 800000, specs: { "브랜드": "Audiocenter", "타입": "10인치 액티브 DSP 스피커/모니터", "주파수 응답": "55Hz - 20kHz", "최대 SPL": "128dB Peak", "DSP": "BrainNet DSP", "앰프 출력": "2000W Peak Class-D" } },
-        "AC_SA312": { cat: "AUDIOCENTER", brand: "Audiocenter", name: "Audiocenter SA312+ (12\" Active DSP Speaker)", price: 950000, specs: { "브랜드": "Audiocenter", "타입": "12인치 액티브 DSP 포인트소스", "최대 SPL": "130dB Peak", "앰프 출력": "2000W Class-D" } },
-        "AC_KLA28": { cat: "AUDIOCENTER", brand: "Audiocenter", name: "Audiocenter K-LA28 (Dual 8\" Line Array Element)", price: 1600000, specs: { "브랜드": "Audiocenter", "타입": "듀얼 8인치 라인어레이 모듈", "지향각": "100° Horizontal", "최대 SPL": "133dB" } },
-        "AC_SA318": { cat: "AUDIOCENTER", brand: "Audiocenter", name: "Audiocenter SA318+ (18\" Active DSP Subwoofer)", price: 1450000, specs: { "브랜드": "Audiocenter", "타입": "18인치 액티브 DSP 서브우퍼", "최대 SPL": "134dB Peak" } },
-        "BEHRINGER_XR18": { cat: "MIXER_DSP", brand: "Behringer", name: "Behringer X AIR XR18 (18채널 디지털 믹서)", price: 1100000, specs: { "입출력": "16 Midas Preamps, 18 Ch Digital Mixer", "제어": "WiFi 내장 / iPad, Android, PC 리모트" } },
-        "SHURE_QLXD4": { cat: "MIC_SYSTEM", brand: "Shure", name: "Shure QLXD24/B87A (디지털 무선 마이크 시스템)", price: 1850000, specs: { "주파수": "900MHz / 24-bit Digital Audio", "헤드": "Beta 87A 컨덴서 마이크" } },
-        "KANALS_BHJ70": { cat: "RACK_CABLE", brand: "KANALS", name: "KANALS BHJ-70 (8채널 순차전원공급기)", price: 330000, specs: { "채널": "8채널 순차 제어 + Direct 1채널", "디스플레이": "디지털 전압 미터" } },
-        "EW_RACK_8U": { cat: "RACK_CABLE", brand: "E&W", name: "E&W KSR 8U-PRO (8U 랙케이스)", price: 320000, specs: { "규격": "8U 표준 19인치 랙케이스 바퀴형" } },
-        "CANARE_L2T2S": { cat: "RACK_CABLE", brand: "Canare", name: "Canare L-2T2S 마이크 케이블 (1m)", price: 2500, specs: { "규격": "2심 쉴드 음향 밸런스 케이블" } },
-        "INSTALL_LABOR": { cat: "INSTALL_ENGINEERING", brand: "ARTHUR", name: "음향/영상 시스템 배관 배선 및 튜닝 인건비 (1인/일)", price: 300000, specs: { "구분": "전문 엔지니어 현장 설치 및 음향 튜닝" } }
-    };
-
+    // 전역 변수: 하드코딩된 데이터 제거하고 빈 객체로 시작
+    let productCatalog = {};
     let quoteItems = [];
 
-    window.onload = function() {
+    // 페이지 로드 시 GitHub의 JSON 파일을 불러오고 견적 데이터를 복구함
+    window.onload = async function() {
+        await loadCatalogFromJSON();
         filterCatalog();
         loadLocalData();
     };
 
+    // GitHub JSON 파일 가져오기 함수 (비동기)
+    async function loadCatalogFromJSON() {
+        try {
+            // 캐시를 방지하기 위해 쿼리 파라미터(t=현재시간) 추가
+            const response = await fetch('b2b_quotation_data.json?t=' + new Date().getTime());
+            if (!response.ok) throw new Error("JSON 파일을 찾을 수 없습니다.");
+            productCatalog = await response.json();
+        } catch (error) {
+            console.error('카탈로그 로딩 실패:', error);
+            alert("카탈로그 데이터를 불러오지 못했습니다. Github에 b2b_quotation_data.json 파일이 존재하는지 확인해주세요.");
+            productCatalog = {}; 
+        }
+    }
+
+    // 카테고리 선택 및 텍스트 검색 통합 필터링 함수
     function filterCatalog() {
         const cat = document.getElementById("categoryFilter").value;
+        const searchKeyword = document.getElementById("searchInput").value.toLowerCase();
         const select = document.getElementById("productSelect");
         select.innerHTML = "";
+        
         for (const [key, prod] of Object.entries(productCatalog)) {
-            if (cat === "ALL" || prod.cat === cat) {
+            // 카테고리 조건 체크
+            const matchCat = (cat === "ALL" || prod.cat === cat);
+            
+            // 검색어 조건 체크 (브랜드 또는 모델명에 검색어가 포함되는지)
+            const matchSearch = (prod.brand.toLowerCase().includes(searchKeyword) || prod.name.toLowerCase().includes(searchKeyword));
+
+            // 두 조건 모두 만족할 때만 드롭다운에 추가
+            if (matchCat && matchSearch) {
                 const opt = document.createElement("option");
                 opt.value = key;
                 opt.innerText = `[${prod.brand}] ${prod.name} - MSRP ₩${prod.price.toLocaleString()}`;
                 select.appendChild(opt);
             }
+        }
+
+        // 검색 결과가 없을 경우 안내 문구 추가
+        if (select.options.length === 0) {
+            const opt = document.createElement("option");
+            opt.value = "";
+            opt.innerText = "검색 결과가 없습니다.";
+            select.appendChild(opt);
         }
     }
 
@@ -434,8 +459,6 @@
     }
     
     function closeAddCatalogModal() { document.getElementById("addCatalogModal").style.display = "none"; }
-
-   // (기존 openAddCatalogModal, closeAddCatalogModal 함수 아래에 붙여넣으세요)
 
     // GitHub API를 통해 JSON 파일을 직접 덮어쓰는 핵심 함수
     async function saveNewCatalogProduct() {
@@ -534,12 +557,12 @@
             console.error(error);
             alert("오류 발생: " + error.message);
             const saveBtn = document.querySelector("#addCatalogModal .btn-primary");
-            saveBtn.innerText = "카탈로그에 저장";
+            saveBtn.innerText = "GitHub 서버에 영구 저장";
             saveBtn.disabled = false;
         }
     }
 
-    // JSON 내보내기, 특수문자 이스케이프, 로컬 데이터 저장 함수들은 기존 동일
+    // JSON 내보내기 및 유틸리티 함수들
     function exportDataJSON() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(quoteItems, null, 2));
         const a = document.createElement('a');
@@ -590,3 +613,7 @@
         }
         renderTable();
     }
+</script>
+
+</body>
+</html>
