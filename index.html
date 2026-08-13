@@ -247,9 +247,9 @@
         <div class="header">
             <div class="header-title">
                 <h1>장비 카탈로그 관리</h1>
-                <p>CSV 일괄 업로드 및 데이터 관리</p>
+                <p>CSV 일괄 업로드 및 깃허브 자동 연동 관리</p>
             </div>
-            <div style="display: flex; gap: 8px;">
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button class="btn btn-outline" onclick="exportCatalogCSV()">📥 CSV 다운로드</button>
                 <input type="file" id="csvFile" style="display:none" accept=".csv" onchange="importCatalogCSV(event)">
                 <button class="btn btn-primary" onclick="document.getElementById('csvFile').click()">📤 CSV 일괄 업로드</button>
@@ -305,7 +305,7 @@
         </div>
         <div style="margin-top: 20px; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
             <button class="btn btn-outline" onclick="closeAddCatalogModal()">취소</button>
-            <button class="btn btn-primary" onclick="saveCatalogProduct()">저장</button>
+            <button class="btn btn-primary" id="modalSubmitBtn" onclick="saveCatalogProduct()">GitHub 서버에 자동 저장</button>
         </div>
     </div>
 </div>
@@ -510,7 +510,54 @@
         document.getElementById("addCatalogModal").style.display = "none";
     }
 
-    function saveCatalogProduct() {
+    // 💡 핵심: 깃허브 API를 통한 자동 업로드 툴 함수
+    async function syncToGitHub(commitMsg) {
+        let githubToken = localStorage.getItem('arthur_github_token');
+        if (!githubToken) {
+            githubToken = prompt("깃허브 서버와 자동 연동하기 위한 'Personal Access Token(토큰)'을 입력하세요.\n(이 토큰은 이사님의 브라우저에 안전하게 저장되며 최초 1회만 묻습니다.)");
+            if (!githubToken) {
+                alert("토큰이 없어 로컬에만 저장됩니다. 깃허브 서버에는 반영되지 않습니다.");
+                return false;
+            }
+            localStorage.setItem('arthur_github_token', githubToken);
+        }
+
+        const owner = "wnvl87";
+        const repo = "estimate";
+        const path = "b2b_quotation_data.json";
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+        try {
+            let fileSha = "";
+            const getRes = await fetch(apiUrl, { headers: { "Authorization": `Bearer ${githubToken}` } });
+            if (getRes.ok) {
+                const fileData = await getRes.json();
+                fileSha = fileData.sha;
+            } else if (getRes.status === 401) {
+                localStorage.removeItem('arthur_github_token');
+                alert("깃허브 토큰이 만료되었거나 유효하지 않습니다. 다시 시도해 주세요.");
+                return false;
+            }
+
+            const jsonStr = JSON.stringify(productCatalog, null, 2);
+            const base64Content = btoa(unescape(encodeURIComponent(jsonStr)));
+
+            const putRes = await fetch(apiUrl, {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${githubToken}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ message: commitMsg, content: base64Content, sha: fileSha || undefined })
+            });
+
+            if (!putRes.ok) throw new Error("GitHub 업로드 실패");
+            return true;
+        } catch (err) {
+            console.error(err);
+            alert("GitHub 자동 동기화 중 오류가 발생했습니다. (로컬 데이터는 정상 저장됨)");
+            return false;
+        }
+    }
+
+    async function saveCatalogProduct() {
         const cat = document.getElementById("newCat").value.trim() || "기타";
         const brand = document.getElementById("newBrand").value.trim() || "기타";
         const name = document.getElementById("newName").value.trim();
@@ -525,28 +572,37 @@
         productCatalog[key] = { cat, brand, name, price, specs: productCatalog[key]?.specs || {} };
 
         localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
+        
+        // 깃허브 서버 자동 동기화 호출
+        const commitMsg = editingProductKey ? `카탈로그 수정: [${brand}] ${name}` : `신규 장비 등록: [${brand}] ${name}`;
+        await syncToGitHub(commitMsg);
+
         initDynamicFilters();
         renderCatalogTable();
         closeAddCatalogModal();
-        alert(editingProductKey ? "장비 정보가 수정되었습니다." : "신규 장비가 등록되었습니다.");
+        alert(editingProductKey ? "장비 정보가 수정되고 깃허브에 반영되었습니다!" : "신규 장비가 등록되고 깃허브에 반영되었습니다!");
     }
 
-    function deleteCatalogItem(key) {
+    async function deleteCatalogItem(key) {
         const prod = productCatalog[key];
         if (!prod) return;
         if (confirm(`[${prod.brand}] ${prod.name} 장비를 카탈로그에서 삭제하시겠습니까?`)) {
             delete productCatalog[key];
             localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
+            
+            // 깃허브 서버 자동 동기화 호출
+            await syncToGitHub(`장비 삭제: [${prod.brand}] ${prod.name}`);
+
             initDynamicFilters();
             renderCatalogTable();
-            alert("장비가 삭제되었습니다.");
+            alert("장비가 삭제되고 깃허브에 반영되었습니다.");
         }
     }
 
-    function importCatalogCSV(e) {
+    async function importCatalogCSV(e) {
         const file = e.target.files[0];
         const reader = new FileReader();
-        reader.onload = function(event) {
+        reader.onload = async function(event) {
             event.target.result.split('\n').forEach((line, i) => {
                 if (i === 0 || !line.trim()) return;
                 const [cat, brand, name, price] = line.split(',');
@@ -555,9 +611,13 @@
                 }
             });
             localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
+            
+            // CSV 일괄 업로드 시 깃허브 자동 동기화 호출
+            await syncToGitHub("CSV 일괄 카탈로그 업데이트");
+
             initDynamicFilters();
             renderCatalogTable();
-            alert("CSV 카탈로그가 일괄 업로드되었습니다.");
+            alert("CSV 카탈로그 일괄 업로드 및 깃허브 서버 동기화가 완료되었습니다!");
         };
         reader.readAsText(file, "UTF-8");
     }
