@@ -16,7 +16,16 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg-gray); color: var(--text-main); padding: 30px 15px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 1100px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); padding: 40px; }
+        .container { width: 100%; max-width: 1100px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); padding: 40px; position: relative; }
+
+        /* Bookmark Tabs (책갈피 스타일 탭) */
+        .bookmark-tabs { display: flex; gap: 6px; position: absolute; top: -38px; left: 40px; }
+        .tab-btn { padding: 10px 20px; background: #cbd5e1; color: var(--text-muted); font-weight: 700; font-size: 14px; border: none; border-top-left-radius: 8px; border-top-right-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .tab-btn.active { background: #ffffff; color: var(--primary-accent); box-shadow: -3px -3px 10px rgba(0,0,0,0.05); }
+
+        /* Page Display Control */
+        .page-section { display: none; }
+        .page-section.active-page { display: block; }
 
         /* Header */
         .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
@@ -41,7 +50,6 @@
 
         /* Product Selector Controls */
         .catalog-control-box { background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 18px; margin-bottom: 25px; }
-        .catalog-add-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-color); padding-bottom: 15px; margin-bottom: 15px; }
         .control-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
         .control-row:last-child { margin-bottom: 0; }
         .control-row label { font-size: 13px; font-weight: 700; min-width: 80px; color: var(--primary); }
@@ -115,7 +123,7 @@
             @page { margin: 15mm; size: A4; }
             body { background: none; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .container { box-shadow: none; padding: 0; max-width: 100%; border: none; }
-            .catalog-control-box, .actions-bar, .btn-danger, .btn-primary, .btn-outline, .btn-dark, .spec-tag { display: none !important; }
+            .bookmark-tabs, .catalog-control-box, .actions-bar, .btn-danger, .btn-primary, .btn-outline, .btn-dark, .spec-tag { display: none !important; }
             input, select { border: none !important; background: transparent !important; padding: 0 !important; font-family: inherit; appearance: none !important; }
             .info-table td, .b2b-terms-bar { background: transparent !important; }
             .b2b-terms-bar { border: 1px solid var(--border-color) !important; }
@@ -126,140 +134,176 @@
 <body>
 
 <div class="container">
-    <div class="header">
-        <div class="header-title">
-            <h1>B2B 사업자 견 적 서 (QUOTATION)</h1>
-            <p>Audiocenter & Professional Audio System Solutions</p>
-        </div>
-        <div class="doc-meta">
-            <p><strong>견적번호:</strong> <input type="text" value="EST-20260813-01"></p>
-            <p style="margin-top: 4px;"><strong>견적일자:</strong> <input type="text" value="2026-08-13"></p>
-        </div>
+    <!-- 책갈피 형태의 탭 메뉴 -->
+    <div class="bookmark-tabs">
+        <button class="tab-btn active" id="tabQuote" onclick="switchPage('quote')">📄 견적서 작성</button>
+        <button class="tab-btn" id="tabCatalog" onclick="switchPage('catalog')">📦 카탈로그 관리</button>
     </div>
 
-    <div class="info-grid">
-        <div class="info-card">
-            <h3>공급자 정보 (Supplier)</h3>
-            <table class="info-table">
-                <tr><td class="label">상 호 명</td><td>주식회사 아더 (ARTHUR Co., Ltd.)</td></tr>
-                <tr><td class="label">사업자번호</td><td>419-88-03010</td></tr>
-                <tr><td class="label">대 표 자</td><td>김상복</td></tr>
-                <tr><td class="label">업태 / 종목</td><td>제조, 도소매 / 음향, 영상, 조명장비</td></tr>
-                <tr><td class="label">사업장주소</td><td>경기 시흥시 매화산단로 95, 215호</td></tr>
-                <tr><td class="label">담당 / 연락처</td><td>최동주 이사 (010-9773-8904)</td></tr>
-                <tr><td class="label">이 메 일</td><td>wnvl87@arthur25.com</td></tr>
+    <!-- [페이지 1] 견적서 작성 섹션 -->
+    <div class="page-section active-page" id="pageQuote">
+        <div class="header">
+            <div class="header-title">
+                <h1>B2B 사업자 견 적 서 (QUOTATION)</h1>
+                <p>Audiocenter & Professional Audio System Solutions</p>
+            </div>
+            <div class="doc-meta">
+                <p><strong>견적번호:</strong> <input type="text" value="EST-20260813-01"></p>
+                <p style="margin-top: 4px;"><strong>견적일자:</strong> <input type="text" value="2026-08-13"></p>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>공급자 정보 (Supplier)</h3>
+                <table class="info-table">
+                    <tr><td class="label">상 호 명</td><td>주식회사 아더 (ARTHUR Co., Ltd.)</td></tr>
+                    <tr><td class="label">사업자번호</td><td>419-88-03010</td></tr>
+                    <tr><td class="label">대 표 자</td><td>김상복</td></tr>
+                    <tr><td class="label">업태 / 종목</td><td>제조, 도소매 / 음향, 영상, 조명장비</td></tr>
+                    <tr><td class="label">사업장주소</td><td>경기 시흥시 매화산단로 95, 215호</td></tr>
+                    <tr><td class="label">담당 / 연락처</td><td>최동주 이사 (010-9773-8904)</td></tr>
+                    <tr><td class="label">이 메 일</td><td>wnvl87@arthur25.com</td></tr>
+                </table>
+            </div>
+            <div class="info-card">
+                <h3>수신자 정보 (Client / Dealer)</h3>
+                <table class="info-table">
+                    <tr><td class="label">업 체 명</td><td><input type="text" value="(주)파트너음향시스템" id="clientCompany" onchange="saveLocalData()"></td></tr>
+                    <tr><td class="label">사업자번호</td><td><input type="text" value="123-86-00000" id="clientBizNo" onchange="saveLocalData()"></td></tr>
+                    <tr><td class="label">대 표 자</td><td><input type="text" value="홍길동 대표" id="clientCEO" onchange="saveLocalData()"></td></tr>
+                    <tr><td class="label">담 당 자</td><td><input type="text" value="김철수 팀장 (010-1234-5678)" id="clientContact" onchange="saveLocalData()"></td></tr>
+                    <tr><td class="label">이 메 일</td><td><input type="text" value="partner@example.com" id="clientEmail" onchange="saveLocalData()"></td></tr>
+                    <tr><td class="label">현 장 명</td><td><input type="text" value="○○교회 / 공연장 음향 시스템 보강" id="clientProject" onchange="saveLocalData()"></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="catalog-control-box">
+            <div class="control-row">
+                <label>📦 장비 선택:</label>
+                <select class="filter-select" id="categoryFilter" onchange="updateBrandFilter()"></select>
+                <select class="filter-select" id="brandFilter" onchange="filterCatalog()"></select>
+                <input type="text" class="search-input" id="searchInput" placeholder="모델명 검색..." onkeyup="filterCatalog()">
+                
+                <select class="select-product" id="productSelect"></select>
+                <button class="btn btn-primary" onclick="addSelectedProduct()">+ 견적 추가</button>
+            </div>
+            <div class="control-row" style="margin-top: 12px; justify-content: space-between;">
+                <button class="btn btn-outline" onclick="addCustomRow()">+ 일회성 수동 항목 추가</button>
+                <span style="font-size: 12px; color: var(--text-muted);">💡 모델명을 클릭하면 상세 스펙 팝업이 표시됩니다.</span>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px; text-align: center;">No.</th>
+                        <th style="width: 100px;">구분</th>
+                        <th>품명 및 모델명 (스펙 링크)</th>
+                        <th style="width: 60px; text-align: center;">수량</th>
+                        <th style="width: 100px; text-align: right;">소비자가(원)</th>
+                        <th style="width: 60px; text-align: center;">할인율</th>
+                        <th style="width: 110px; text-align: right;">공급단가(원)</th>
+                        <th style="width: 130px; text-align: right;">공급가액(원)</th>
+                        <th style="width: 40px; text-align: center;">삭제</th>
+                    </tr>
+                </thead>
+                <tbody id="quotationItems"></tbody>
             </table>
         </div>
-        <div class="info-card">
-            <h3>수신자 정보 (Client / Dealer)</h3>
-            <table class="info-table">
-                <tr><td class="label">업 체 명</td><td><input type="text" value="(주)파트너음향시스템" id="clientCompany" onchange="saveLocalData()"></td></tr>
-                <tr><td class="label">사업자번호</td><td><input type="text" value="123-86-00000" id="clientBizNo" onchange="saveLocalData()"></td></tr>
-                <tr><td class="label">대 표 자</td><td><input type="text" value="홍길동 대표" id="clientCEO" onchange="saveLocalData()"></td></tr>
-                <tr><td class="label">담 당 자</td><td><input type="text" value="김철수 팀장 (010-1234-5678)" id="clientContact" onchange="saveLocalData()"></td></tr>
-                <tr><td class="label">이 메 일</td><td><input type="text" value="partner@example.com" id="clientEmail" onchange="saveLocalData()"></td></tr>
-                <tr><td class="label">현 장 명</td><td><input type="text" value="○○교회 / 공연장 음향 시스템 보강" id="clientProject" onchange="saveLocalData()"></td></tr>
+
+        <div class="summary-wrapper">
+            <div class="bank-info-box">
+                <h4>📌 입금 계좌 및 안내사항</h4>
+                <p><strong>입금계좌:</strong> 기업은행 067-509928-04-014 (예금주: 주식회사 아더)</p>
+                <p><strong>비고:</strong> 본 견적서는 B2B 파트너 전용 공급가 기준이며, 제품 수급 상황에 따라 납기가 변경될 수 있습니다.</p>
+            </div>
+            <div class="summary-box">
+                <table class="summary-table">
+                    <tr><td class="label">공급가액 소계:</td><td id="subtotalVal">0 원</td></tr>
+                    <tr><td class="label">부가세 (VAT 10%):</td><td id="vatVal">0 원</td></tr>
+                    <tr class="total-row"><td class="label">최종 합계금액:</td><td id="totalVal">0 원</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="b2b-terms-bar">
+            <div>
+                <label>💳 결제 조건</label>
+                <select id="paymentTerms" onchange="saveLocalData()">
+                    <option value="발주 시 현금 완불">발주 시 현금 완불 (선입금)</option>
+                    <option value="계약금 50%, 출고 전 50%">계약금 50%, 출고 전 50%</option>
+                    <option value="납품 후 익월 말 정산">납품 후 익월 말 정산 (여신 거래)</option>
+                </select>
+            </div>
+            <div>
+                <label>⏱️ 견적 유효기간</label>
+                <input type="text" value="견적일로부터 30일" id="validityPeriod" onchange="saveLocalData()">
+            </div>
+            <div>
+                <label>🚚 인도 / 납품 조건</label>
+                <input type="text" value="화물/택배 (현장 하도급 설치)" id="deliveryTerms" onchange="saveLocalData()">
+            </div>
+            <div>
+                <label>🧾 부가세 구분</label>
+                <select id="vatType" onchange="calculateTotals(); saveLocalData();">
+                    <option value="EXCLUDE">VAT 별도 (10% 계산)</option>
+                    <option value="INCLUDE">VAT 포함가</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="signature-section">
+            <div class="sign-text">위와 같이 견적합니다.</div>
+            <div class="sign-company">주식회사 아더 (ARTHUR Co., Ltd.)</div>
+            <div class="sign-name">
+                대표 / 이사 최 동 주 
+                <span class="sign-stamp">(인)</span>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <button class="btn btn-outline" onclick="resetQuote()">🔄 견적 초기화</button>
+            <div>
+                <button class="btn btn-dark" onclick="exportDataJSON()">💾 견적 데이터 내보내기(JSON)</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ 견적서 인쇄 / PDF 출력</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- [페이지 2] 카탈로그 관리 섹션 -->
+    <div class="page-section" id="pageCatalog">
+        <div class="header">
+            <div class="header-title">
+                <h1>장비 카탈로그 관리</h1>
+                <p>등록된 전체 제품 및 단가 관리 시스템</p>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="openAddCatalogModal()">+ 신규 장비 등록</button>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <input type="text" id="catalogSearchInput" placeholder="카탈로그 내 장비 검색..." onkeyup="renderCatalogTable()" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; width: 300px; font-size: 13px;">
+            <span style="font-size: 13px; color: var(--text-muted);">총 등록 장비: <strong id="catalogCount">0</strong>개</span>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px; text-align: center;">No.</th>
+                        <th style="width: 140px;">품목 (Category)</th>
+                        <th style="width: 130px;">브랜드 (Brand)</th>
+                        <th>모델명 (Model Name)</th>
+                        <th style="width: 120px; text-align: right;">소비자가(MSRP)</th>
+                        <th style="width: 90px; text-align: center;">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="catalogTableBody"></tbody>
             </table>
-        </div>
-    </div>
-
-    <div class="catalog-control-box">
-        <div class="catalog-add-row">
-            <span style="font-size: 13px; color: var(--primary); font-weight: 600;">
-                💡 찾는 장비가 없다면 카탈로그에 먼저 등록하거나 수정하세요.
-            </span>
-            <button class="btn btn-outline" onclick="openAddCatalogModal()">+ 카탈로그 장비 등록 / 수정</button>
-        </div>
-
-        <div class="control-row">
-            <label>📦 장비 선택:</label>
-            <select class="filter-select" id="categoryFilter" onchange="updateBrandFilter()"></select>
-            <select class="filter-select" id="brandFilter" onchange="filterCatalog()"></select>
-            <input type="text" class="search-input" id="searchInput" placeholder="모델명 검색..." onkeyup="filterCatalog()">
-            
-            <select class="select-product" id="productSelect"></select>
-            <button class="btn btn-primary" onclick="addSelectedProduct()">+ 견적 추가</button>
-        </div>
-        <div class="control-row" style="margin-top: 12px; justify-content: space-between;">
-            <button class="btn btn-outline" onclick="addCustomRow()">+ 일회성 수동 항목 추가</button>
-            <span style="font-size: 12px; color: var(--text-muted);">💡 모델명을 클릭하면 상세 스펙 팝업이 표시됩니다.</span>
-        </div>
-    </div>
-
-    <div class="table-wrapper">
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th style="width: 40px; text-align: center;">No.</th>
-                    <th style="width: 100px;">구분</th>
-                    <th>품명 및 모델명 (스펙 링크)</th>
-                    <th style="width: 60px; text-align: center;">수량</th>
-                    <th style="width: 100px; text-align: right;">소비자가(원)</th>
-                    <th style="width: 60px; text-align: center;">할인율</th>
-                    <th style="width: 110px; text-align: right;">공급단가(원)</th>
-                    <th style="width: 130px; text-align: right;">공급가액(원)</th>
-                    <th style="width: 40px; text-align: center;">삭제</th>
-                </tr>
-            </thead>
-            <tbody id="quotationItems"></tbody>
-        </table>
-    </div>
-
-    <div class="summary-wrapper">
-        <div class="bank-info-box">
-            <h4>📌 입금 계좌 및 안내사항</h4>
-            <p><strong>입금계좌:</strong> 기업은행 067-509928-04-014 (예금주: 주식회사 아더)</p>
-            <p><strong>비고:</strong> 본 견적서는 B2B 파트너 전용 공급가 기준이며, 제품 수급 상황에 따라 납기가 변경될 수 있습니다.</p>
-        </div>
-        <div class="summary-box">
-            <table class="summary-table">
-                <tr><td class="label">공급가액 소계:</td><td id="subtotalVal">0 원</td></tr>
-                <tr><td class="label">부가세 (VAT 10%):</td><td id="vatVal">0 원</td></tr>
-                <tr class="total-row"><td class="label">최종 합계금액:</td><td id="totalVal">0 원</td></tr>
-            </table>
-        </div>
-    </div>
-
-    <div class="b2b-terms-bar">
-        <div>
-            <label>💳 결제 조건</label>
-            <select id="paymentTerms" onchange="saveLocalData()">
-                <option value="발주 시 현금 완불">발주 시 현금 완불 (선입금)</option>
-                <option value="계약금 50%, 출고 전 50%">계약금 50%, 출고 전 50%</option>
-                <option value="납품 후 익월 말 정산">납품 후 익월 말 정산 (여신 거래)</option>
-            </select>
-        </div>
-        <div>
-            <label>⏱️ 견적 유효기간</label>
-            <input type="text" value="견적일로부터 30일" id="validityPeriod" onchange="saveLocalData()">
-        </div>
-        <div>
-            <label>🚚 인도 / 납품 조건</label>
-            <input type="text" value="화물/택배 (현장 하도급 설치)" id="deliveryTerms" onchange="saveLocalData()">
-        </div>
-        <div>
-            <label>🧾 부가세 구분</label>
-            <select id="vatType" onchange="calculateTotals(); saveLocalData();">
-                <option value="EXCLUDE">VAT 별도 (10% 계산)</option>
-                <option value="INCLUDE">VAT 포함가</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="signature-section">
-        <div class="sign-text">위와 같이 견적합니다.</div>
-        <div class="sign-company">주식회사 아더 (ARTHUR Co., Ltd.)</div>
-        <div class="sign-name">
-            대표 / 이사 최 동 주 
-            <span class="sign-stamp">(인)</span>
-        </div>
-    </div>
-
-    <div class="actions-bar">
-        <button class="btn btn-outline" onclick="resetQuote()">🔄 견적 초기화</button>
-        <div>
-            <button class="btn btn-dark" onclick="exportDataJSON()">💾 견적 데이터 내보내기(JSON)</button>
-            <button class="btn btn-primary" onclick="window.print()">🖨️ 견적서 인쇄 / PDF 출력</button>
         </div>
     </div>
 </div>
@@ -286,13 +330,6 @@
             <button class="close-btn" onclick="closeAddCatalogModal()">&times;</button>
         </div>
         <div>
-            <div class="form-group" style="background: #eff6ff; padding: 10px; border-radius: 6px; border: 1px solid #bfdbfe;">
-                <label style="color: #1e40af;">🔄 기존 장비 불러와서 수정하기 (선택사항)</label>
-                <select id="editTargetSelect" onchange="loadExistingProductForEdit()">
-                    <option value="">-- 신규 등록하려면 비워두세요 (여기서 선택하면 수정 모드) --</option>
-                </select>
-            </div>
-
             <div class="form-group">
                 <label>품목 (Category)</label>
                 <input type="text" id="newCat" list="modalCatList" placeholder="품목명 입력 또는 선택">
@@ -324,7 +361,6 @@
 </div>
 
 <script>
-    // ⚙️ [설정] 브랜드별 기본 할인율(%) 세팅
     const BRAND_DEFAULT_DC = {
         "Audiocenter": 15,
         "Shure": 0,    
@@ -341,6 +377,23 @@
         loadLocalData();
     };
 
+    // 페이지 전환 책갈피 함수
+    function switchPage(pageName) {
+        document.getElementById('pageQuote').classList.remove('active-page');
+        document.getElementById('pageCatalog').classList.remove('active-page');
+        document.getElementById('tabQuote').classList.remove('active');
+        document.getElementById('tabCatalog').classList.remove('active');
+
+        if (pageName === 'quote') {
+            document.getElementById('pageQuote').classList.add('active-page');
+            document.getElementById('tabQuote').classList.add('active');
+        } else if (pageName === 'catalog') {
+            document.getElementById('pageCatalog').classList.add('active-page');
+            document.getElementById('tabCatalog').classList.add('active');
+            renderCatalogTable(); // 카탈로그 탭 진입 시 목록 렌더링
+        }
+    }
+
     async function loadCatalogFromJSON() {
         try {
             const localCustom = localStorage.getItem('arthur_local_custom_catalog');
@@ -355,7 +408,7 @@
                 localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
             }
         } catch (error) {
-            console.error('서버 카탈로그 로딩 실패 (로컬 백업 사용):', error);
+            console.error('서버 카탈로그 로딩 실패:', error);
             const localCustom = localStorage.getItem('arthur_local_custom_catalog');
             if (localCustom) {
                 productCatalog = JSON.parse(localCustom);
@@ -436,6 +489,63 @@
         }
     }
 
+    // 카탈로그 관리 탭의 테이블 렌더링
+    function renderCatalogTable() {
+        const tbody = document.getElementById("catalogTableBody");
+        const searchKeyword = document.getElementById("catalogSearchInput").value.toLowerCase();
+        tbody.innerHTML = "";
+
+        let count = 0;
+        let index = 1;
+
+        for (const [key, prod] of Object.entries(productCatalog)) {
+            const match = (prod.cat.toLowerCase().includes(searchKeyword) || prod.brand.toLowerCase().includes(searchKeyword) || prod.name.toLowerCase().includes(searchKeyword));
+            if (!match) continue;
+
+            count++;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td style="text-align:center; color:var(--text-muted);">${index++}</td>
+                <td><span class="brand-tag">${escapeHtml(prod.cat)}</span></td>
+                <td><span class="brand-tag" style="background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">${escapeHtml(prod.brand)}</span></td>
+                <td><strong>${escapeHtml(prod.name)}</strong></td>
+                <td style="text-align:right; font-weight:600;">₩${prod.price.toLocaleString()}</td>
+                <td style="text-align:center;"><button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="editCatalogItem('${key}')">수정</button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+        document.getElementById("catalogCount").innerText = count;
+    }
+
+    function editCatalogItem(key) {
+        const prod = productCatalog[key];
+        if (!prod) return;
+
+        editingProductKey = key;
+        document.getElementById("newCat").value = prod.cat || "";
+        document.getElementById("newBrand").value = prod.brand || "";
+        document.getElementById("newName").value = prod.name || "";
+        document.getElementById("newPrice").value = prod.price || 0;
+
+        let specArr = [];
+        if (prod.specs) {
+            for (const [k, v] of Object.entries(prod.specs)) {
+                if (k !== "브랜드") {
+                    if (k === "요약") specArr.push(v);
+                    else specArr.push(`${k}: ${v}`);
+                }
+            }
+        }
+        document.getElementById("newSpecs").value = specArr.join(", ");
+
+        document.getElementById("modalMainTitle").innerText = "카탈로그 장비 정보 수정";
+        document.getElementById("modalMainTitle").style.color = "#ef4444";
+        document.getElementById("modalSubmitBtn").innerText = "GitHub 서버에 수정(Update) 저장";
+        document.getElementById("modalSubmitBtn").classList.replace("btn-primary", "btn-dark");
+
+        document.getElementById("addCatalogModal").style.display = "flex";
+    }
+
     function renderTable() {
         const tbody = document.getElementById("quotationItems");
         tbody.innerHTML = "";
@@ -472,8 +582,6 @@
         
         const prod = productCatalog[key];
         const brandName = prod.brand ? prod.brand.trim() : "";
-        
-        // 브랜드별 할인율 자동 적용 (설정된 값이 없으면 0%)
         const defaultDc = BRAND_DEFAULT_DC[brandName] !== undefined ? BRAND_DEFAULT_DC[brandName] : 0;
         const discountedPrice = Math.round(prod.price * (1 - (defaultDc / 100)));
 
@@ -537,7 +645,6 @@
     
     function openAddCatalogModal() { 
         editingProductKey = null; 
-        
         document.getElementById("newCat").value = "";
         document.getElementById("newBrand").value = "";
         document.getElementById("newName").value = "";
@@ -558,12 +665,6 @@
         cats.forEach(c => catDatalist.innerHTML += `<option value="${escapeHtml(c)}">`);
         brands.forEach(b => brandDatalist.innerHTML += `<option value="${escapeHtml(b)}">`);
 
-        const editSelect = document.getElementById("editTargetSelect");
-        editSelect.innerHTML = `<option value="">-- 신규 등록하려면 비워두세요 (여기서 선택하면 수정 모드) --</option>`;
-        for (const [key, prod] of Object.entries(productCatalog)) {
-            editSelect.innerHTML += `<option value="${key}">[${prod.brand}] ${prod.name}</option>`;
-        }
-        
         document.getElementById("modalMainTitle").innerText = "신규 장비 카탈로그 등록";
         document.getElementById("modalMainTitle").style.color = "var(--primary)";
         document.getElementById("modalSubmitBtn").innerText = "GitHub 서버에 신규 저장";
@@ -573,52 +674,6 @@
     }
     
     function closeAddCatalogModal() { document.getElementById("addCatalogModal").style.display = "none"; }
-
-    function loadExistingProductForEdit() {
-        const key = document.getElementById("editTargetSelect").value;
-        const mainTitle = document.getElementById("modalMainTitle");
-        const submitBtn = document.getElementById("modalSubmitBtn");
-
-        if (!key) {
-            editingProductKey = null;
-            document.getElementById("newCat").value = "";
-            document.getElementById("newBrand").value = "";
-            document.getElementById("newName").value = "";
-            document.getElementById("newPrice").value = "";
-            document.getElementById("newSpecs").value = "";
-            
-            mainTitle.innerText = "신규 장비 카탈로그 등록";
-            mainTitle.style.color = "var(--primary)";
-            submitBtn.innerText = "GitHub 서버에 신규 저장";
-            submitBtn.classList.replace("btn-dark", "btn-primary");
-            return;
-        }
-
-        editingProductKey = key;
-        const prod = productCatalog[key];
-        if (!prod) return;
-
-        document.getElementById("newCat").value = prod.cat || "";
-        document.getElementById("newBrand").value = prod.brand || "";
-        document.getElementById("newName").value = prod.name || "";
-        document.getElementById("newPrice").value = prod.price || 0;
-
-        let specArr = [];
-        if (prod.specs) {
-            for (const [k, v] of Object.entries(prod.specs)) {
-                if (k !== "브랜드") {
-                    if (k === "요약") specArr.push(v);
-                    else specArr.push(`${k}: ${v}`);
-                }
-            }
-        }
-        document.getElementById("newSpecs").value = specArr.join(", ");
-
-        mainTitle.innerText = "카탈로그 장비 정보 수정 모드";
-        mainTitle.style.color = "#ef4444";
-        submitBtn.innerText = "GitHub 서버에 수정(Update) 저장";
-        submitBtn.classList.replace("btn-primary", "btn-dark");
-    }
 
     async function saveNewCatalogProduct() {
         const cat = document.getElementById("newCat").value.trim() || "기타 품목";
