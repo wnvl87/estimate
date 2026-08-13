@@ -18,12 +18,11 @@
         body { background-color: var(--bg-gray); color: var(--text-main); padding: 30px 15px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 1100px; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); padding: 40px; position: relative; }
 
-        /* Bookmark Tabs (책갈피 스타일 탭) */
+        /* Bookmark Tabs */
         .bookmark-tabs { display: flex; gap: 6px; position: absolute; top: -38px; left: 40px; }
         .tab-btn { padding: 10px 20px; background: #cbd5e1; color: var(--text-muted); font-weight: 700; font-size: 14px; border: none; border-top-left-radius: 8px; border-top-right-radius: 8px; cursor: pointer; transition: all 0.2s; }
         .tab-btn.active { background: #ffffff; color: var(--primary-accent); box-shadow: -3px -3px 10px rgba(0,0,0,0.05); }
 
-        /* Page Display Control */
         .page-section { display: none; }
         .page-section.active-page { display: block; }
 
@@ -134,13 +133,12 @@
 <body>
 
 <div class="container">
-    <!-- 책갈피 형태의 탭 메뉴 -->
     <div class="bookmark-tabs">
         <button class="tab-btn active" id="tabQuote" onclick="switchPage('quote')">📄 견적서 작성</button>
         <button class="tab-btn" id="tabCatalog" onclick="switchPage('catalog')">📦 카탈로그 관리</button>
     </div>
 
-    <!-- [페이지 1] 견적서 작성 섹션 -->
+    <!-- 견적서 페이지 -->
     <div class="page-section active-page" id="pageQuote">
         <div class="header">
             <div class="header-title">
@@ -259,7 +257,7 @@
             <div class="sign-text">위와 같이 견적합니다.</div>
             <div class="sign-company">주식회사 아더 (ARTHUR Co., Ltd.)</div>
             <div class="sign-name">
-                대표 / 이사 최 동 주 
+                대표 / 이사 김 상 복 
                 <span class="sign-stamp">(인)</span>
             </div>
         </div>
@@ -273,7 +271,7 @@
         </div>
     </div>
 
-    <!-- [페이지 2] 카탈로그 관리 섹션 -->
+    <!-- 카탈로그 관리 페이지 -->
     <div class="page-section" id="pageCatalog">
         <div class="header">
             <div class="header-title">
@@ -286,7 +284,7 @@
         </div>
 
         <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <input type="text" id="catalogSearchInput" placeholder="카탈로그 내 장비 검색..." onkeyup="renderCatalogTable()" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; width: 300px; font-size: 13px;">
+            <input type="text" id="catalogSearchInput" placeholder="카탈로그 내 장비 검색..." onkeyup="renderCatalogTable()" style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; width: 300px; font-size: 13px; outline: none;">
             <span style="font-size: 13px; color: var(--text-muted);">총 등록 장비: <strong id="catalogCount">0</strong>개</span>
         </div>
 
@@ -377,7 +375,6 @@
         loadLocalData();
     };
 
-    // 페이지 전환 책갈피 함수
     function switchPage(pageName) {
         document.getElementById('pageQuote').classList.remove('active-page');
         document.getElementById('pageCatalog').classList.remove('active-page');
@@ -390,7 +387,7 @@
         } else if (pageName === 'catalog') {
             document.getElementById('pageCatalog').classList.add('active-page');
             document.getElementById('tabCatalog').classList.add('active');
-            renderCatalogTable(); // 카탈로그 탭 진입 시 목록 렌더링
+            renderCatalogTable();
         }
     }
 
@@ -408,7 +405,7 @@
                 localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
             }
         } catch (error) {
-            console.error('서버 카탈로그 로딩 실패:', error);
+            console.error('서버 카탈로그 로딩 실패 (로컬 백업 사용):', error);
             const localCustom = localStorage.getItem('arthur_local_custom_catalog');
             if (localCustom) {
                 productCatalog = JSON.parse(localCustom);
@@ -489,7 +486,6 @@
         }
     }
 
-    // 카탈로그 관리 탭의 테이블 렌더링
     function renderCatalogTable() {
         const tbody = document.getElementById("catalogTableBody");
         const searchKeyword = document.getElementById("catalogSearchInput").value.toLowerCase();
@@ -543,6 +539,20 @@
         document.getElementById("modalSubmitBtn").innerText = "GitHub 서버에 수정(Update) 저장";
         document.getElementById("modalSubmitBtn").classList.replace("btn-primary", "btn-dark");
 
+        const catDatalist = document.getElementById("modalCatList");
+        const brandDatalist = document.getElementById("modalBrandList");
+        catDatalist.innerHTML = "";
+        brandDatalist.innerHTML = "";
+        
+        const cats = new Set();
+        const brands = new Set();
+        for (const p of Object.values(productCatalog)) {
+            if (p.cat) cats.add(p.cat.trim());
+            if (p.brand) brands.add(p.brand.trim());
+        }
+        cats.forEach(c => catDatalist.innerHTML += `<option value="${escapeHtml(c)}">`);
+        brands.forEach(b => brandDatalist.innerHTML += `<option value="${escapeHtml(b)}">`);
+
         document.getElementById("addCatalogModal").style.display = "flex";
     }
 
@@ -582,6 +592,8 @@
         
         const prod = productCatalog[key];
         const brandName = prod.brand ? prod.brand.trim() : "";
+        
+        // 브랜드별 할인율 자동 적용
         const defaultDc = BRAND_DEFAULT_DC[brandName] !== undefined ? BRAND_DEFAULT_DC[brandName] : 0;
         const discountedPrice = Math.round(prod.price * (1 - (defaultDc / 100)));
 
@@ -752,15 +764,19 @@
             saveBtn.disabled = false;
             
             initDynamicFilters(); 
+            renderCatalogTable();
             closeAddCatalogModal();
             alert(isUpdate ? `[${brand}] ${name} 장비의 데이터가 성공적으로 수정되었습니다.` : `[${brand}] ${name} 장비가 성공적으로 신규 등록되었습니다.`);
 
         } catch (error) {
             console.error(error);
-            alert("오류 발생 (단, 브라우저 로컬에는 임시 저장되었습니다): " + error.message);
+            alert("오류 발생 (단, 로컬 백업에 반영되어 즉시 사용 가능합니다): " + error.message);
             const saveBtn = document.getElementById("modalSubmitBtn");
             saveBtn.innerText = "GitHub 서버에 저장";
             saveBtn.disabled = false;
+            initDynamicFilters();
+            renderCatalogTable();
+            closeAddCatalogModal();
         }
     }
 
