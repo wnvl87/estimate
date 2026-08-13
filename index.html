@@ -437,3 +437,14 @@
 
 </body>
 </html>
+async function loadCatalog() {
+  try {
+    const res = await fetch('b2b_quotation_data.json');
+    const data = await res.json();
+    renderCatalog(data); // 카탈로그 렌더링 함수
+  } catch (e) {
+    console.error('카탈로그 로딩 실패:', e);
+  }
+}
+
+loadCatalog();
