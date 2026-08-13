@@ -435,7 +435,10 @@
     
     function closeAddCatalogModal() { document.getElementById("addCatalogModal").style.display = "none"; }
 
-    function saveNewCatalogProduct() {
+   // (기존 openAddCatalogModal, closeAddCatalogModal 함수 아래에 붙여넣으세요)
+
+    // GitHub API를 통해 JSON 파일을 직접 덮어쓰는 핵심 함수
+    async function saveNewCatalogProduct() {
         const cat = document.getElementById("newCat").value;
         const brand = document.getElementById("newBrand").value.trim() || "기타";
         const name = document.getElementById("newName").value.trim();
@@ -447,6 +450,18 @@
             return;
         }
 
+        // 1. 브라우저에 저장된 GitHub 토큰 확인
+        let githubToken = localStorage.getItem('arthur_github_token');
+        if (!githubToken) {
+            githubToken = prompt("GitHub 저장소를 업데이트하기 위한 Personal Access Token을 입력하세요.\n(이 토큰은 현재 PC에만 안전하게 저장됩니다.)");
+            if (!githubToken) {
+                alert("토큰이 없으면 카탈로그를 영구 업데이트할 수 없습니다.");
+                return;
+            }
+            localStorage.setItem('arthur_github_token', githubToken);
+        }
+
+        // 2. 새 장비 객체 생성
         const key = "CAT_" + Date.now();
         let specObj = { "브랜드": brand };
         if (specsText) {
@@ -456,13 +471,75 @@
                 else specObj["요약"] = s.trim();
             });
         }
-        productCatalog[key] = { cat: cat, brand: brand, name: name, price: price, specs: specObj };
         
-        filterCatalog();
-        closeAddCatalogModal();
-        alert(`[${brand}] ${name} 장비가 카탈로그에 성공적으로 등록되었습니다.`);
+        // 현재 productCatalog에 새 장비 병합
+        productCatalog[key] = { cat: cat, brand: brand, name: name, price: price, specs: specObj };
+
+        // 3. GitHub API 통신 시작
+        const owner = "wnvl87";
+        const repo = "estimate";
+        const path = "b2b_quotation_data.json";
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+        try {
+            // 버튼 상태 변경 (로딩 중)
+            const saveBtn = document.querySelector("#addCatalogModal .btn-primary");
+            const originalBtnText = saveBtn.innerText;
+            saveBtn.innerText = "GitHub에 저장 중...";
+            saveBtn.disabled = true;
+
+            // (1) 기존 파일의 SHA(고유값) 가져오기 (파일 덮어쓰기에 필수)
+            let fileSha = "";
+            const getResponse = await fetch(apiUrl, {
+                headers: { "Authorization": `Bearer ${githubToken}` }
+            });
+            
+            if (getResponse.ok) {
+                const data = await getResponse.json();
+                fileSha = data.sha;
+            } else if (getResponse.status === 401) {
+                localStorage.removeItem('arthur_github_token');
+                throw new Error("토큰이 만료되었거나 권한이 없습니다. 다시 시도해서 새 토큰을 입력하세요.");
+            }
+
+            // (2) 업데이트할 JSON 데이터를 문자열로 만들고 Base64 인코딩 (한글 깨짐 방지)
+            const updatedJsonStr = JSON.stringify(productCatalog, null, 2);
+            const base64Content = btoa(unescape(encodeURIComponent(updatedJsonStr)));
+
+            // (3) GitHub 파일 업데이트 (PUT 요청)
+            const putResponse = await fetch(apiUrl, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${githubToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: `카탈로그 신규 장비 추가: [${brand}] ${name}`,
+                    content: base64Content,
+                    sha: fileSha || undefined
+                })
+            });
+
+            if (!putResponse.ok) throw new Error("GitHub 저장소 업데이트에 실패했습니다.");
+
+            // 완료 처리
+            saveBtn.innerText = originalBtnText;
+            saveBtn.disabled = false;
+            
+            filterCatalog(); // 드롭다운 재렌더링
+            closeAddCatalogModal();
+            alert(`[${brand}] ${name} 장비가 GitHub 카탈로그(JSON)에 성공적으로 영구 등록되었습니다!`);
+
+        } catch (error) {
+            console.error(error);
+            alert("오류 발생: " + error.message);
+            const saveBtn = document.querySelector("#addCatalogModal .btn-primary");
+            saveBtn.innerText = "카탈로그에 저장";
+            saveBtn.disabled = false;
+        }
     }
 
+    // JSON 내보내기, 특수문자 이스케이프, 로컬 데이터 저장 함수들은 기존 동일
     function exportDataJSON() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(quoteItems, null, 2));
         const a = document.createElement('a');
@@ -513,7 +590,3 @@
         }
         renderTable();
     }
-</script>
-
-</body>
-</html>
