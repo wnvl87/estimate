@@ -1,14 +1,4 @@
-{
-  "0": {
-    "cat": "스피커",
-    "brand": "AudioCenter",
-    "name": "DS06",
-    "price": 527000,
-    "specs": {
-      "브랜드": "AudioCenter",
-      "요약": "6인치 패시브 풀 레인지 스피커  Rated power(AES) : 100W  Impendance: 8Ω  Max SPL: 118dB"
-    }
-  },
+
   "1": {
     "cat": "Power Amp",
     "brand": "AudioCenter",
@@ -17,16 +7,56 @@
     "specs": {
       "브랜드": "AudioCenter",
       "요약": "2채널 DSP Class D앰프  2 x 500W@ 8Ω Stereo  2 x 900W@ 4Ω Stereo  2 x 900W@ 2Ω Stereo"
+
+"DS06": {
+    "cat": "스피커",
+    "brand": "Audiocenter",
+    "name": "DS06 (6\" 패시브 풀 레인지 스피커)",
+    "price": 810000,
+    "specs": {
+      "브랜드": "Audiocenter",
+      "타입": "6인치 패시브 풀 레인지 스피커",
+      "Rated power(AES)": "100W",
+      "Impendance": "8Ω",
+      "Max SPL": "118dB"
     }
   },
-  "CAT_1786612572131": {
+  "DS26": {
     "cat": "스피커",
-    "brand": "AudioCenter",
-    "name": "DS12",
-    "price": 1100000,
+    "brand": "Audiocenter",
+    "name": "DS26 (6\" 더블 패시브 풀 레인지 스피커)",
+    "price": 1020000,
     "specs": {
-      "브랜드": "AudioCenter",
-      "요약": "12인치 패시브 풀 레인지 스피커  Rated power(AES) : 400W  Impendance: 8Ω  Max SPL: 134dB"
+      "브랜드": "Audiocenter",
+      "타입": "6인치 더블 패시브 풀 레인지 스피커",
+      "Rated power(AES)": "200W",
+      "Impendance": "8Ω",
+      "Max SPL": "125dB"
+    }
+  },
+  "DS10": {
+    "cat": "스피커",
+    "brand": "Audiocenter",
+    "name": "DS10 (10\" 패시브 풀 레인지 스피커)",
+    "price": 1160000,
+    "specs": {
+      "브랜드": "Audiocenter",
+      "타입": "10인치 패시브 풀 레인지 스피커",
+      "Rated power(AES)": "250W",
+      "Impendance": "8Ω",
+      "Max SPL": "130dB"
+    }
+  },
+  "DS12": {
+    "cat": "스피커",
+    "brand": "Audiocenter",
+    "name": "DS12 (12\" 패시브 풀 레인지 스피커)",
+    "price": 1430000,
+    "specs": {
+      "브랜드": "Audiocenter",
+      "타입": "12인치 패시브 풀 레인지 스피커",
+      "Rated power(AES)": "400W",
+      "Impendance": "8Ω",
+      "Max SPL": "134dB"
     }
   }
-}
