@@ -1,11 +1,8 @@
 {
   "0": {
-    "cat": "AUDIOCENTER",
+    "cat": "메인스피커",
     "brand": "AudioCenter",
     "name": "DS06",
-    "qty": 2,
-    "msrp": 620000,
-    "dcRate": 15,
     "price": 527000,
     "specs": {
       "브랜드": "AudioCenter",
