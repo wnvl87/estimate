@@ -3,142 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B2B 전문 스마트 견적 시스템</title>
-    <!-- CSS 생략 (이전과 동일) -->
+    <title>B2B Professional Audio Quoting System</title>
     <style>
-        :root { --primary: #0f172a; --primary-accent: #2563eb; --bg-gray: #f1f5f9; --border-color: #cbd5e1; --text-main: #1e293b; --text-muted: #64748b; }
+        :root { --primary: #0f172a; --primary-accent: #2563eb; --bg-gray: #f1f5f9; --border-color: #cbd5e1; --text-main: #1e293b; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
         body { background-color: var(--bg-gray); padding: 30px; display: flex; justify-content: center; }
-        .app-wrapper { width: 100%; max-width: 1250px; position: relative; }
-        .bookmark-tabs { display: flex; flex-direction: column; gap: 8px; position: absolute; left: -150px; top: 20px; width: 140px; }
-        .tab-btn { padding: 12px 16px; background: #94a3b8; color: #ffffff; font-weight: 700; font-size: 13px; border: none; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; text-align: left; transition: all 0.2s; }
-        .tab-btn.active { background: #ffffff; color: var(--primary-accent); border-left: 4px solid var(--primary-accent); }
-        .container { background: #ffffff; border-radius: 12px; padding: 40px; }
-        .page-section { display: none; }
-        .page-section.active-page { display: block; }
-        .header { border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
-        .site-info-box { background: #f8fafc; border: 1px solid var(--border-color); padding: 25px; margin-bottom: 25px; }
-        .form-field { margin-bottom: 15px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; }
-        .btn-success { background-color: #10b981; color: white; }
-        .items-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .items-table th { background: #f1f5f9; padding: 10px; border-bottom: 2px solid #cbd5e1; }
-        .items-table td { padding: 10px; border-bottom: 1px solid #cbd5e1; }
-        .input-qty, .input-price { width: 80px; padding: 5px; text-align: center; }
+        .app-wrapper { width: 100%; max-width: 1200px; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .section { margin-bottom: 20px; }
+        label { display: block; font-weight: 700; margin-bottom: 5px; font-size: 14px; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 10px; }
+        .btn-action { background: var(--primary-accent); color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th { background: #f8fafc; padding: 12px; border-bottom: 2px solid var(--border-color); text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        .input-mini { width: 70px; padding: 4px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="app-wrapper">
-    <div class="bookmark-tabs">
-        <button class="tab-btn active" id="tabSite" onclick="switchPage('site')">📐 현장 정보</button>
-        <button class="tab-btn" id="tabQuote" onclick="switchPage('quote')">📄 견적서 작성</button>
-    </div>
-
-    <div class="container">
-        <!-- 1. 현장 정보 입력 페이지 -->
-        <div class="page-section active-page" id="pageSite">
-            <div class="header"><h1>현장 정보 설정</h1></div>
-            <div class="site-info-box">
-                <div class="form-field">
-                    <label>보컬 인원 수 (3명 초과 시 모니터 스피커 증가)</label>
-                    <input type="number" id="siteVocalCount" value="4" onchange="saveLocalData()">
-                </div>
-                <div class="form-field">
-                    <label>옵션 설정</label>
-                    <div style="display:flex; gap:20px;">
-                        <label><input type="checkbox" id="chkMonitor" onchange="saveLocalData()" checked> 무대 모니터 스피커 사용</label>
-                        <label><input type="checkbox" id="chkP16" onchange="saveLocalData()" checked> 퍼스널 믹서(P16) 사용</label>
-                    </div>
-                </div>
-                <div class="form-field">
-                    <label>퍼스널 믹서 필요 인원</label>
-                    <input type="number" id="siteP16Count" value="5" onchange="saveLocalData()">
-                </div>
-                <button class="btn btn-success" onclick="generateSmartQuotation()">🤖 견적 자동 산출</button>
+    <div class="header"><h1>오디오 시스템 견적 솔루션</h1></div>
+    
+    <div class="grid">
+        <div class="section">
+            <h3>현장 및 인원 설정</h3>
+            <label>보컬 인원 수 (모니터 산출 기준)</label>
+            <input type="number" id="siteVocalCount" value="4">
+            
+            <label>악기 구성 (연주자 총 인원)</label>
+            <input type="number" id="siteInstCount" value="3" placeholder="연주자 총 인원수">
+            
+            <div style="display: flex; gap: 10px;">
+                <label><input type="checkbox" id="useMonitor" checked> 모니터 사용</label>
+                <label><input type="checkbox" id="useP16" checked> P16 사용</label>
             </div>
+            <label>퍼스널 믹서 인원</label>
+            <input type="number" id="siteP16Count" value="5">
         </div>
-
-        <!-- 2. 견적서 페이지 -->
-        <div class="page-section" id="pageQuote">
-            <div class="header"><h1>견적서</h1></div>
-            <table class="items-table">
-                <thead>
-                    <tr><th>No.</th><th>품목</th><th>브랜드 및 모델명</th><th>수량</th><th>단가(원)</th><th>합계(원)</th><th>삭제</th></tr>
-                </thead>
-                <tbody id="quotationItems"></tbody>
-            </table>
+        
+        <div class="section">
+            <h3>시스템 옵션</h3>
+            <label>믹서 선호 브랜드</label>
+            <select id="prefMixer"><option>Behringer</option><option>Yamaha</option><option>Midas</option></select>
+            <label>스피커 선호 브랜드</label>
+            <select id="prefSpeaker"><option>Audiocenter</option><option>Bose</option><option>JBL</option></select>
+            <button class="btn-action" onclick="generateQuote()">견적 자동 산출하기</button>
         </div>
     </div>
+
+    <table>
+        <thead>
+            <tr><th>No.</th><th>품목</th><th>브랜드 및 모델명</th><th>수량</th><th>단가(원)</th><th>합계(원)</th><th>삭제</th></tr>
+        </thead>
+        <tbody id="quoteBody"></tbody>
+    </table>
 </div>
 
 <script>
-    let quoteItems = [];
-    let productCatalog = {
-        "C01": { cat: "믹서", brand: "Behringer", name: "WING", price: 3500000 },
-        "C02": { cat: "I/O", brand: "Behringer", name: "DL32", price: 1200000 },
-        "C03": { cat: "스피커", brand: "Audiocenter", name: "WM3210P", price: 1800000 },
-        "C04": { cat: "스피커", brand: "Audiocenter", name: "UTA902DSP", price: 900000 },
-        "C05": { cat: "무선마이크", brand: "Sennheiser", name: "EW-D / 835-S SET", price: 1100000 },
-        "C06": { cat: "무선마이크", brand: "Sennheiser", name: "EW-D ASA", price: 450000 },
-        "C07": { cat: "퍼스널믹서", brand: "Behringer", name: "P16-HQ", price: 350000 }
+    const catalog = {
+        "mixer": { brand: "Behringer", name: "WING", price: 3500000, cat: "믹서" },
+        "io": { brand: "Behringer", name: "DL32", price: 1200000, cat: "I/O" },
+        "mainSpk": { brand: "Audiocenter", name: "WM3210P", price: 1800000, cat: "스피커" },
+        "monSpk": { brand: "Audiocenter", name: "UTA902DSP", price: 900000, cat: "모니터" },
+        "mic": { brand: "Sennheiser", name: "EW-D / 835-S", price: 1100000, cat: "무선마이크" },
+        "asa": { brand: "Sennheiser", name: "EW-D ASA", price: 450000, cat: "분배기" },
+        "p16": { brand: "Behringer", name: "P16-HQ", price: 350000, cat: "퍼스널믹서" },
+        "cable": { brand: "Canare", name: "L-2T2S (m)", price: 2500, cat: "케이블" }
     };
 
-    function addProductToQuote(prod, qty) {
-        quoteItems.push({ cat: prod.cat, brand: prod.brand, name: prod.name, qty: qty, price: prod.price });
-    }
+    let quoteItems = [];
 
-    function generateSmartQuotation() {
+    function generateQuote() {
         quoteItems = [];
-        const vocalCount = parseInt(document.getElementById("siteVocalCount").value) || 0;
-        const useMonitor = document.getElementById("chkMonitor").checked;
-        const useP16 = document.getElementById("chkP16").checked;
-        const p16Count = parseInt(document.getElementById("siteP16Count").value) || 0;
+        const vocal = parseInt(document.getElementById('siteVocalCount').value) || 0;
+        const inst = parseInt(document.getElementById('siteInstCount').value) || 0;
+        const useMonitor = document.getElementById('useMonitor').checked;
+        const useP16 = document.getElementById('useP16').checked;
+        const p16Qty = parseInt(document.getElementById('siteP16Count').value) || 0;
 
-        // 믹서/IO
-        addProductToQuote(productCatalog["C01"], 1);
-        addProductToQuote(productCatalog["C02"], 1);
+        // 1. 믹서/IO
+        quoteItems.push({ ...catalog.mixer, qty: 1 });
+        quoteItems.push({ ...catalog.io, qty: 1 });
 
-        // 메인 스피커
-        addProductToQuote(productCatalog["C03"], 2);
+        // 2. 메인 스피커 (2대)
+        quoteItems.push({ ...catalog.mainSpk, qty: 2 });
 
-        // 모니터 스피커 (로직: 사용안함=0, 사용=2 + (보컬 3명 초과 시 1개씩 증가))
+        // 3. 모니터 (기본 2 + 보컬 3명 초과 시 1개씩 추가)
         if (useMonitor) {
-            let monitorCount = 2 + Math.floor(Math.max(0, vocalCount - 3) / 1); // 3명 초과 시부터 1개씩 추가
-            addProductToQuote(productCatalog["C04"], monitorCount);
+            let monitorQty = 2 + Math.floor(Math.max(0, vocal - 3) / 1);
+            quoteItems.push({ ...catalog.monSpk, qty: monitorQty });
         }
 
-        // 무선 마이크
-        if (vocalCount > 0) {
-            addProductToQuote(productCatalog["C05"], vocalCount);
-            let asaCount = Math.ceil(vocalCount / 4);
-            addProductToQuote(productCatalog["C06"], asaCount);
+        // 4. 무선/분배기
+        if (vocal > 0) {
+            quoteItems.push({ ...catalog.mic, qty: vocal });
+            quoteItems.push({ ...catalog.asa, qty: Math.ceil(vocal / 4) });
         }
 
-        // 퍼스널 믹서
-        if (useP16) {
-            addProductToQuote(productCatalog["C07"], p16Count);
-        }
+        // 5. P16
+        if (useP16) quoteItems.push({ ...catalog.p16, qty: p16Qty });
 
-        renderTable();
-        alert("견적이 산출되었습니다.");
+        // 6. 케이블 (50m 단위)
+        quoteItems.push({ ...catalog.cable, qty: 150 });
+
+        render();
     }
 
-    function renderTable() {
-        const tbody = document.getElementById("quotationItems");
-        tbody.innerHTML = quoteItems.map((item, i) => `
+    function render() {
+        const body = document.getElementById('quoteBody');
+        body.innerHTML = quoteItems.map((item, i) => `
             <tr>
-                <td>${i+1}</td><td>${item.cat}</td><td>[${item.brand}] ${item.name}</td>
-                <td>${item.qty}</td><td>${item.price.toLocaleString()}</td>
+                <td>${i+1}</td>
+                <td>${item.cat}</td>
+                <td>[${item.brand}] ${item.name}</td>
+                <td><input type="number" class="input-mini" value="${item.qty}"></td>
+                <td>${item.price.toLocaleString()}</td>
                 <td>${(item.qty * item.price).toLocaleString()}</td>
-                <td><button onclick="quoteItems.splice(${i},1); renderTable();">✕</button></td>
+                <td><button onclick="quoteItems.splice(${i},1); render();">✕</button></td>
             </tr>
         `).join('');
     }
-
-    function saveLocalData() { /* 생략 */ }
-    function loadLocalData() { /* 생략 */ }
-    function switchPage(p) { /* 생략 */ }
 </script>
 </body>
 </html>
