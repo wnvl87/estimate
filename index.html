@@ -146,12 +146,12 @@
     </div>
 
     <div class="container">
-        <!-- 1. 현장 정보 입력 및 맞춤 추천 기점 페이지 -->
+        <!-- 1. 현장 정보 입력 페이지 -->
         <div class="page-section active-page" id="pageSite">
             <div class="header">
                 <div class="header-title">
                     <h1>현장 정보 및 시스템 요구사항</h1>
-                    <p>현장 실측 제원 및 선호 브랜드, 옵션을 선택하시면 알고리즘이 믹서·I/O·스피커·무선·케이블 맞춤형 견적을 자동 산출합니다.</p>
+                    <p>현장 실측 제원 및 선호 브랜드, 옵션을 선택하시면 정확한 액티브 음향 패키지가 자동 산출됩니다.</p>
                 </div>
             </div>
 
@@ -188,7 +188,7 @@
 
                         <!-- 선호 브랜드 및 옵션 체크박스 영역 -->
                         <div class="form-field">
-                            <label>믹서 선호 브랜드 선택</label>
+                            <label>믹서 선호 브랜드 선택 (우선순위 1개 적용)</label>
                             <div class="checkbox-group">
                                 <label class="checkbox-label"><input type="checkbox" name="prefMixer" value="Yamaha" onchange="saveLocalData()"> 야마하</label>
                                 <label class="checkbox-label"><input type="checkbox" name="prefMixer" value="Allen & Heath" onchange="saveLocalData()"> 알렌앤히스</label>
@@ -224,7 +224,7 @@
             </div>
         </div>
 
-        <!-- 2. 견적서 페이지 (소비자용 개편) -->
+        <!-- 2. 견적서 페이지 -->
         <div class="page-section" id="pageQuote">
             <div class="header">
                 <div class="header-title">
@@ -270,7 +270,6 @@
                 </div>
             </div>
 
-            <!-- 💡 소비자용 견적서 테이블 항목 개편 (No. / 품목 / 브랜드 및 모델명 / 수량 / 단가 / 합계 / 삭제) -->
             <div class="table-wrapper">
                 <table class="items-table">
                     <thead>
@@ -340,7 +339,7 @@
             </div>
         </div>
 
-        <!-- 3. 카탈로그 관리 페이지 (관리자 전용) -->
+        <!-- 3. 카탈로그 관리 페이지 -->
         <div class="page-section" id="pageCatalog">
             <div class="header">
                 <div class="header-title">
@@ -512,7 +511,7 @@
 
     function addProductToQuote(prod, qty = 1) {
         const brandName = prod.brand ? prod.brand.trim() : "";
-        const unitPrice = prod.price; // 소비자용은 원본 소비자가 적용
+        const unitPrice = prod.price;
 
         const existing = quoteItems.find(item => item.name.toLowerCase() === prod.name.toLowerCase() && item.brand.toLowerCase() === brandName.toLowerCase());
         if (existing) {
@@ -526,7 +525,7 @@
         renderTable();
     }
 
-    // 🤖 [완성형 스마트 견적 알고리즘] (믹서, I/O, 무선, 스피커, P16, 케이블 통합 산출)
+    // 🤖 [완벽 교정된 스마트 견적 자동 산출 알고리즘]
     function generateSmartQuotation() {
         const width = parseFloat(document.getElementById("siteWidth").value) || 10;
         const length = parseFloat(document.getElementById("siteLength").value) || 15;
@@ -545,21 +544,21 @@
 
         quoteItems = [];
 
-        // 1. 디지털 믹서 및 대응 디지털 I/O 자동 매칭
+        // 1. 디지털 믹서 및 대응 디지털 I/O 자동 매칭 (단일 1개 브랜드 우선 선택으로 중복 방지)
         let mixerProd = null;
         for (let b of prefMixerBrands) {
             mixerProd = findProductByKeyword(b, "Digital Mixer") || findProductByKeyword(b, "WING") || findProductByKeyword(b, "SQ") || findProductByKeyword(b, "M32");
             if (mixerProd) break;
         }
         if (!mixerProd) mixerProd = Object.values(productCatalog).find(p => p.cat.includes("믹서") || p.cat.includes("Mixer"));
+        
         if (mixerProd) {
             addProductToQuote(mixerProd, 1);
-            // I/O 박스 매칭 (믹서 브랜드에 대응하는 I/O)
             let ioProd = findProductByKeyword(mixerProd.brand, "IO") || findProductByKeyword(mixerProd.brand, "Stagebox") || findProductByKeyword(mixerProd.brand, "Rio") || findProductByKeyword(mixerProd.brand, "DL");
             if (ioProd) addProductToQuote(ioProd, 1);
         }
 
-        // 2. 스피커 자동 매칭
+        // 2. 액티브 스피커 자동 매칭 (메인 1조 = 2대)
         let targetSpeakerKeyword = volume > 400 ? "Main" : "Column";
         let speakerProd = null;
         for (let b of prefSpeakerBrands) {
@@ -569,8 +568,9 @@
         if (!speakerProd) speakerProd = Object.values(productCatalog).find(p => p.cat.includes("스피커") || p.cat.includes("Speaker"));
         if (speakerProd) addProductToQuote(speakerProd, 2);
 
+        // 무대 모니터 스피커 추가 (액티브 모니터 2대)
         if (chkMonitor) {
-            let monitorProd = findProductByKeyword("Audiocenter", "Monitor") || findProductByKeyword("JBL", "Monitor") || findProductByKeyword("Speaker");
+            let monitorProd = findProductByKeyword("Audiocenter", "Monitor") || findProductByKeyword("JBL", "Monitor") || findProductByKeyword("Monitor") || findProductByKeyword("Speaker");
             if (monitorProd) addProductToQuote(monitorProd, 2);
         }
 
@@ -608,21 +608,19 @@
             }
         }
 
-        // 5. 케이블 50m 단위 자동 산출 (미터 단위)
+        // 5. 액티브 스피커 시스템에 맞는 배선 인프라 산출 (미터 단위, VCT/VCTF 전원 및 L-2T2S 시그널 케이블)
         let estimatedCableMeters = Math.ceil((maxDist * 3.5) / 50) * 50;
         if (estimatedCableMeters < 50) estimatedCableMeters = 50;
 
         const micCable = findProductByKeyword("Canare", "L-2T2S");
-        const spkCable = findProductByKeyword("Canare", "L-4S11");
-        const powerCable = findProductByKeyword("VCT", "4SQ");
+        const powerCable = findProductByKeyword("VCT", "4SQ") || findProductByKeyword("VCTF", "2.5SQ");
         const netCable = findProductByKeyword("Neutrik", "실드랜케이블") || findProductByKeyword("Roxtone", "CAT6A");
 
         if (micCable) addProductToQuote(micCable, estimatedCableMeters);
-        if (spkCable) addProductToQuote(spkCable, estimatedCableMeters);
-        if (powerCable) addProductToQuote(powerCable, Math.max(50, Math.floor(estimatedCableMeters / 2)));
+        if (powerCable) addProductToQuote(powerCable, estimatedCableMeters);
         if (netCable) addProductToQuote(netCable, estimatedCableMeters);
 
-        alert(`🤖 소비자용 스마트 견적 산출 완료!\n- 믹서 및 디지털 I/O, 스피커/무선/케이블 자동 구성 완료\n\n[견적서 작성] 탭에서 상세 내역을 확인하세요!`);
+        alert(`🤖 스마트 견적 산출 완료!\n- 콘솔 중복 제거 및 액티브 스피커/모니터/전원·시그널 배선 인프라 반영 완료\n\n[견적서 작성] 탭에서 상세 내역을 확인하세요!`);
         switchPage('quote');
     }
 
@@ -635,7 +633,6 @@
         return Object.values(productCatalog).find(p => p.brand.toLowerCase().includes(brandName.toLowerCase()));
     }
 
-    // 💡 소비자용 테이블 렌더링 (No. / 품목 / 브랜드 및 모델명 / 수량 / 단가 / 합계 / 삭제)
     function renderTable() {
         const tbody = document.getElementById("quotationItems");
         tbody.innerHTML = "";
