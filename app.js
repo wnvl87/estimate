@@ -5,7 +5,7 @@ const formError = document.getElementById('formError');
 const resultSection = document.getElementById('result');
 const quoteCards = document.getElementById('quoteCards');
 const budgetSelect = document.getElementById('budget');
-let catalog = Array.isArray(window.QUOTE_PRODUCTS) ? window.QUOTE_PRODUCTS : [];
+let catalog = (Array.isArray(window.QUOTE_PRODUCTS) ? window.QUOTE_PRODUCTS : []).filter((product) => product.status !== 'inactive' && product.isPrimaryProduct !== false);
 
 const currency = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW', maximumFractionDigits: 0 });
 
@@ -99,7 +99,12 @@ function speakerProducts(level, usage, isExpansion) {
 }
 
 function withVat(product) {
-  return Math.round(Number(product.price || 0) * VAT_RATE);
+  if (product.price === null || product.price === undefined || product.price === '') return null;
+  return Math.round(Number(product.price) * VAT_RATE);
+}
+
+function statusLabel(product) {
+  return product.status === 'discontinued' ? '단종 · 금액 확인 필요' : product.status === 'out_of_stock' ? '일시품절 · 상담 가능' : '';
 }
 
 function addItem(items, product, quantity, note = '') {
@@ -108,10 +113,10 @@ function addItem(items, product, quantity, note = '') {
   const existing = items.find((item) => item.product.id === product.id && item.note === note);
   if (existing) {
     existing.quantity += quantity;
-    existing.subtotal = existing.quantity * existing.unitPrice;
+    existing.subtotal = existing.unitPrice === null ? null : existing.quantity * existing.unitPrice;
     return;
   }
-  items.push({ product, quantity, note, unitPrice, subtotal: unitPrice * quantity });
+  items.push({ product, quantity, note, unitPrice, subtotal: unitPrice === null ? null : unitPrice * quantity });
 }
 
 function buildConfiguration(tier, space, channels, options) {
@@ -119,47 +124,56 @@ function buildConfiguration(tier, space, channels, options) {
   const offset = tier === 'economy' ? -1 : tier === 'expansion' ? 1 : 0;
   const level = Math.max(0, Math.min(2, baseLevel + offset));
   const items = [];
+  const missingPrimary = [];
 
-  speakerProducts(level, options.usage, tier === 'expansion').forEach(({ product, quantity }) => addItem(items, product, quantity, '메인 시스템'));
+  const speakers = speakerProducts(level, options.usage, tier === 'expansion');
+  if (!speakers.length) missingPrimary.push('메인 스피커');
+  speakers.forEach(({ product, quantity }) => addItem(items, product, quantity, '메인 시스템'));
 
   const mixer = mixerFor(channels, options.mixerPreference);
+  if (!mixer) missingPrimary.push('디지털 믹서');
   addItem(items, mixer, 1, `${channels}ch 운영 기준`);
 
   const stagebox = stageboxFor(mixer, channels);
+  if (channels > 16 && !stagebox) missingPrimary.push('디지털 I/O');
   addItem(items, stagebox, 1, '무대 입출력 확장');
 
   if (options.monitorCount > 0) {
     const monitor = productByName('WM3210A') || productByName('WM3210P');
+    if (!monitor) missingPrimary.push('무대 모니터');
     addItem(items, monitor, options.monitorCount, '무대 모니터');
   }
 
   if (options.personalMixerCount > 0) {
     const personalMixer = productByName('P16-HQ') || productByName('P16-D');
+    if (!personalMixer) missingPrimary.push('퍼스널믹서');
     addItem(items, personalMixer, options.personalMixerCount, '개인 모니터링');
   }
 
   if (options.vocalCount > 0) {
     const wirelessMic = productByName('EW-D / 835-S SET') || productByName('XSW 2-835 SET');
+    if (!wirelessMic) missingPrimary.push('무선마이크');
     addItem(items, wirelessMic, options.vocalCount, '보컬·무선마이크');
   }
 
-  const total = items.reduce((sum, item) => sum + item.subtotal, 0);
+  const total = items.reduce((sum, item) => sum + (item.subtotal ?? 0), 0);
   const materials = calculateMaterialEstimate(items, space, channels);
   const labels = {
     economy: { label: '절약안', description: '현재 사용 목적에 필요한 핵심 구성을 우선한 안입니다.' },
     standard: { label: '표준안', description: '입력하신 공간과 운영 규모를 기준으로 한 권장 구성입니다.' },
     expansion: { label: '확장안', description: '더 넓은 커버리지와 향후 운영 확장을 고려한 안입니다.' }
   };
-  return { tier, ...labels[tier], items, total, materials, level, mixer };
+  return { tier, ...labels[tier], items, total, materials, level, mixer, missingPrimary };
 }
 
 function renderItems(items) {
   if (!items.length) return '<li><strong>추천 가능 품목 확인 필요</strong><small>카탈로그 검토 후 상세 상담으로 안내합니다.</small></li>';
-  return items.map((item) => `
-    <li>
-      <span><strong>${escapeHtml(item.product.brand)} ${escapeHtml(item.product.name)}</strong><small>${escapeHtml(item.note)} · ${item.quantity}개 × ${formatWon(item.unitPrice)}</small></span>
-      <b>${formatWon(item.subtotal)}</b>
-    </li>`).join('');
+  return items.map((item) => {
+    const unitText = item.unitPrice === null ? '금액 별도 확인' : formatWon(item.unitPrice);
+    const subtotalText = item.subtotal === null ? '상세 견적' : formatWon(item.subtotal);
+    const statusText = statusLabel(item.product);
+    return `<li><span><strong>${escapeHtml(item.product.brand)} ${escapeHtml(item.product.name)}</strong><small>${escapeHtml(item.note)} · ${item.quantity}개 × ${unitText}${statusText ? ` · ${statusText}` : ''}</small></span><b>${subtotalText}</b></li>`;
+  }).join('');
 }
 
 function escapeHtml(value) {
@@ -209,8 +223,10 @@ function renderQuotes(configurations, budget) {
   const hasBudget = Number.isFinite(budget) && budget > 0;
   quoteCards.innerHTML = configurations.map((configuration) => {
     const isOverBudget = hasBudget && configuration.total > budget;
-    const status = !hasBudget
-      ? '예산을 입력하면 이 구성과 예산의 적합도를 더 정교하게 비교할 수 있습니다.'
+    const status = configuration.missingPrimary.length
+      ? `주력상품 부족: ${configuration.missingPrimary.join(', ')}는 관리자 상품 지정 후 다시 확인하거나 담당자 상담이 필요합니다.`
+      : !hasBudget
+        ? '예산을 입력하면 이 구성과 예산의 적합도를 더 정교하게 비교할 수 있습니다.'
       : isOverBudget
         ? `선택 예산보다 ${formatWon(configuration.total - budget)} 높습니다. 현장 상담으로 조정할 수 있습니다.`
         : `선택 예산 내 구성입니다. 남은 예산 ${formatWon(budget - configuration.total)}`;
@@ -221,7 +237,7 @@ function renderQuotes(configurations, budget) {
         <h3>${configuration.label}</h3>
         <p class="tier-description">${configuration.description}</p>
         <div class="quote-total"><span>예상 장비 판매가 · 부가세 포함</span><strong>${formatWon(configuration.total)}</strong></div>
-        <p class="quote-status ${isOverBudget ? 'over' : ''}">${status}</p>
+        <p class="quote-status ${configuration.missingPrimary.length || isOverBudget ? 'over' : ''}">${status}</p>
         <ul class="item-list">${renderItems(configuration.items)}</ul>
         ${renderMaterials(configuration.materials)}
         <p class="quote-footnote">설치·배선·운송·튜닝·시공 비용은 현장 실사 후 상세 견적으로 별도 안내합니다.</p>
