@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B2B 전문 스마트 견적 시스템 (최종 정돈본)</title>
+    <title>B2B Professional Audio Quoting System (완성본)</title>
     <style>
         :root {
             --primary: #0f172a;
@@ -54,7 +54,7 @@
         .instrument-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary-accent); cursor: pointer; }
         .instrument-row input[type="number"] { width: 55px; padding: 4px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
 
-        /* 모니터 및 퍼스널믹서 수량 설정 서브박스 */
+        /* 옵션 설정 서브박스 */
         .option-subbox { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
         /* 체크박스 그룹 스타일 */
@@ -161,7 +161,7 @@
             <div class="header">
                 <div class="header-title">
                     <h1>현장 정보 및 시스템 요구사항</h1>
-                    <p>현장 실측 제원 및 밴드/악기 구성을 설정하시면 맞춤형 견적이 자동 산출됩니다.</p>
+                    <p>현장 실측 제원 및 악기 구성, 밴드 모니터 수량을 설정하시면 맞춤형 견적이 자동 산출됩니다.</p>
                 </div>
             </div>
 
@@ -221,12 +221,12 @@
 
                         <!-- 모니터 및 퍼스널 믹서 수량 설정 -->
                         <div class="form-field">
-                            <label>밴드 모니터 및 퍼스널 믹서 설정</label>
+                            <label>모니터 및 퍼스널 믹서 수량 설정</label>
                             <div class="option-subbox">
                                 <div>
                                     <label style="font-size: 12px; margin-bottom: 4px; display:block;">밴드 모니터 수량</label>
                                     <input type="number" id="siteBandMonitorCount" value="2" min="0" onchange="saveLocalData()">
-                                    <span style="font-size: 11px; color: var(--text-muted);">* 밴드 요청 수량</span>
+                                    <span style="font-size: 11px; color: var(--text-muted);">* 밴드 요청 지정 수량</span>
                                 </div>
                                 <div>
                                     <label style="font-size: 12px; margin-bottom: 4px; display:block;">퍼스널 믹서 (P16) 인원수</label>
@@ -585,7 +585,7 @@
         renderTable();
     }
 
-    // 🤖 [스마트 견적 자동 산출 알고리즘]
+    // 🤖 [완벽 정돈된 스마트 견적 자동 산출 알고리즘]
     function generateSmartQuotation() {
         const width = parseFloat(document.getElementById("siteWidth").value) || 10;
         const length = parseFloat(document.getElementById("siteLength").value) || 15;
@@ -691,7 +691,6 @@
         if (netCable) quoteItems.push({ cat: netCable.cat, brand: netCable.brand, name: netCable.name, qty: estimatedCableMeters, price: netCable.price });
 
         renderTable();
-        alert(`🤖 스마트 견적 산출 완료!\n- 믹서 1대, 디지털 I/O, 메인 스피커 2대, 밴드 모니터 ${bandMonitorCount}대가 정상 산정되었습니다.`);
         switchPage('quote');
     }
 
