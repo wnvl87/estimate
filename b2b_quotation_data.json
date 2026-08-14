@@ -1,32 +1,4 @@
 {
-  "CAT_17866155692861": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "AVANDA 28A",
-    "price": 3900000,
-    "specs": {}
-  },
-  "CAT_17866155692862": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "AVANDA 218A",
-    "price": 7700000,
-    "specs": {}
-  },
-  "CAT_17866155692863": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "AVANDA 712A",
-    "price": 2400000,
-    "specs": {}
-  },
-  "CAT_17866155692864": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "AVANDA 715A",
-    "price": 2600000,
-    "specs": {}
-  },
   "CAT_17866155692865": {
     "cat": "스피커",
     "brand": "Audiocenter",
@@ -300,24 +272,11 @@
     "price": 3800000,
     "specs": {}
   },
-  "CAT_1786695729053": {
-    "cat": "디지털 I/O",
-    "brand": "Midas",
-    "name": "DL16",
-    "price": 1250000
-  },
   "CAT_1786703600280_45": {
     "cat": "디지털 믹서",
     "brand": "Yamaha",
     "name": "DM7",
     "price": 24000000,
-    "specs": {}
-  },
-  "CAT_1786703600280_46": {
-    "cat": "디지털 믹서",
-    "brand": "Allen & Heath",
-    "name": "Avantis",
-    "price": 22500000,
     "specs": {}
   },
   "CAT_1786703600280_47": {
@@ -395,13 +354,6 @@
     "brand": "Allen & Heath",
     "name": "DX168",
     "price": 3200000,
-    "specs": {}
-  },
-  "CAT_1786703600281_59": {
-    "cat": "디지털 I/O",
-    "brand": "Allen & Heath",
-    "name": "AR2412",
-    "price": 3800000,
     "specs": {}
   },
   "CAT_1786703600281_60": {
@@ -556,20 +508,6 @@
     "brand": "VCTF",
     "name": "VCTF 1.5SQ×3C",
     "price": 1500,
-    "specs": {}
-  },
-  "CAT_1786703600281_82": {
-    "cat": "네트워크케이블",
-    "brand": "Roxtone",
-    "name": "CAT6A",
-    "price": 2200,
-    "specs": {}
-  },
-  "CAT_1786703600281_83": {
-    "cat": "네트워크케이블",
-    "brand": "DW",
-    "name": "Cat6-UTP",
-    "price": 1100,
     "specs": {}
   },
   "CAT_1786703792393_84": {
@@ -976,12 +914,6 @@
     "brand": "Sennheiser",
     "name": "EW-D ASA",
     "price": 1400000
-  },
-  "CAT_1786707554274_65": {
-    "cat": "무선마이크",
-    "brand": "Sennheiser",
-    "name": "ADP UHF",
-    "price": 810000
   },
   "CAT_1786707554274_66": {
     "cat": "무선마이크",
