@@ -292,5 +292,12 @@
     "name": "P48",
     "price": 1320000,
     "specs": {}
+  },
+  "CAT_1786695577252": {
+    "cat": "디지털 믹서",
+    "brand": "Behringer",
+    "name": "Wing Compact",
+    "price": 3800000,
+    "specs": {}
   }
 }
