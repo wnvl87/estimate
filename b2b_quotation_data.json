@@ -167,20 +167,6 @@
     "price": 620000,
     "specs": {}
   },
-  "CAT_178661556928629": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "DS 108S",
-    "price": 900000,
-    "specs": {}
-  },
-  "CAT_178661556928630": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "DS 112S",
-    "price": 1200000,
-    "specs": {}
-  },
   "CAT_178661556928631": {
     "cat": "스피커",
     "brand": "Audiocenter",
@@ -272,13 +258,6 @@
     "price": 3800000,
     "specs": {}
   },
-  "CAT_1786703600280_45": {
-    "cat": "디지털 믹서",
-    "brand": "Yamaha",
-    "name": "DM7",
-    "price": 24000000,
-    "specs": {}
-  },
   "CAT_1786703600280_47": {
     "cat": "디지털 믹서",
     "brand": "Allen & Heath",
@@ -354,20 +333,6 @@
     "brand": "Allen & Heath",
     "name": "DX168",
     "price": 3200000,
-    "specs": {}
-  },
-  "CAT_1786703600281_60": {
-    "cat": "디지털 I/O",
-    "brand": "Midas",
-    "name": "DL32",
-    "price": 3100000,
-    "specs": {}
-  },
-  "CAT_1786703600281_61": {
-    "cat": "디지털 I/O",
-    "brand": "Midas",
-    "name": "DL16",
-    "price": 1250000,
     "specs": {}
   },
   "CAT_1786703600281_62": {
@@ -788,12 +753,6 @@
     "brand": "Behringer",
     "name": "Wing Compact",
     "price": 3800000
-  },
-  "CAT_1786707554273_44": {
-    "cat": "디지털 I/O",
-    "brand": "Behringer",
-    "name": "DL16",
-    "price": 1250000
   },
   "CAT_1786707554273_45": {
     "cat": "디지털 믹서",
