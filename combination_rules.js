@@ -74,5 +74,53 @@ window.ARTHUR_COMBINATION_RULES = [
     },
     recommendedProducts: ['legacy-cat-178661556928628', 'POWERSOFT-56615BE24E'],
     exceptionNotes: '고급 구성 여부와 실제 채널·출력은 현장 실사 후 확정'
+  },
+  {
+    name: 'DSL45 패시브 라인어레이 기본 구성',
+    description: 'DSL45 라인어레이는 좌·우 최소 4개씩 총 8개로 구성하고 UTA1804DSP를 기본 구동 앰프로 검토합니다.',
+    priority: 40,
+    conditions: {
+      speakerProductId: 'legacy-cat-178661556928610',
+      amplifierProductId: 'legacy-cat-178661556928641',
+      sourceCategory: 'main_system',
+      speakerCategory: 'line_array',
+      powerType: 'passive',
+      amplifierChannels: 4,
+      amplifierOutputWatts: 1400,
+      minPerSide: 4,
+      recommendedPerSide: 4,
+      pairQuantity: 8,
+      usages: ['speech', 'worship', 'event'],
+      minRoomLength: null,
+      maxRoomLength: null,
+      maxRoomHeight: null,
+      highEnd: false
+    },
+    recommendedProducts: ['legacy-cat-178661556928610', 'legacy-cat-178661556928641'],
+    exceptionNotes: '좌·우 4개 미만으로 줄이지 않으며 최종 출력·채널·설치 위치는 현장 실사 후 확정'
+  },
+  {
+    name: 'T45-Passive 패시브 라인어레이 기본 구성',
+    description: 'T45-Passive 라인어레이는 좌·우 최소 4개씩 총 8개로 구성하고 UTA1804DSP를 기본 구동 앰프로 검토합니다.',
+    priority: 41,
+    conditions: {
+      speakerProductId: 'legacy-cat-17866155692868',
+      amplifierProductId: 'legacy-cat-178661556928641',
+      sourceCategory: 'main_system',
+      speakerCategory: 'line_array',
+      powerType: 'passive',
+      amplifierChannels: 4,
+      amplifierOutputWatts: 1400,
+      minPerSide: 4,
+      recommendedPerSide: 4,
+      pairQuantity: 8,
+      usages: ['speech', 'worship', 'event'],
+      minRoomLength: null,
+      maxRoomLength: null,
+      maxRoomHeight: null,
+      highEnd: false
+    },
+    recommendedProducts: ['legacy-cat-17866155692868', 'legacy-cat-178661556928641'],
+    exceptionNotes: '좌·우 4개 미만으로 줄이지 않으며 최종 출력·채널·설치 위치는 현장 실사 후 확정'
   }
 ];

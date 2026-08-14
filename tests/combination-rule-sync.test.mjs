@@ -22,4 +22,23 @@ for (const rule of rules) {
 const ds10Rule = rules.find((rule) => rule.name === 'DS10 패시브 포인트소스 기본 구성');
 assert.equal(ds10Rule.conditions.amplifierProductId, 'legacy-cat-178661556928639');
 assert.equal(ds10Rule.conditions.maxRoomLength, 12);
+
+const uta1804 = products.find((product) => product.id === 'legacy-cat-178661556928641');
+assert.ok(uta1804, 'UTA1804DSP는 공개 조합 규칙에 사용할 수 있어야 합니다.');
+assert.equal(uta1804.name, 'UTA1804DSP');
+assert.equal(uta1804.price, 1720000);
+
+for (const [name, speakerProductId] of [
+  ['DSL45 패시브 라인어레이 기본 구성', 'legacy-cat-178661556928610'],
+  ['T45-Passive 패시브 라인어레이 기본 구성', 'legacy-cat-17866155692868'],
+]) {
+  const rule = rules.find((item) => item.name === name);
+  assert.ok(rule, `${name} 규칙이 필요합니다.`);
+  assert.equal(rule.conditions.speakerProductId, speakerProductId);
+  assert.equal(rule.conditions.amplifierProductId, uta1804.id);
+  assert.equal(rule.conditions.speakerCategory, 'line_array');
+  assert.equal(rule.conditions.minPerSide, 4);
+  assert.equal(rule.conditions.recommendedPerSide, 4);
+  assert.equal(rule.conditions.pairQuantity, 8);
+}
 console.log('combination rule public-product synchronization passed');
