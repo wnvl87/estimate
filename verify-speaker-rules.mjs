@@ -14,4 +14,7 @@ const cases = [
 for (const [label, actual, expected] of cases) {
   if (actual !== expected) throw new Error(`${label}: expected ${expected}, got ${actual}`);
 }
-console.log(`speaker recommendation scenarios verified: ${cases.length}`);
+const fallbackCatalog = catalog.filter((product) => product.name !== 'DS10' && product.name !== 'DS12');
+const fallback = context.window.ArthurRecommendationRules.selectSpeaker({ catalog: fallbackCatalog, level: 1, usage: 'speech', isExpansion: false, space: { width: 10, length: 20, height: 5 } });
+if (fallback.product?.name !== 'K-LA12A' || fallback.requiresConsultation !== true) throw new Error(`fallback expected K-LA12A with consultation, got ${fallback.product?.name}`);
+console.log(`speaker recommendation scenarios verified: ${cases.length}; fallback and consultation verified`);

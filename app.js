@@ -87,6 +87,7 @@ function speakerProducts(level, usage, isExpansion, space) {
   const selection = window.ArthurRecommendationRules?.selectSpeaker({ catalog, level, usage, isExpansion, space });
   const items = selection?.product ? [{ product: selection.product, quantity: level >= 2 && isExpansion ? 4 : level >= 2 ? 2 : 1 }] : [];
   items.recommendationReason = selection?.reason || '';
+  items.requiresConsultation = selection?.requiresConsultation === true;
   if ((usage === 'worship' || usage === 'event') && level >= 1) {
     const subwoofer = productByName('K-LA218-DSP') || productByName('Pro S5118A');
     if (subwoofer) items.push({ product: subwoofer, quantity: isExpansion && level === 2 ? 2 : 1 });
@@ -124,6 +125,7 @@ function buildConfiguration(tier, space, channels, options) {
 
   const speakers = speakerProducts(level, options.usage, tier === 'expansion', space);
   if (!speakers.length) missingPrimary.push('메인 스피커');
+  if (speakers.requiresConsultation) missingPrimary.push('주력 스피커 상태 확인');
   speakers.forEach(({ product, quantity }) => addItem(items, product, quantity, '메인 시스템'));
 
   const passiveSpeaker = speakers.some(({ product }) => product?.passive === true || /DS10|DS12/.test(product?.name || ''));
