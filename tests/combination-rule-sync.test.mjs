@@ -40,5 +40,6 @@ for (const [name, speakerProductId] of [
   assert.equal(rule.conditions.minPerSide, 4);
   assert.equal(rule.conditions.recommendedPerSide, 4);
   assert.equal(rule.conditions.pairQuantity, 8);
+  assert.equal(rule.conditions.highEnd, true, `${name}는 확장안에서 적용되어야 합니다.`);
 }
 console.log('combination rule public-product synchronization passed');
