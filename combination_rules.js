@@ -10,8 +10,11 @@ window.ARTHUR_COMBINATION_RULES = [
     conditions: {
       speakerProductId: 'legacy-cat-178661556928628',
       amplifierProductId: 'legacy-cat-178661556928639',
+      sourceCategory: 'main_system',
       speakerCategory: 'point_source',
       powerType: 'passive',
+      amplifierChannels: 2,
+      amplifierOutputWatts: 500,
       minPerSide: 1,
       recommendedPerSide: 2,
       pairQuantity: 1,
@@ -31,8 +34,11 @@ window.ARTHUR_COMBINATION_RULES = [
     conditions: {
       speakerProductId: 'legacy-cat-178661556928628',
       amplifierProductId: 'POWERSOFT-56615BE24E',
+      sourceCategory: 'main_system',
       speakerCategory: 'point_source',
       powerType: 'passive',
+      amplifierChannels: 4,
+      amplifierOutputWatts: 400,
       minPerSide: 1,
       recommendedPerSide: 2,
       pairQuantity: 1,
