@@ -473,7 +473,9 @@
         "mic_ewd835": { cat: "무선마이크", brand: "Sennheiser", name: "EW-D / 835-S", price: 1100000 },
         "asa_ewd": { cat: "분배기", brand: "Sennheiser", name: "EW-D ASA", price: 450000 },
         "p16_hq": { cat: "퍼스널믹서", brand: "Behringer", name: "P16-HQ", price: 350000 },
-        "cable_canare": { cat: "케이블", brand: "Canare", name: "L-2T2S (m)", price: 2500 }
+        "cable_canare": { cat: "케이블", brand: "Canare", name: "L-2T2S (m)", price: 2500 },
+        "cable_power": { cat: "전원부", brand: "VCT", name: "전원케이블 (m)", price: 3000 },
+        "cable_net": { cat: "네트워크", brand: "Neutrik", name: "실드랜케이블 (m)", price: 2000 }
     };
     let quoteItems = [];
     let editingProductKey = null;
@@ -591,14 +593,23 @@
         renderTable();
     }
 
-    // 🤖 [스마트 견적 자동 산출 알고리즘]
+    // 🤖 [스마트 견적 자동 산출 알고리즘 - 실무 정밀 버전]
     function generateSmartQuotation() {
         const width = parseFloat(document.getElementById("siteWidth").value) || 10;
         const length = parseFloat(document.getElementById("siteLength").value) || 15;
         const height = parseFloat(document.getElementById("siteHeight").value) || 4;
         const vocalCount = parseInt(document.getElementById("siteVocalCount").value) || 4;
         
-        // 모니터 스피커 수량 산정 로직: 사용 체크 시 기본 2개 + 보컬 3명 초과 시 1개씩 추가 / 미사용 시 0개
+        // 악기 구성 채널 및 인원 산정
+        let totalChannels = vocalCount;
+        if (document.getElementById("chkAcousticDrum").checked) totalChannels += (parseInt(document.getElementById("qtyAcousticDrum").value) * 8);
+        if (document.getElementById("chkElecDrum").checked) totalChannels += (parseInt(document.getElementById("qtyElecDrum").value) * 2);
+        if (document.getElementById("chkBass").checked) totalChannels += parseInt(document.getElementById("qtyBass").value);
+        if (document.getElementById("chkElecGuitar").checked) totalChannels += parseInt(document.getElementById("qtyElecGuitar").value);
+        if (document.getElementById("chkKeyboard").checked) totalChannels += (parseInt(document.getElementById("qtyKeyboard").value) * 2);
+        if (document.getElementById("chkAcousticGuitar").checked) totalChannels += parseInt(document.getElementById("qtyAcousticGuitar").value);
+
+        // 모니터 수량 산정 로직: 기본 2개 + 보컬 3명 초과 시 1개씩 추가 (미사용 시 0)
         const chkMonitor = document.getElementById("chkMonitor").checked;
         let calculatedMonitorCount = 0;
         if (chkMonitor) {
@@ -619,7 +630,7 @@
 
         quoteItems = [];
 
-        // 1. 디지털 믹서 및 대응 디지털 I/O 자동 매칭
+        // 1. 디지털 믹서 자동 매칭
         let mixerProd = null;
         for (let b of prefMixerBrands) {
             mixerProd = findProductByKeyword(b, "Digital Mixer") || findProductByKeyword(b, "WING") || findProductByKeyword(b, "SQ") || findProductByKeyword(b, "M32");
@@ -629,23 +640,36 @@
         
         if (mixerProd) {
             addProductToQuote(mixerProd, 1);
-            let ioProd = findProductByKeyword(mixerProd.brand, "IO") || findProductByKeyword(mixerProd.brand, "Stagebox") || findProductByKeyword(mixerProd.brand, "Rio") || findProductByKeyword(mixerProd.brand, "DL");
-            if (ioProd) addProductToQuote(ioProd, 1);
         }
 
-        // 2. 메인 스피커 자동 매칭 (WM3210P 우선 적용)
+        // 1-1. 디지털 I/O 스테이지박스 산정 (세로 20m 초과 시 또는 채널 요구량 기반 추가 확보)
+        let ioProd = findProductByKeyword("Behringer", "DL32") || findProductByKeyword("Yamaha", "Rio") || findProductByKeyword("Stagebox") || findProductByKeyword("IO");
+        if (ioProd) {
+            let ioCount = 1;
+            // 세로 길이가 20m를 넘거나 채널이 32채널을 초과하면 I/O 추가 확보 검토
+            if (length > 20 || totalChannels > 32) {
+                ioCount = Math.ceil(totalChannels / 32);
+            }
+            addProductToQuote(ioProd, ioCount);
+        }
+
+        // 2. 메인 스피커 자동 매칭 (스테레오 1조 = 2대 고정)
         let speakerProd = null;
         for (let b of prefSpeakerBrands) {
             speakerProd = findProductByKeyword(b, "WM3210P") || findProductByKeyword(b, "Column") || findProductByKeyword(b, "Speaker");
             if (speakerProd) break;
         }
         if (!speakerProd) speakerProd = Object.values(productCatalog).find(p => p.cat.includes("스피커") || p.cat.includes("Speaker"));
-        if (speakerProd) addProductToQuote(speakerProd, 2);
+        if (speakerProd) {
+            addProductToQuote(speakerProd, 2);
+        }
 
-        // 3. 무대 모니터 스피커 자동 매칭 (UTA902DSP 우선 적용, 계산된 수량 반영)
+        // 3. 무대 모니터 스피커 자동 매칭 (산출된 수량 반영)
         if (chkMonitor && calculatedMonitorCount > 0) {
             let monitorProd = findProductByKeyword("Audiocenter", "UTA902DSP") || findProductByKeyword("Audiocenter", "Monitor") || findProductByKeyword("Monitor");
-            if (monitorProd) addProductToQuote(monitorProd, calculatedMonitorCount);
+            if (monitorProd) {
+                addProductToQuote(monitorProd, calculatedMonitorCount);
+            }
         }
 
         // 4. 무선마이크 및 안테나 분배기 산출
@@ -654,7 +678,9 @@
         else if (vocalCount >= 3) micModel = "EW-D / 845-S";
 
         const wirelessProd = findProductByKeyword("Sennheiser", micModel) || findProductByKeyword("Sennheiser", "EW-D");
-        if (wirelessProd) addProductToQuote(wirelessProd, vocalCount);
+        if (wirelessProd && vocalCount > 0) {
+            addProductToQuote(wirelessProd, vocalCount);
+        }
 
         if (vocalCount > 0) {
             let asaCount = Math.ceil(vocalCount / 4);
@@ -668,13 +694,19 @@
             if (p16hq) addProductToQuote(p16hq, p16Count);
         }
 
-        // 6. 케이블 인프라 산출
+        // 6. 배선 인프라 (케이블, 전원부, 네트워크) 산출
         let estimatedCableMeters = Math.ceil((maxDist * 3.5) / 50) * 50;
         if (estimatedCableMeters < 50) estimatedCableMeters = 50;
-        const cableProd = findProductByKeyword("Canare", "L-2T2S");
-        if (cableProd) addProductToQuote(cableProd, estimatedCableMeters);
 
-        alert(`🤖 스마트 견적 산출 완료!\n- 보컬 ${vocalCount}명 기준 모니터 스피커 ${calculatedMonitorCount}대 산정\n\n[견적서 작성] 탭에서 상세 내역을 확인하세요!`);
+        const micCable = findProductByKeyword("Canare", "L-2T2S") || findProductByKeyword("케이블", "L-2T2S");
+        const powerCable = findProductByKeyword("VCT", "전원케이블") || findProductByKeyword("전원부", "전원");
+        const netCable = findProductByKeyword("Neutrik", "실드랜케이블") || findProductByKeyword("네트워크", "랜");
+
+        if (micCable) addProductToQuote(micCable, estimatedCableMeters);
+        if (powerCable) addProductToQuote(powerCable, estimatedCableMeters);
+        if (netCable) addProductToQuote(netCable, estimatedCableMeters);
+
+        alert(`🤖 스마트 견적 산출 완료!\n- 보컬 ${vocalCount}명 기준 모니터 ${calculatedMonitorCount}대, 메인 스피커 2대, I/O 및 케이블 인프라가 반영되었습니다.`);
         switchPage('quote');
     }
 
