@@ -83,17 +83,13 @@ function speakerProfile(space) {
   return level;
 }
 
-function speakerProducts(level, usage, isExpansion) {
-  const normalizedLevel = Math.max(0, Math.min(level, 2));
-  const profiles = [
-    [{ product: productByName('PC43'), quantity: 1 }],
-    [{ product: productByName('L83+L83S'), quantity: 1 }],
-    [{ product: productByName('K-LA12A'), quantity: isExpansion ? 4 : 2 }]
-  ];
-  const items = (profiles[normalizedLevel] || []).filter((item) => item.product);
-  if ((usage === 'worship' || usage === 'event') && normalizedLevel >= 1) {
+function speakerProducts(level, usage, isExpansion, space) {
+  const selection = window.ArthurRecommendationRules?.selectSpeaker({ catalog, level, usage, isExpansion, space });
+  const items = selection?.product ? [{ product: selection.product, quantity: level >= 2 && isExpansion ? 4 : level >= 2 ? 2 : 1 }] : [];
+  items.recommendationReason = selection?.reason || '';
+  if ((usage === 'worship' || usage === 'event') && level >= 1) {
     const subwoofer = productByName('K-LA218-DSP') || productByName('Pro S5118A');
-    if (subwoofer) items.push({ product: subwoofer, quantity: isExpansion && normalizedLevel === 2 ? 2 : 1 });
+    if (subwoofer) items.push({ product: subwoofer, quantity: isExpansion && level === 2 ? 2 : 1 });
   }
   return items;
 }
@@ -126,9 +122,16 @@ function buildConfiguration(tier, space, channels, options) {
   const items = [];
   const missingPrimary = [];
 
-  const speakers = speakerProducts(level, options.usage, tier === 'expansion');
+  const speakers = speakerProducts(level, options.usage, tier === 'expansion', space);
   if (!speakers.length) missingPrimary.push('메인 스피커');
   speakers.forEach(({ product, quantity }) => addItem(items, product, quantity, '메인 시스템'));
+
+  const passiveSpeaker = speakers.some(({ product }) => product?.passive === true || /DS10|DS12/.test(product?.name || ''));
+  if (passiveSpeaker) {
+    const passiveAmp = productByName('T4800') || productByName('UTA902DSP');
+    if (passiveAmp) addItem(items, passiveAmp, 1, '패시브 DS10·DS12 구동용 앰프');
+    else missingPrimary.push('패시브 스피커용 앰프');
+  }
 
   const mixer = mixerFor(channels, options.mixerPreference);
   if (!mixer) missingPrimary.push('디지털 믹서');
@@ -163,7 +166,11 @@ function buildConfiguration(tier, space, channels, options) {
     standard: { label: '표준안', description: '입력하신 공간과 운영 규모를 기준으로 한 권장 구성입니다.' },
     expansion: { label: '확장안', description: '더 넓은 커버리지와 향후 운영 확장을 고려한 안입니다.' }
   };
-  return { tier, ...labels[tier], items, total, materials, level, mixer, missingPrimary };
+  const selectedSpeaker = speakers[0]?.product?.name || null;
+  const speakerNote = selectedSpeaker
+    ? `${speakers.recommendationReason || `공간 조건과 용도에 따라 주력상품 ${selectedSpeaker}를 우선 제안했습니다.`}${/DS10|DS12/.test(selectedSpeaker) ? ' 패시브 구동용 앰프를 함께 구성합니다.' : ''} 최종 모델·수량은 현장 실사 후 확정합니다.`
+    : '해당 공간 규모에 맞는 주력 스피커가 부족합니다. 관리자 상담 후 제안이 필요합니다.';
+  return { tier, ...labels[tier], items, total, materials, level, mixer, missingPrimary, speakerNote };
 }
 
 function renderItems(items) {
@@ -236,6 +243,7 @@ function renderQuotes(configurations, budget) {
         <p class="tier">${configuration.tier === 'economy' ? 'ESSENTIAL' : configuration.tier === 'standard' ? 'RECOMMENDED' : 'EXPANSION'}</p>
         <h3>${configuration.label}</h3>
         <p class="tier-description">${configuration.description}</p>
+        <p class="quote-recommendation-note">${escapeHtml(configuration.speakerNote)}</p>
         <div class="quote-total"><span>예상 장비 판매가 · 부가세 포함</span><strong>${formatWon(configuration.total)}</strong></div>
         <p class="quote-status ${configuration.missingPrimary.length || isOverBudget ? 'over' : ''}">${status}</p>
         <ul class="item-list">${renderItems(configuration.items)}</ul>

@@ -4,6 +4,10 @@ const source = fs.readFileSync(new URL('./quote_products.js', import.meta.url), 
 const context = { window: {} };
 vm.runInNewContext(source, context);
 const products = context.window.QUOTE_PRODUCTS;
-if (!Array.isArray(products) || products.length !== 17) throw new Error(`expected 17 products, received ${products?.length}`);
+if (!Array.isArray(products) || products.length !== 20) throw new Error(`expected 20 products, received ${products?.length}`);
 if (products.some((product) => product.isPrimaryProduct !== true)) throw new Error('every static quote product must be primary');
-console.log(`primary quote products verified: ${products.length}`);
+const ds12 = products.find((product) => product.name === 'DS12');
+const ds10 = products.find((product) => product.name === 'DS10');
+const amp = products.find((product) => product.name === 'T4800');
+if (!ds12?.passive || !ds10?.passive || !amp) throw new Error('passive speaker and amplifier candidates are missing');
+console.log(`primary quote products verified: ${products.length}; passive pair and amp verified`);
