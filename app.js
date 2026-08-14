@@ -15,7 +15,7 @@ function formatWon(amount) {
 
 function addBudgetOption(amountInMillions) {
   const option = document.createElement('option');
-  option.value = String(amountInMillions * 1000000);
+  option.value = String(amountInMillions * 10000);
   option.textContent = `${amountInMillions.toLocaleString('ko-KR')}만 원 이하`;
   budgetSelect.appendChild(option);
 }
