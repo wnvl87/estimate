@@ -40,12 +40,19 @@
         /* 현장 정보 입력 섹션 스타일 */
         .site-info-box { background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 10px; padding: 25px; margin-bottom: 25px; }
         .site-info-box h3 { font-size: 16px; color: var(--primary); margin-bottom: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
-        .site-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .site-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
         .form-field { margin-bottom: 15px; }
         .form-field label { display: block; font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
         .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #fff; outline: none; }
         .dim-inputs { display: flex; gap: 8px; align-items: center; }
         .dim-inputs span { font-size: 13px; color: var(--text-muted); }
+
+        /* 🎛️ 악기 구성 체크박스 및 수량 그리드 스타일 */
+        .instrument-box { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .instrument-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .instrument-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+        .instrument-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary-accent); cursor: pointer; }
+        .instrument-row input[type="number"] { width: 55px; padding: 4px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
 
         /* 체크박스 그룹 스타일 */
         .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
@@ -151,7 +158,7 @@
             <div class="header">
                 <div class="header-title">
                     <h1>현장 정보 및 시스템 요구사항</h1>
-                    <p>현장 실측 제원 및 선호 브랜드, 옵션을 선택하시면 정확한 액티브 음향 패키지가 자동 산출됩니다.</p>
+                    <p>현장 실측 제원 및 악기 구성, 선호 브랜드를 설정하시면 정확한 시스템 견적이 자동 산출됩니다.</p>
                 </div>
             </div>
 
@@ -175,15 +182,44 @@
                             <label>설치 희망일</label>
                             <input type="date" id="siteInstallDate" onchange="saveLocalData()">
                         </div>
+
+                        <!-- 🎛️ 정돈된 악기 구성 및 채널 산정 영역 -->
                         <div class="form-field">
-                            <label>사용 입력 채널 - 악기 구성</label>
-                            <textarea id="siteInstruments" rows="3" placeholder="예: 드럼, 베이스, 일렉기타 2, 건반 2 등" onchange="saveLocalData()"></textarea>
+                            <label>악기 구성 및 수량 선택 (입력 채널 연동)</label>
+                            <div class="instrument-box">
+                                <div class="instrument-grid">
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkAcousticDrum" onchange="saveLocalData()" checked> 어쿠스틱 드럼</label>
+                                        <input type="number" id="qtyAcousticDrum" value="1" min="0" onchange="saveLocalData()">
+                                    </div>
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkElecDrum" onchange="saveLocalData()"> 전자드럼</label>
+                                        <input type="number" id="qtyElecDrum" value="1" min="0" onchange="saveLocalData()">
+                                    </div>
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkBass" onchange="saveLocalData()" checked> 베이스기타</label>
+                                        <input type="number" id="qtyBass" value="1" min="0" onchange="saveLocalData()">
+                                    </div>
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkElecGuitar" onchange="saveLocalData()" checked> 일렉기타</label>
+                                        <input type="number" id="qtyElecGuitar" value="2" min="0" onchange="saveLocalData()">
+                                    </div>
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkKeyboard" onchange="saveLocalData()" checked> 키보드(건반)</label>
+                                        <input type="number" id="qtyKeyboard" value="2" min="0" onchange="saveLocalData()">
+                                    </div>
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkAcousticGuitar" onchange="saveLocalData()"> 어쿠스틱기타</label>
+                                        <input type="number" id="qtyAcousticGuitar" value="1" min="0" onchange="saveLocalData()">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div>
                         <div class="form-field">
                             <label>사용 입력 채널 - 보컬 수 (명)</label>
-                            <input type="number" id="siteVocalCount" placeholder="예: 4 (무선마이크 자동산출 기준)" onchange="saveLocalData()">
+                            <input type="number" id="siteVocalCount" placeholder="예: 4 (무선마이크 자동산출 기준)" onchange="saveLocalData()" value="4">
                         </div>
 
                         <!-- 선호 브랜드 및 옵션 체크박스 영역 -->
@@ -525,13 +561,22 @@
         renderTable();
     }
 
-    // 🤖 [완벽 교정된 스마트 견적 자동 산출 알고리즘]
+    // 🤖 [스마트 견적 자동 산출 알고리즘 - 악기 구성 및 채널 수 연동]
     function generateSmartQuotation() {
         const width = parseFloat(document.getElementById("siteWidth").value) || 10;
         const length = parseFloat(document.getElementById("siteLength").value) || 15;
         const height = parseFloat(document.getElementById("siteHeight").value) || 4;
-        const vocalCount = parseInt(document.getElementById("siteVocalCount").value) || 2;
+        const vocalCount = parseInt(document.getElementById("siteVocalCount").value) || 4;
         
+        // 악기 구성 체크 여부 및 수량 수집
+        let totalChannels = vocalCount;
+        if (document.getElementById("chkAcousticDrum").checked) totalChannels += (parseInt(document.getElementById("qtyAcousticDrum").value) * 8);
+        if (document.getElementById("chkElecDrum").checked) totalChannels += (parseInt(document.getElementById("qtyElecDrum").value) * 2);
+        if (document.getElementById("chkBass").checked) totalChannels += parseInt(document.getElementById("qtyBass").value);
+        if (document.getElementById("chkElecGuitar").checked) totalChannels += parseInt(document.getElementById("qtyElecGuitar").value);
+        if (document.getElementById("chkKeyboard").checked) totalChannels += (parseInt(document.getElementById("qtyKeyboard").value) * 2);
+        if (document.getElementById("chkAcousticGuitar").checked) totalChannels += parseInt(document.getElementById("qtyAcousticGuitar").value);
+
         const chkMonitor = document.getElementById("chkMonitor").checked;
         const chkP16 = document.getElementById("chkP16").checked;
         const p16Count = chkP16 ? (parseInt(document.getElementById("siteP16Count").value) || 6) : 0;
@@ -544,7 +589,7 @@
 
         quoteItems = [];
 
-        // 1. 디지털 믹서 및 대응 디지털 I/O 자동 매칭 (단일 1개 브랜드 우선 선택으로 중복 방지)
+        // 1. 디지털 믹서 및 대응 디지털 I/O 자동 매칭 (단일 브랜드 1세트)
         let mixerProd = null;
         for (let b of prefMixerBrands) {
             mixerProd = findProductByKeyword(b, "Digital Mixer") || findProductByKeyword(b, "WING") || findProductByKeyword(b, "SQ") || findProductByKeyword(b, "M32");
@@ -608,7 +653,7 @@
             }
         }
 
-        // 5. 액티브 스피커 시스템에 맞는 배선 인프라 산출 (미터 단위, VCT/VCTF 전원 및 L-2T2S 시그널 케이블)
+        // 5. 액티브 스피커 시스템 배선 인프라 산출 (미터 단위)
         let estimatedCableMeters = Math.ceil((maxDist * 3.5) / 50) * 50;
         if (estimatedCableMeters < 50) estimatedCableMeters = 50;
 
@@ -620,7 +665,7 @@
         if (powerCable) addProductToQuote(powerCable, estimatedCableMeters);
         if (netCable) addProductToQuote(netCable, estimatedCableMeters);
 
-        alert(`🤖 스마트 견적 산출 완료!\n- 콘솔 중복 제거 및 액티브 스피커/모니터/전원·시그널 배선 인프라 반영 완료\n\n[견적서 작성] 탭에서 상세 내역을 확인하세요!`);
+        alert(`🤖 스마트 견적 산출 완료!\n- 총 가늠 채널수: ${totalChannels}채널\n- 악기 구성 및 액티브 스피커/배선 인프라 반영 완료\n\n[견적서 작성] 탭에서 상세 내역을 확인하세요!`);
         switchPage('quote');
     }
 
@@ -956,9 +1001,20 @@
             siteLength: document.getElementById('siteLength').value,
             siteHeight: document.getElementById('siteHeight').value,
             siteInstallDate: document.getElementById('siteInstallDate').value,
-            siteInstruments: document.getElementById('siteInstruments').value,
             siteVocalCount: document.getElementById('siteVocalCount').value,
             siteP16Count: document.getElementById('siteP16Count').value,
+            chkAcousticDrum: document.getElementById('chkAcousticDrum').checked,
+            qtyAcousticDrum: document.getElementById('qtyAcousticDrum').value,
+            chkElecDrum: document.getElementById('chkElecDrum').checked,
+            qtyElecDrum: document.getElementById('qtyElecDrum').value,
+            chkBass: document.getElementById('chkBass').checked,
+            qtyBass: document.getElementById('qtyBass').value,
+            chkElecGuitar: document.getElementById('chkElecGuitar').checked,
+            qtyElecGuitar: document.getElementById('qtyElecGuitar').value,
+            chkKeyboard: document.getElementById('chkKeyboard').checked,
+            qtyKeyboard: document.getElementById('qtyKeyboard').value,
+            chkAcousticGuitar: document.getElementById('chkAcousticGuitar').checked,
+            qtyAcousticGuitar: document.getElementById('qtyAcousticGuitar').value,
             chkMonitor: document.getElementById('chkMonitor').checked,
             chkP16: document.getElementById('chkP16').checked,
             prefMixer,
@@ -986,9 +1042,22 @@
             if(p.siteLength) document.getElementById('siteLength').value = p.siteLength;
             if(p.siteHeight) document.getElementById('siteHeight').value = p.siteHeight;
             if(p.siteInstallDate) document.getElementById('siteInstallDate').value = p.siteInstallDate;
-            if(p.siteInstruments) document.getElementById('siteInstruments').value = p.siteInstruments;
             if(p.siteVocalCount) document.getElementById('siteVocalCount').value = p.siteVocalCount;
             if(p.siteP16Count) document.getElementById('siteP16Count').value = p.siteP16Count;
+
+            if(p.chkAcousticDrum !== undefined) document.getElementById('chkAcousticDrum').checked = p.chkAcousticDrum;
+            if(p.qtyAcousticDrum) document.getElementById('qtyAcousticDrum').value = p.qtyAcousticDrum;
+            if(p.chkElecDrum !== undefined) document.getElementById('chkElecDrum').checked = p.chkElecDrum;
+            if(p.qtyElecDrum) document.getElementById('qtyElecDrum').value = p.qtyElecDrum;
+            if(p.chkBass !== undefined) document.getElementById('chkBass').checked = p.chkBass;
+            if(p.qtyBass) document.getElementById('qtyBass').value = p.qtyBass;
+            if(p.chkElecGuitar !== undefined) document.getElementById('chkElecGuitar').checked = p.chkElecGuitar;
+            if(p.qtyElecGuitar) document.getElementById('qtyElecGuitar').value = p.qtyElecGuitar;
+            if(p.chkKeyboard !== undefined) document.getElementById('chkKeyboard').checked = p.chkKeyboard;
+            if(p.qtyKeyboard) document.getElementById('qtyKeyboard').value = p.qtyKeyboard;
+            if(p.chkAcousticGuitar !== undefined) document.getElementById('chkAcousticGuitar').checked = p.chkAcousticGuitar;
+            if(p.qtyAcousticGuitar) document.getElementById('qtyAcousticGuitar').value = p.qtyAcousticGuitar;
+
             if(p.chkMonitor !== undefined) document.getElementById('chkMonitor').checked = p.chkMonitor;
             if(p.chkP16 !== undefined) document.getElementById('chkP16').checked = p.chkP16;
 
