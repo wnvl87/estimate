@@ -62,6 +62,7 @@
         .btn-dark { background-color: var(--primary); color: white; }
         .btn-outline { background-color: white; border: 1px solid var(--border-color); color: var(--text-main); }
         .btn-danger { background-color: #ef4444; color: white; padding: 3px 6px; font-size: 11px; border-radius: 4px; }
+        .btn-danger-large { background-color: #ef4444; color: white; }
 
         /* Items Table */
         .table-wrapper { overflow-x: auto; margin-bottom: 25px; }
@@ -250,6 +251,7 @@
                 <p>CSV 일괄 업로드 및 깃허브 자동 연동 관리</p>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-danger-large" onclick="deleteSelectedCatalogItems()">🗑️ 선택 장비 일괄 삭제</button>
                 <button class="btn btn-outline" onclick="exportCatalogCSV()">📥 CSV 다운로드</button>
                 <input type="file" id="csvFile" style="display:none" accept=".csv" onchange="importCatalogCSV(event)">
                 <button class="btn btn-primary" onclick="document.getElementById('csvFile').click()">📤 CSV 일괄 업로드</button>
@@ -264,12 +266,13 @@
             <table class="items-table">
                 <thead>
                     <tr>
-                        <th style="width: 50px; text-align: center;">No.</th>
+                        <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th>
+                        <th style="width: 40px; text-align: center;">No.</th>
                         <th style="width: 130px;">품목</th>
                         <th style="width: 120px;">브랜드</th>
                         <th>모델명</th>
                         <th style="text-align: right; width: 120px;">소비자가</th>
-                        <th style="text-align: center; width: 130px;">관리</th>
+                        <th style="text-align: center; width: 110px;">관리</th>
                     </tr>
                 </thead>
                 <tbody id="catalogTableBody"></tbody>
@@ -469,6 +472,7 @@
             count++;
             tbody.innerHTML += `
                 <tr>
+                    <td style="text-align:center;"><input type="checkbox" class="row-checkbox" value="${key}"></td>
                     <td style="text-align:center; color:var(--text-muted);">${idx++}</td>
                     <td><span class="brand-tag">${escapeHtml(prod.cat)}</span></td>
                     <td><span class="brand-tag" style="background:#e0f2fe; color:#0369a1;">${escapeHtml(prod.brand)}</span></td>
@@ -482,6 +486,12 @@
             `;
         });
         document.getElementById("catalogCount").innerText = count;
+        document.getElementById("selectAllCheckbox").checked = false;
+    }
+
+    function toggleSelectAll(master) {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = master.checked);
     }
 
     function openAddCatalogModal() {
@@ -510,7 +520,7 @@
         document.getElementById("addCatalogModal").style.display = "none";
     }
 
-    // 💡 핵심: 깃허브 API를 통한 자동 업로드 툴 함수
+    // 💡 깃허브 API 자동 동기화 함수
     async function syncToGitHub(commitMsg) {
         let githubToken = localStorage.getItem('arthur_github_token');
         if (!githubToken) {
@@ -573,7 +583,6 @@
 
         localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
         
-        // 깃허브 서버 자동 동기화 호출
         const commitMsg = editingProductKey ? `카탈로그 수정: [${brand}] ${name}` : `신규 장비 등록: [${brand}] ${name}`;
         await syncToGitHub(commitMsg);
 
@@ -590,12 +599,37 @@
             delete productCatalog[key];
             localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
             
-            // 깃허브 서버 자동 동기화 호출
             await syncToGitHub(`장비 삭제: [${prod.brand}] ${prod.name}`);
 
             initDynamicFilters();
             renderCatalogTable();
             alert("장비가 삭제되고 깃허브에 반영되었습니다.");
+        }
+    }
+
+    // 💡 선택된 여러 장비 일괄 삭제 기능
+    async function deleteSelectedCatalogItems() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        if (checkboxes.length === 0) {
+            alert("삭제할 장비를 하나 이상 선택해주세요.");
+            return;
+        }
+
+        if (confirm(`선택한 ${checkboxes.length개의} 장비를 카탈로그에서 일괄 삭제하시겠습니까?`)) {
+            checkboxes.forEach(cb => {
+                const key = cb.value;
+                if (productCatalog[key]) {
+                    delete productCatalog[key];
+                }
+            });
+
+            localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
+            
+            await syncToGitHub(`카탈로그 장비 일괄 삭제 (${checkboxes.length개)`);
+
+            initDynamicFilters();
+            renderCatalogTable();
+            alert("선택된 장비들이 일괄 삭제되고 깃허브에 반영되었습니다!");
         }
     }
 
@@ -612,7 +646,6 @@
             });
             localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
             
-            // CSV 일괄 업로드 시 깃허브 자동 동기화 호출
             await syncToGitHub("CSV 일괄 카탈로그 업데이트");
 
             initDynamicFilters();
