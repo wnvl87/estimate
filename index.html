@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B2B 전문 스마트 견적 시스템</title>
+    <title>B2B 전문 스마트 견적 시스템 (최종 완성본)</title>
     <style>
         :root {
             --primary: #0f172a;
@@ -224,22 +224,26 @@
                             <label>모니터 및 퍼스널 믹서 수량 설정</label>
                             <div class="option-subbox">
                                 <div>
-                                    <label style="font-size: 12px; margin-bottom: 4px; display:block;">모니터 스피커 수량</label>
-                                    <input type="number" id="siteMonitorCount" value="2" min="0" onchange="saveLocalData()" title="기본 2개 + 3명 초과 시 추가">
-                                    <span style="font-size: 11px; color: var(--text-muted);">* 기본 2개 (보컬 3명 초과 시 +1)</span>
+                                    <label style="font-size: 12px; margin-bottom: 4px; display:block;">밴드 모니터 지정 수량</label>
+                                    <input type="number" id="siteBandMonitorCount" value="0" min="0" onchange="saveLocalData()">
+                                    <span style="font-size: 11px; color: var(--text-muted);">* 밴드 요청 지정 수량</span>
                                 </div>
                                 <div>
-                                    <label style="font-size: 12px; margin-bottom: 4px; display:block;">퍼스널 믹서 (P16) 인원수</label>
-                                    <input type="number" id="siteP16Count" value="6" min="0" onchange="saveLocalData()">
-                                    <span style="font-size: 11px; color: var(--text-muted);">* 도입 인원수 (명)</span>
+                                    <label style="font-size: 12px; margin-bottom: 4px; display:block;">모니터 스피커 총수량</label>
+                                    <input type="number" id="siteMonitorCount" value="2" min="0" readonly style="background:#e2e8f0; font-weight:700;">
+                                    <span style="font-size: 11px; color: var(--text-muted);">* 밴드 + 보컬 자동산출</span>
                                 </div>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <label style="font-size: 12px; margin-bottom: 4px; display:block;">퍼스널 믹서 (P16) 인원수</label>
+                                <input type="number" id="siteP16Count" value="6" min="0" onchange="saveLocalData()">
                             </div>
                         </div>
                     </div>
                     <div>
                         <div class="form-field">
                             <label>사용 입력 채널 - 보컬 수 (명)</label>
-                            <input type="number" id="siteVocalCount" placeholder="예: 4 (무선마이크 자동산출 기준)" onchange="saveLocalData()" value="4">
+                            <input type="number" id="siteVocalCount" placeholder="예: 4 (무선마이크 및 보컬모니터 기준)" onchange="saveLocalData()" value="4">
                         </div>
 
                         <!-- 선호 브랜드 및 옵션 체크박스 영역 -->
@@ -522,7 +526,7 @@
                 productCatalog = { ...data, ...productCatalog };
                 localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
             }
-        } catch(e) { console.warn("서버 로드 실패, 로컬 및 기본 카탈로그 사용"); }
+        } catch(e) { console.warn("서버 로드 실패, 기본 카탈로그 사용"); }
     }
 
     function initDynamicFilters() {
@@ -593,14 +597,15 @@
         renderTable();
     }
 
-    // 🤖 [스마트 견적 자동 산출 알고리즘 - 실무 정밀 버전]
+    // 🤖 [완벽 정돈된 스마트 견적 자동 산출 알고리즘]
     function generateSmartQuotation() {
         const width = parseFloat(document.getElementById("siteWidth").value) || 10;
         const length = parseFloat(document.getElementById("siteLength").value) || 15;
         const height = parseFloat(document.getElementById("siteHeight").value) || 4;
         const vocalCount = parseInt(document.getElementById("siteVocalCount").value) || 4;
+        const bandMonitorCount = parseInt(document.getElementById("siteBandMonitorCount").value) || 0;
         
-        // 악기 구성 채널 및 인원 산정
+        // 악기 구성 채널 산정
         let totalChannels = vocalCount;
         if (document.getElementById("chkAcousticDrum").checked) totalChannels += (parseInt(document.getElementById("qtyAcousticDrum").value) * 8);
         if (document.getElementById("chkElecDrum").checked) totalChannels += (parseInt(document.getElementById("qtyElecDrum").value) * 2);
@@ -609,15 +614,20 @@
         if (document.getElementById("chkKeyboard").checked) totalChannels += (parseInt(document.getElementById("qtyKeyboard").value) * 2);
         if (document.getElementById("chkAcousticGuitar").checked) totalChannels += parseInt(document.getElementById("qtyAcousticGuitar").value);
 
-        // 모니터 수량 산정 로직: 기본 2개 + 보컬 3명 초과 시 1개씩 추가 (미사용 시 0)
-        const chkMonitor = document.getElementById("chkMonitor").checked;
-        let calculatedMonitorCount = 0;
-        if (chkMonitor) {
-            calculatedMonitorCount = 2;
-            if (vocalCount > 3) {
-                calculatedMonitorCount += (vocalCount - 3);
-            }
+        // 모니터 수량 산정 규칙:
+        // 1. 보컬 기반 모니터: 1~2명(2대), 3~5명(3대), 6~8명(4대), 이후 3명당 +1대
+        let vocalMon = 2;
+        if (vocalCount >= 6 && vocalCount <= 8) {
+            vocalMon = 4;
+        } else if (vocalCount >= 3 && vocalCount <= 5) {
+            vocalMon = 3;
+        } else if (vocalCount > 8) {
+            vocalMon = 4 + Math.ceil((vocalCount - 8) / 3);
         }
+
+        // 2. 최종 모니터 수량 = 밴드 지정 수량 + 보컬 기반 수량
+        const chkMonitor = document.getElementById("chkMonitor").checked;
+        let calculatedMonitorCount = chkMonitor ? (bandMonitorCount + vocalMon) : 0;
         document.getElementById("siteMonitorCount").value = calculatedMonitorCount;
 
         const chkP16 = document.getElementById("chkP16").checked;
@@ -630,93 +640,88 @@
 
         quoteItems = [];
 
-        // 1. 디지털 믹서 자동 매칭
+        // 1. 디지털 믹서 (단 1대만 엄격하게 매칭)
         let mixerProd = null;
         for (let b of prefMixerBrands) {
-            mixerProd = findProductByKeyword(b, "Digital Mixer") || findProductByKeyword(b, "WING") || findProductByKeyword(b, "SQ") || findProductByKeyword(b, "M32");
+            mixerProd = Object.values(productCatalog).find(p => (p.cat.includes("믹서") || p.cat.includes("Mixer")) && p.brand.toLowerCase().includes(b.toLowerCase()));
             if (mixerProd) break;
         }
         if (!mixerProd) mixerProd = Object.values(productCatalog).find(p => p.cat.includes("믹서") || p.cat.includes("Mixer"));
-        
         if (mixerProd) {
-            addProductToQuote(mixerProd, 1);
+            quoteItems.push({ cat: mixerProd.cat, brand: mixerProd.brand, name: mixerProd.name, qty: 1, price: mixerProd.price });
         }
 
-        // 1-1. 디지털 I/O 스테이지박스 산정 (세로 20m 초과 시 또는 채널 요구량 기반 추가 확보)
-        let ioProd = findProductByKeyword("Behringer", "DL32") || findProductByKeyword("Yamaha", "Rio") || findProductByKeyword("Stagebox") || findProductByKeyword("IO");
+        // 2. 디지털 I/O 스테이지박스 (세로 20m 초과 또는 대규모 채널 시 필수 확보)
+        let ioProd = Object.values(productCatalog).find(p => p.cat.includes("I/O") || p.name.includes("DL32") || p.name.includes("Stagebox") || p.name.includes("Rio"));
         if (ioProd) {
             let ioCount = 1;
-            // 세로 길이가 20m를 넘거나 채널이 32채널을 초과하면 I/O 추가 확보 검토
             if (length > 20 || totalChannels > 32) {
                 ioCount = Math.ceil(totalChannels / 32);
             }
-            addProductToQuote(ioProd, ioCount);
+            quoteItems.push({ cat: ioProd.cat, brand: ioProd.brand, name: ioProd.name, qty: ioCount, price: ioProd.price });
         }
 
-        // 2. 메인 스피커 자동 매칭 (스테레오 1조 = 2대 고정)
+        // 3. 메인 스피커 (스테레오 1조 = 2대 고정)
         let speakerProd = null;
         for (let b of prefSpeakerBrands) {
-            speakerProd = findProductByKeyword(b, "WM3210P") || findProductByKeyword(b, "Column") || findProductByKeyword(b, "Speaker");
+            speakerProd = Object.values(productCatalog).find(p => (p.cat.includes("스피커") || p.cat.includes("Speaker")) && p.brand.toLowerCase().includes(b.toLowerCase()));
             if (speakerProd) break;
         }
         if (!speakerProd) speakerProd = Object.values(productCatalog).find(p => p.cat.includes("스피커") || p.cat.includes("Speaker"));
         if (speakerProd) {
-            addProductToQuote(speakerProd, 2);
+            quoteItems.push({ cat: speakerProd.cat, brand: speakerProd.brand, name: speakerProd.name, qty: 2, price: speakerProd.price });
         }
 
-        // 3. 무대 모니터 스피커 자동 매칭 (산출된 수량 반영)
+        // 4. 무대 모니터 스피커 (산출된 수량 반영)
         if (chkMonitor && calculatedMonitorCount > 0) {
-            let monitorProd = findProductByKeyword("Audiocenter", "UTA902DSP") || findProductByKeyword("Audiocenter", "Monitor") || findProductByKeyword("Monitor");
+            let monitorProd = Object.values(productCatalog).find(p => p.cat.includes("모니터") || p.name.includes("UTA902DSP") || p.name.includes("Monitor"));
             if (monitorProd) {
-                addProductToQuote(monitorProd, calculatedMonitorCount);
+                quoteItems.push({ cat: monitorProd.cat, brand: monitorProd.brand, name: monitorProd.name, qty: calculatedMonitorCount, price: monitorProd.price });
             }
         }
 
-        // 4. 무선마이크 및 안테나 분배기 산출
+        // 5. 무선마이크 및 분배기
         let micModel = "EW-D / 835-S";
         if (vocalCount >= 5) micModel = "EW-D / 945-S";
         else if (vocalCount >= 3) micModel = "EW-D / 845-S";
 
-        const wirelessProd = findProductByKeyword("Sennheiser", micModel) || findProductByKeyword("Sennheiser", "EW-D");
+        let wirelessProd = Object.values(productCatalog).find(p => p.cat.includes("무선마이크") && p.name.includes(micModel));
+        if (!wirelessProd) wirelessProd = Object.values(productCatalog).find(p => p.cat.includes("무선마이크"));
         if (wirelessProd && vocalCount > 0) {
-            addProductToQuote(wirelessProd, vocalCount);
+            quoteItems.push({ cat: wirelessProd.cat, brand: wirelessProd.brand, name: wirelessProd.name, qty: vocalCount, price: wirelessProd.price });
         }
 
         if (vocalCount > 0) {
             let asaCount = Math.ceil(vocalCount / 4);
-            const asaProd = findProductByKeyword("Sennheiser", "EW-D ASA");
-            if (asaProd) addProductToQuote(asaProd, asaCount);
+            let asaProd = Object.values(productCatalog).find(p => p.name.includes("ASA") || p.cat.includes("분배기"));
+            if (asaProd) {
+                quoteItems.push({ cat: asaProd.cat, brand: asaProd.brand, name: asaProd.name, qty: asaCount, price: asaProd.price });
+            }
         }
 
-        // 5. 퍼스널 믹서 (P16 HQ) 산출
+        // 6. 퍼스널 믹서 (P16 HQ)
         if (p16Count > 0) {
-            const p16hq = findProductByKeyword("Behringer", "P16-HQ") || findProductByKeyword("Behringer", "P16");
-            if (p16hq) addProductToQuote(p16hq, p16Count);
+            let p16Prod = Object.values(productCatalog).find(p => p.name.includes("P16") || p.cat.includes("퍼스널믹서"));
+            if (p16Prod) {
+                quoteItems.push({ cat: p16Prod.cat, brand: p16Prod.brand, name: p16Prod.name, qty: p16Count, price: p16Prod.price });
+            }
         }
 
-        // 6. 배선 인프라 (케이블, 전원부, 네트워크) 산출
+        // 7. 배선 인프라 (케이블, 전원부, 네트워크 랜선)
         let estimatedCableMeters = Math.ceil((maxDist * 3.5) / 50) * 50;
         if (estimatedCableMeters < 50) estimatedCableMeters = 50;
 
-        const micCable = findProductByKeyword("Canare", "L-2T2S") || findProductByKeyword("케이블", "L-2T2S");
-        const powerCable = findProductByKeyword("VCT", "전원케이블") || findProductByKeyword("전원부", "전원");
-        const netCable = findProductByKeyword("Neutrik", "실드랜케이블") || findProductByKeyword("네트워크", "랜");
+        let micCable = Object.values(productCatalog).find(p => p.name.includes("L-2T2S") || p.cat.includes("케이블"));
+        let powerCable = Object.values(productCatalog).find(p => p.name.includes("전원케이블") || p.cat.includes("전원부"));
+        let netCable = Object.values(productCatalog).find(p => p.name.includes("실드랜케이블") || p.cat.includes("네트워크"));
 
-        if (micCable) addProductToQuote(micCable, estimatedCableMeters);
-        if (powerCable) addProductToQuote(powerCable, estimatedCableMeters);
-        if (netCable) addProductToQuote(netCable, estimatedCableMeters);
+        if (micCable) quoteItems.push({ cat: micCable.cat, brand: micCable.brand, name: micCable.name, qty: estimatedCableMeters, price: micCable.price });
+        if (powerCable) quoteItems.push({ cat: powerCable.cat, brand: powerCable.brand, name: powerCable.name, qty: estimatedCableMeters, price: powerCable.price });
+        if (netCable) quoteItems.push({ cat: netCable.cat, brand: netCable.brand, name: netCable.name, qty: estimatedCableMeters, price: netCable.price });
 
-        alert(`🤖 스마트 견적 산출 완료!\n- 보컬 ${vocalCount}명 기준 모니터 ${calculatedMonitorCount}대, 메인 스피커 2대, I/O 및 케이블 인프라가 반영되었습니다.`);
+        renderTable();
+        alert(`🤖 스마트 견적 산출 완료!\n- 밴드 모니터(${bandMonitorCount}) + 보컬 모니터(${vocalMon}) = 총 ${calculatedMonitorCount대 산정되었습니다.`);
         switchPage('quote');
-    }
-
-    function findProductByKeyword(brandName, keyword) {
-        const found = Object.values(productCatalog).find(p => 
-            p.brand.toLowerCase().includes(brandName.toLowerCase()) && 
-            p.name.toLowerCase().includes(keyword.toLowerCase())
-        );
-        if (found) return found;
-        return Object.values(productCatalog).find(p => p.brand.toLowerCase().includes(brandName.toLowerCase()));
     }
 
     function renderTable() {
@@ -991,6 +996,7 @@
             siteHeight: document.getElementById('siteHeight').value,
             siteInstallDate: document.getElementById('siteInstallDate').value,
             siteVocalCount: document.getElementById('siteVocalCount').value,
+            siteBandMonitorCount: document.getElementById('siteBandMonitorCount').value,
             siteMonitorCount: document.getElementById('siteMonitorCount').value,
             siteP16Count: document.getElementById('siteP16Count').value,
             chkMonitor: document.getElementById('chkMonitor').checked,
@@ -1021,6 +1027,7 @@
                 if(p.siteHeight) document.getElementById('siteHeight').value = p.siteHeight;
                 if(p.siteInstallDate) document.getElementById('siteInstallDate').value = p.siteInstallDate;
                 if(p.siteVocalCount) document.getElementById('siteVocalCount').value = p.siteVocalCount;
+                if(p.siteBandMonitorCount) document.getElementById('siteBandMonitorCount').value = p.siteBandMonitorCount;
                 if(p.siteMonitorCount) document.getElementById('siteMonitorCount').value = p.siteMonitorCount;
                 if(p.siteP16Count) document.getElementById('siteP16Count').value = p.siteP16Count;
 
