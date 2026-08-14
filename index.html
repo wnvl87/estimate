@@ -3,129 +3,1004 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B2B 전문 스마트 견적 시스템 (복구 완료)</title>
+    <title>B2B 전문 스마트 견적 시스템</title>
     <style>
-        :root { --primary: #0f172a; --primary-accent: #2563eb; --bg-gray: #f1f5f9; --border-color: #cbd5e1; --text-main: #1e293b; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
-        body { background-color: var(--bg-gray); padding: 30px; display: flex; justify-content: center; }
-        .app-wrapper { width: 100%; max-width: 1200px; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header { border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 30px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        .section { margin-bottom: 20px; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; background: #f8fafc; }
-        label { display: block; font-weight: 700; margin-bottom: 5px; font-size: 13px; color: var(--primary); }
-        input, select { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 10px; }
-        .btn-action { background: var(--primary-accent); color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 700; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-        th { background: #f1f5f9; padding: 12px; border-bottom: 2px solid var(--border-color); text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
-        .input-qty { width: 70px; padding: 4px; text-align: center; border: 1px solid #cbd5e1; }
-        .input-price { width: 120px; padding: 4px; text-align: right; border: 1px solid #cbd5e1; }
+        :root {
+            --primary: #0f172a;
+            --primary-accent: #2563eb;
+            --bg-gray: #f1f5f9;
+            --border-color: #cbd5e1;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background-color: var(--bg-gray); color: var(--text-main); padding: 30px; display: flex; justify-content: center; }
+        
+        .app-wrapper { display: flex; width: 100%; max-width: 1250px; position: relative; }
+
+        /* 좌측 책갈피 스타일 탭 */
+        .bookmark-tabs { display: flex; flex-direction: column; gap: 8px; position: absolute; left: -150px; top: 20px; width: 140px; }
+        .tab-btn { padding: 12px 16px; background: #94a3b8; color: #ffffff; font-weight: 700; font-size: 13px; border: none; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; text-align: left; transition: all 0.2s; box-shadow: -3px 2px 8px rgba(0,0,0,0.05); }
+        .tab-btn.active { background: #ffffff; color: var(--primary-accent); border-left: 4px solid var(--primary-accent); box-shadow: -5px 3px 12px rgba(0,0,0,0.08); }
+        .tab-btn.admin-tab { background: #475569; font-size: 12px; }
+
+        .container { width: 100%; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); padding: 40px; z-index: 10; }
+
+        .page-section { display: none; }
+        .page-section.active-page { display: block; }
+
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
+        .header-title h1 { font-size: 26px; color: var(--primary); letter-spacing: -1px; }
+        .header-title p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .doc-meta { text-align: right; font-size: 13px; color: var(--text-muted); }
+        .doc-meta input { border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 13px; width: 140px; outline: none; }
+
+        /* 현장 정보 입력 섹션 스타일 */
+        .site-info-box { background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 10px; padding: 25px; margin-bottom: 25px; }
+        .site-info-box h3 { font-size: 16px; color: var(--primary); margin-bottom: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .site-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .form-field { margin-bottom: 15px; }
+        .form-field label { display: block; font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+        .form-field input, .form-field select, .form-field textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #fff; outline: none; }
+        .dim-inputs { display: flex; gap: 8px; align-items: center; }
+        .dim-inputs span { font-size: 13px; color: var(--text-muted); }
+
+        /* 악기 구성 및 수량 그리드 스타일 */
+        .instrument-box { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .instrument-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .instrument-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+        .instrument-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary-accent); cursor: pointer; }
+        .instrument-row input[type="number"] { width: 55px; padding: 4px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
+
+        /* 모니터 및 퍼스널믹서 수량 설정 서브박스 */
+        .option-subbox { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        /* 체크박스 그룹 스타일 */
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+        .checkbox-label { font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .checkbox-label input { width: 16px; height: 16px; accent-color: var(--primary-accent); cursor: pointer; }
+
+        /* B2B Info Section */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .info-card { border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; background-color: #f8fafc; }
+        .info-card h3 { font-size: 15px; color: var(--primary); margin-bottom: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; }
+        .info-table { width: 100%; font-size: 13px; border-collapse: collapse; }
+        .info-table td { padding: 4px 0; }
+        .info-table td.label { width: 95px; color: var(--text-muted); font-weight: 600; }
+        .info-table input { width: 100%; padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 12px; outline: none; }
+
+        /* B2B Terms Bar */
+        .b2b-terms-bar { background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 18px; margin-bottom: 25px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; font-size: 13px; }
+        .b2b-terms-bar label { display: block; font-size: 11px; color: #1e40af; font-weight: 700; margin-bottom: 3px; }
+        .b2b-terms-bar input, .b2b-terms-bar select { width: 100%; padding: 5px; border: 1px solid #93c5fd; border-radius: 4px; font-size: 12px; background: #fff; outline: none; }
+
+        /* Product Selector Controls */
+        .catalog-control-box { background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; padding: 18px; margin-bottom: 25px; }
+        .control-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+        .control-row label { font-size: 13px; font-weight: 700; min-width: 80px; color: var(--primary); }
+        .control-row select, .control-row input { padding: 8px 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; background: #fff; outline: none; }
+        
+        .filter-select { width: 140px; }
+        .search-input { width: 140px; }
+        .select-product { flex: 1; min-width: 200px; }
+
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .btn-primary { background-color: var(--primary-accent); color: white; }
+        .btn-dark { background-color: var(--primary); color: white; }
+        .btn-outline { background-color: white; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-danger { background-color: #ef4444; color: white; padding: 3px 6px; font-size: 11px; border-radius: 4px; }
+        .btn-danger-large { background-color: #ef4444; color: white; }
+        .btn-success { background-color: #10b981; color: white; }
+
+        /* Items Table */
+        .table-wrapper { overflow-x: auto; margin-bottom: 25px; }
+        table.items-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table.items-table th { background-color: #f1f5f9; color: var(--primary); font-weight: 700; padding: 10px; border-bottom: 2px solid var(--border-color); text-align: left; cursor: pointer; user-select: none; }
+        table.items-table th:hover { background-color: #e2e8f0; }
+        table.items-table td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+
+        .brand-tag { font-size: 10px; background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 1px 5px; border-radius: 4px; }
+
+        .input-qty { width: 70px; text-align: center; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
+        .input-price { width: 120px; text-align: right; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
+
+        /* Summary Section */
+        .summary-wrapper { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
+        .bank-info-box { width: 55%; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; background: #fafafa; font-size: 12px; }
+        .bank-info-box h4 { font-size: 13px; color: var(--primary); margin-bottom: 8px; }
+        .bank-info-box p { color: var(--text-muted); line-height: 1.6; }
+
+        .summary-box { width: 40%; }
+        .summary-table { width: 100%; font-size: 13px; }
+        .summary-table td { padding: 6px 0; text-align: right; }
+        .summary-table td.label { text-align: left; color: var(--text-muted); }
+        .summary-table tr.total-row td { font-size: 18px; font-weight: 800; color: var(--primary-accent); border-top: 2px solid var(--primary-accent); padding-top: 10px; }
+
+        /* Signature Section */
+        .signature-section { margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--primary); text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+        .sign-text { font-size: 14px; color: var(--text-main); margin-bottom: 20px; font-weight: 600; }
+        .sign-company { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+        .sign-name { font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+        .sign-stamp { display: inline-block; width: 45px; height: 45px; border: 2px solid #dc2626; border-radius: 50%; color: #dc2626; text-align: center; line-height: 41px; font-size: 14px; font-weight: 800; }
+
+        .actions-bar { display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: 40px; }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-card { background: #ffffff; width: 90%; max-width: 500px; border-radius: 12px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 16px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-weight: 700; color: var(--primary); font-size: 13px; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; outline: none; background: #fff; }
+
+        @media print {
+            @page { margin: 15mm; size: A4; }
+            body { background: none; padding: 0; }
+            .app-wrapper { max-width: 100%; }
+            .container { box-shadow: none; padding: 0; border: none; }
+            .bookmark-tabs, .catalog-control-box, .actions-bar, .btn { display: none !important; }
+            input, select, textarea { border: none !important; background: transparent !important; appearance: none !important; }
+        }
     </style>
 </head>
 <body>
 
 <div class="app-wrapper">
-    <div class="header"><h1>스마트 견적 자동 산출 시스템</h1></div>
-    
-    <div class="grid">
-        <div class="section">
-            <h3>현장 및 인원 설정</h3>
-            <label>보컬 인원 수 (모니터 산출 기준)</label>
-            <input type="number" id="siteVocalCount" value="4">
-            
-            <div style="display: flex; gap: 15px; margin: 15px 0;">
-                <label><input type="checkbox" id="chkMonitor" checked> 모니터 사용</label>
-                <label><input type="checkbox" id="chkP16" checked> P16 사용</label>
-            </div>
-            <label>퍼스널 믹서(P16) 수량</label>
-            <input type="number" id="siteP16Count" value="6">
-        </div>
-        
-        <div class="section">
-            <h3>시스템 매칭 옵션</h3>
-            <label>믹서 선호 브랜드</label>
-            <select id="prefMixer"><option>Behringer</option><option>Yamaha</option><option>Midas</option></select>
-            <label>스피커 선호 브랜드</label>
-            <select id="prefSpeaker"><option>Audiocenter</option><option>Bose</option><option>JBL</option></select>
-            <button class="btn-action" onclick="generateSmartQuotation()">견적 자동 산출하기</button>
-        </div>
+    <!-- 좌측 책갈피형 탭 메뉴 -->
+    <div class="bookmark-tabs">
+        <button class="tab-btn active" id="tabSite" onclick="switchPage('site')">📐 현장 정보</button>
+        <button class="tab-btn" id="tabQuote" onclick="switchPage('quote')">📄 견적서 작성</button>
+        <button class="tab-btn admin-tab" id="tabCatalog" onclick="switchPage('catalog')">📦 카탈로그 관리</button>
     </div>
 
-    <table>
-        <thead>
-            <tr><th>No.</th><th>품목</th><th>브랜드 및 모델명</th><th>수량</th><th>단가(원)</th><th>합계(원)</th><th>삭제</th></tr>
-        </thead>
-        <tbody id="quoteBody"></tbody>
-    </table>
+    <div class="container">
+        <!-- 1. 현장 정보 입력 페이지 -->
+        <div class="page-section active-page" id="pageSite">
+            <div class="header">
+                <div class="header-title">
+                    <h1>현장 정보 및 시스템 요구사항</h1>
+                    <p>현장 실측 제원 및 악기 구성, 모니터/퍼스널믹서 수량을 설정하시면 맞춤형 견적이 자동 산출됩니다.</p>
+                </div>
+            </div>
+
+            <div class="site-info-box">
+                <h3>📋 실측 및 환경 정보 입력</h3>
+                <div class="site-grid">
+                    <div>
+                        <div class="form-field">
+                            <label>현장 장소명</label>
+                            <input type="text" id="siteLocation" placeholder="예: ○○교회 본당, 공연장 등" onchange="saveLocalData()">
+                        </div>
+                        <div class="form-field">
+                            <label>공간 제원 (가로 × 세로 × 높이)</label>
+                            <div class="dim-inputs">
+                                <input type="number" id="siteWidth" placeholder="가로(m)" onchange="saveLocalData()"> <span>m</span> ×
+                                <input type="number" id="siteLength" placeholder="세로(m)" onchange="saveLocalData()"> <span>m</span> ×
+                                <input type="number" id="siteHeight" placeholder="높이(m)" onchange="saveLocalData()"> <span>m</span>
+                            </div>
+                        </div>
+                        <div class="form-field">
+                            <label>설치 희망일</label>
+                            <input type="date" id="siteInstallDate" onchange="saveLocalData()">
+                        </div>
+
+                        <!-- 악기 구성 및 수량 산정 영역 -->
+                        <div class="form-field">
+                            <label>악기 구성 및 수량 선택 (입력 채널 연동)</label>
+                            <div class="instrument-box">
+                                <div class="instrument-grid">
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkAcousticDrum" onchange="saveLocalData()" checked> 어쿠스틱 드럼</label>
+                                        <input type="number" id="qtyAcousticDrum" value="1" min="0" onchange="saveLocalData()">
+                                    </div>
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkElecDrum" onchange="saveLocalData()"> 전자드럼</label>
+                                        <input type="number" id="qtyElecDrum" value="1" min="0" onchange="saveLocalData()">
+                                    </div>
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkBass" onchange="saveLocalData()" checked> 베이스기타</label>
+                                        <input type="number" id="qtyBass" value="1" min="0" onchange="saveLocalData()">
+                                    </div>
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkElecGuitar" onchange="saveLocalData()" checked> 일렉기타</label>
+                                        <input type="number" id="qtyElecGuitar" value="2" min="0" onchange="saveLocalData()">
+                                    </div>
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkKeyboard" onchange="saveLocalData()" checked> 키보드(건반)</label>
+                                        <input type="number" id="qtyKeyboard" value="2" min="0" onchange="saveLocalData()">
+                                    </div>
+                                    <div class="instrument-row">
+                                        <label class="checkbox-label"><input type="checkbox" id="chkAcousticGuitar" onchange="saveLocalData()"> 어쿠스틱기타</label>
+                                        <input type="number" id="qtyAcousticGuitar" value="1" min="0" onchange="saveLocalData()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 모니터 및 퍼스널 믹서 수량 설정 -->
+                        <div class="form-field">
+                            <label>모니터 및 퍼스널 믹서 수량 설정</label>
+                            <div class="option-subbox">
+                                <div>
+                                    <label style="font-size: 12px; margin-bottom: 4px; display:block;">모니터 스피커 수량</label>
+                                    <input type="number" id="siteMonitorCount" value="2" min="0" onchange="saveLocalData()" title="기본 2개 + 3명 초과 시 추가">
+                                    <span style="font-size: 11px; color: var(--text-muted);">* 기본 2개 (보컬 3명 초과 시 +1)</span>
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; margin-bottom: 4px; display:block;">퍼스널 믹서 (P16) 인원수</label>
+                                    <input type="number" id="siteP16Count" value="6" min="0" onchange="saveLocalData()">
+                                    <span style="font-size: 11px; color: var(--text-muted);">* 도입 인원수 (명)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-field">
+                            <label>사용 입력 채널 - 보컬 수 (명)</label>
+                            <input type="number" id="siteVocalCount" placeholder="예: 4 (무선마이크 자동산출 기준)" onchange="saveLocalData()" value="4">
+                        </div>
+
+                        <!-- 선호 브랜드 및 옵션 체크박스 영역 -->
+                        <div class="form-field">
+                            <label>믹서 선호 브랜드 선택 (우선순위 1개 적용)</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label"><input type="checkbox" name="prefMixer" value="Yamaha" onchange="saveLocalData()"> 야마하</label>
+                                <label class="checkbox-label"><input type="checkbox" name="prefMixer" value="Allen & Heath" onchange="saveLocalData()"> 알렌앤히스</label>
+                                <label class="checkbox-label"><input type="checkbox" name="prefMixer" value="Midas" onchange="saveLocalData()"> 미다스</label>
+                                <label class="checkbox-label"><input type="checkbox" name="prefMixer" value="Behringer" onchange="saveLocalData()" checked> 베인거</label>
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label>스피커 선호 브랜드 선택</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label"><input type="checkbox" name="prefSpeaker" value="Audiocenter" onchange="saveLocalData()" checked> 오디오센터 (WM3210P 등)</label>
+                                <label class="checkbox-label"><input type="checkbox" name="prefSpeaker" value="Bose" onchange="saveLocalData()"> 보스</label>
+                                <label class="checkbox-label"><input type="checkbox" name="prefSpeaker" value="JBL" onchange="saveLocalData()"> JBL</label>
+                            </div>
+                        </div>
+
+                        <div class="form-field">
+                            <label>시스템 추가 옵션</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label"><input type="checkbox" id="chkMonitor" onchange="saveLocalData()" checked> 무대 모니터 스피커 구성 활성화</label>
+                                <label class="checkbox-label"><input type="checkbox" id="chkP16" onchange="saveLocalData()" checked> 퍼스널 믹서 (P16 HQ) 시스템 도입</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: right; display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-success" style="padding: 12px 20px; font-size: 15px;" onclick="generateSmartQuotation()">🤖 스마트 견적 자동 산출하기</button>
+                <button class="btn btn-primary" style="padding: 12px 24px; font-size: 15px;" onclick="switchPage('quote')">➡️ 견적서로 이동</button>
+            </div>
+        </div>
+
+        <!-- 2. 견적서 페이지 -->
+        <div class="page-section" id="pageQuote">
+            <div class="header">
+                <div class="header-title">
+                    <h1>음 향 시스템 견 적 서 (QUOTATION)</h1>
+                    <p>Professional Audio System Solutions</p>
+                </div>
+                <div class="doc-meta">
+                    <p><strong>견적번호:</strong> <input type="text" value="EST-20260813-01"></p>
+                    <p style="margin-top: 4px;"><strong>견적일자:</strong> <input type="text" value="2026-08-13"></p>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>공급자 정보 (Supplier)</h3>
+                    <table class="info-table">
+                        <tr><td class="label">상 호 명</td><td>주식회사 아더 (ARTHUR Co., Ltd.)</td></tr>
+                        <tr><td class="label">사업자번호</td><td>419-88-03010</td></tr>
+                        <tr><td class="label">대 표 자</td><td>김상복</td></tr>
+                        <tr><td class="label">연 락 처</td><td>010-9773-8904</td></tr>
+                        <tr><td class="label">사업장주소</td><td>경기 시흥시 매화산단로 95, 215호</td></tr>
+                    </table>
+                </div>
+                <div class="info-card">
+                    <h3>수신자 정보 (Client)</h3>
+                    <table class="info-table">
+                        <tr><td class="label">고 객 명</td><td><input type="text" value="○○교회 / 담당자님" id="clientCompany" onchange="saveLocalData()"></td></tr>
+                        <tr><td class="label">연 락 처</td><td><input type="text" value="010-1234-5678" id="clientContact" onchange="saveLocalData()"></td></tr>
+                        <tr><td class="label">설치장소</td><td><input type="text" value="본당 음향 시스템 보강" id="clientProject" onchange="saveLocalData()"></td></tr>
+                        <tr><td class="label">설치희망</td><td><input type="text" value="협의 후 결정" id="clientInstallDateText" onchange="saveLocalData()"></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="catalog-control-box">
+                <div class="control-row">
+                    <label>📦 장비 선택:</label>
+                    <select class="filter-select" id="categoryFilter" onchange="updateBrandFilter()"></select>
+                    <select class="filter-select" id="brandFilter" onchange="filterCatalog()"></select>
+                    <input type="text" class="search-input" id="searchInput" placeholder="모델명 검색..." onkeyup="filterCatalog()">
+                    <select class="select-product" id="productSelect"></select>
+                    <button class="btn btn-primary" onclick="addSelectedProduct()">+ 견적 추가</button>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px; text-align: center;">No.</th>
+                            <th style="width: 120px;">품목</th>
+                            <th>브랜드 및 모델명</th>
+                            <th style="width: 80px; text-align: center;">수량</th>
+                            <th style="width: 130px; text-align: right;">단가(원)</th>
+                            <th style="width: 140px; text-align: right;">합계(원)</th>
+                            <th style="width: 50px; text-align: center;">삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quotationItems"></tbody>
+                </table>
+            </div>
+
+            <div class="summary-wrapper">
+                <div class="bank-info-box">
+                    <h4>📌 입금 계좌 및 안내사항</h4>
+                    <p><strong>입금계좌:</strong> 기업은행 067-509928-04-014 (예금주: 주식회사 아더)</p>
+                    <p><strong>비고:</strong> 본 견적서는 표준 소비자가 기준으로 산출되었습니다.</p>
+                </div>
+                <div class="summary-box">
+                    <table class="summary-table">
+                        <tr><td class="label">공급가액 소계:</td><td id="subtotalVal">0 원</td></tr>
+                        <tr><td class="label">부가세 (VAT 10%):</td><td id="vatVal">0 원</td></tr>
+                        <tr class="total-row"><td class="label">최종 합계금액:</td><td id="totalVal">0 원</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="b2b-terms-bar">
+                <div>
+                    <label>💳 결제 조건</label>
+                    <select id="paymentTerms" onchange="saveLocalData()">
+                        <option value="발주 시 현금 완불">발주 시 현금 완불 (선입금)</option>
+                        <option value="계약금 50%, 출고 전 50%">계약금 50%, 출고 전 50%</option>
+                    </select>
+                </div>
+                <div>
+                    <label>⏱️ 유효기간</label>
+                    <input type="text" value="견적일로부터 30일" id="validityPeriod" onchange="saveLocalData()">
+                </div>
+                <div>
+                    <label>🚚 납품 조건</label>
+                    <input type="text" value="화물/택배 및 설치" id="deliveryTerms" onchange="saveLocalData()">
+                </div>
+                <div>
+                    <label>🧾 부가세 구분</label>
+                    <select id="vatType" onchange="calculateTotals(); saveLocalData();">
+                        <option value="EXCLUDE">VAT 별도 (10%)</option>
+                        <option value="INCLUDE">VAT 포함가</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="signature-section">
+                <div class="sign-text">위와 같이 견적합니다.</div>
+                <div class="sign-company">주식회사 아더 (ARTHUR Co., Ltd.)</div>
+                <div class="sign-name">대표 / 이사 김 상 복 <span class="sign-stamp">(인)</span></div>
+            </div>
+
+            <div class="actions-bar">
+                <button class="btn btn-outline" onclick="resetQuote()">🔄 견적 초기화</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ 인쇄 / PDF 출력</button>
+            </div>
+        </div>
+
+        <!-- 3. 카탈로그 관리 페이지 -->
+        <div class="page-section" id="pageCatalog">
+            <div class="header">
+                <div class="header-title">
+                    <h1>장비 카탈로그 관리 (관리자 전용)</h1>
+                    <p>CSV 일괄 업로드 및 깃허브 자동 연동 관리</p>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn btn-danger-large" onclick="deleteSelectedCatalogItems()">🗑️ 선택 장비 일괄 삭제</button>
+                    <button class="btn btn-outline" onclick="exportCatalogCSV()">📥 CSV 다운로드</button>
+                    <input type="file" id="csvFile" style="display:none" accept=".csv" onchange="importCatalogCSV(event)">
+                    <button class="btn btn-primary" onclick="document.getElementById('csvFile').click()">📤 CSV 일괄 업로드</button>
+                    <button class="btn btn-dark" onclick="openAddCatalogModal()">+ 신규 등록</button>
+                </div>
+            </div>
+            <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <input type="text" id="catalogSearchInput" placeholder="카탈로그 검색..." onkeyup="renderCatalogTable()" style="padding: 8px; width: 300px; border:1px solid var(--border-color); border-radius:6px; outline:none;">
+                <span style="font-size: 13px; color: var(--text-muted);">총 등록 장비: <strong id="catalogCount">0</strong>개 (헤더 클릭 시 정렬 변경)</span>
+            </div>
+            <div class="table-wrapper">
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th>
+                            <th style="width: 140px;" onclick="sortCatalogTable('cat')">품목 ↕</th>
+                            <th style="width: 130px;" onclick="sortCatalogTable('brand')">브랜드 ↕</th>
+                            <th onclick="sortCatalogTable('name')">모델명 ↕</th>
+                            <th style="text-align: right; width: 120px;" onclick="sortCatalogTable('price')">소비자가 ↕</th>
+                            <th style="text-align: center; width: 110px;">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="catalogTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 장비 등록/수정 모달 -->
+<div class="modal-overlay" id="addCatalogModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2 id="modalMainTitle">장비 카탈로그 등록</h2>
+            <button class="btn btn-outline" style="padding:2px 6px;" onclick="closeAddCatalogModal()">&times;</button>
+        </div>
+        <div>
+            <div class="form-group">
+                <label>품목 (Category)</label>
+                <input type="text" id="newCat" placeholder="예: 스피커">
+            </div>
+            <div class="form-group">
+                <label>브랜드 (Brand)</label>
+                <input type="text" id="newBrand" placeholder="예: Audiocenter">
+            </div>
+            <div class="form-group">
+                <label>모델명 (Model Name)</label>
+                <input type="text" id="newName" placeholder="예: WM3210P">
+            </div>
+            <div class="form-group">
+                <label>소비자가 (MSRP)</label>
+                <input type="number" id="newPrice" placeholder="숫자만 입력">
+            </div>
+        </div>
+        <div style="margin-top: 20px; text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+            <button class="btn btn-outline" onclick="closeAddCatalogModal()">취소</button>
+            <button class="btn btn-primary" id="modalSubmitBtn" onclick="saveCatalogProduct()">GitHub 서버에 자동 저장</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    // 카탈로그 데이터 (서버 로드 실패 시 기본값)
     let productCatalog = {
-        "mixer": { cat: "믹서", brand: "Behringer", name: "WING", price: 3500000 },
-        "io": { cat: "I/O", brand: "Behringer", name: "DL32", price: 1200000 },
-        "mainSpk": { cat: "스피커", brand: "Audiocenter", name: "WM3210P", price: 1800000 },
-        "monSpk": { cat: "모니터", brand: "Audiocenter", name: "UTA902DSP", price: 900000 },
-        "mic": { cat: "무선마이크", brand: "Sennheiser", name: "EW-D / 835-S", price: 1100000 },
-        "asa": { cat: "분배기", brand: "Sennheiser", name: "EW-D ASA", price: 450000 },
-        "p16": { cat: "퍼스널믹서", brand: "Behringer", name: "P16-HQ", price: 350000 }
+        "mixer_wing": { cat: "믹서", brand: "Behringer", name: "WING", price: 3500000 },
+        "io_dl32": { cat: "I/O", brand: "Behringer", name: "DL32", price: 1200000 },
+        "spk_wm3210p": { cat: "스피커", brand: "Audiocenter", name: "WM3210P", price: 1800000 },
+        "mon_uta902": { cat: "모니터", brand: "Audiocenter", name: "UTA902DSP", price: 900000 },
+        "mic_ewd835": { cat: "무선마이크", brand: "Sennheiser", name: "EW-D / 835-S", price: 1100000 },
+        "asa_ewd": { cat: "분배기", brand: "Sennheiser", name: "EW-D ASA", price: 450000 },
+        "p16_hq": { cat: "퍼스널믹서", brand: "Behringer", name: "P16-HQ", price: 350000 },
+        "cable_canare": { cat: "케이블", brand: "Canare", name: "L-2T2S (m)", price: 2500 }
     };
     let quoteItems = [];
+    let editingProductKey = null;
 
+    let currentSortField = 'cat';
+    let currentSortAsc = true;
+
+    window.onload = async function() {
+        await loadCatalog();
+        initDynamicFilters();
+        loadLocalData();
+    };
+
+    function switchPage(pageName) {
+        document.getElementById('pageSite').classList.remove('active-page');
+        document.getElementById('pageQuote').classList.remove('active-page');
+        document.getElementById('pageCatalog').classList.remove('active-page');
+        document.getElementById('tabSite').classList.remove('active');
+        document.getElementById('tabQuote').classList.remove('active');
+        document.getElementById('tabCatalog').classList.remove('active');
+
+        if (pageName === 'site') {
+            document.getElementById('pageSite').classList.add('active-page');
+            document.getElementById('tabSite').classList.add('active');
+        } else if (pageName === 'quote') {
+            document.getElementById('pageQuote').classList.add('active-page');
+            document.getElementById('tabQuote').classList.add('active');
+        } else if (pageName === 'catalog') {
+            document.getElementById('pageCatalog').classList.add('active-page');
+            document.getElementById('tabCatalog').classList.add('active');
+            renderCatalogTable();
+        }
+    }
+
+    async function loadCatalog() {
+        const local = localStorage.getItem('arthur_local_custom_catalog');
+        if (local) {
+            try { productCatalog = JSON.parse(local); } catch(e) {}
+        }
+        try {
+            const res = await fetch('b2b_quotation_data.json?t=' + Date.now());
+            if (res.ok) {
+                const data = await res.json();
+                productCatalog = { ...data, ...productCatalog };
+                localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
+            }
+        } catch(e) { console.warn("서버 로드 실패, 로컬 및 기본 카탈로그 사용"); }
+    }
+
+    function initDynamicFilters() {
+        const cats = new Set(), brands = new Set();
+        Object.values(productCatalog).forEach(p => {
+            if (p.cat) cats.add(p.cat.trim());
+            if (p.brand) brands.add(p.brand.trim());
+        });
+        const catFilter = document.getElementById("categoryFilter");
+        catFilter.innerHTML = `<option value="ALL">전체 품목</option>`;
+        cats.forEach(c => catFilter.innerHTML += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`);
+        updateBrandFilter();
+    }
+
+    function updateBrandFilter() {
+        const selectedCat = document.getElementById("categoryFilter").value;
+        const brandFilter = document.getElementById("brandFilter");
+        const brands = new Set();
+        Object.values(productCatalog).forEach(p => {
+            if (selectedCat === "ALL" || p.cat === selectedCat) {
+                if (p.brand) brands.add(p.brand.trim());
+            }
+        });
+        brandFilter.innerHTML = `<option value="ALL">전체 브랜드</option>`;
+        brands.forEach(b => brandFilter.innerHTML += `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`);
+        filterCatalog();
+    }
+
+    function filterCatalog() {
+        const cat = document.getElementById("categoryFilter").value;
+        const brand = document.getElementById("brandFilter").value;
+        const keyword = document.getElementById("searchInput").value.toLowerCase();
+        const select = document.getElementById("productSelect");
+        select.innerHTML = "";
+        
+        Object.entries(productCatalog).forEach(([key, prod]) => {
+            if ((cat === "ALL" || prod.cat === cat) &&
+                (brand === "ALL" || prod.brand === brand) &&
+                prod.name.toLowerCase().includes(keyword)) {
+                const opt = document.createElement("option");
+                opt.value = key;
+                opt.innerText = `[${prod.brand}] ${prod.name} - ₩${prod.price.toLocaleString()}`;
+                select.appendChild(opt);
+            }
+        });
+    }
+
+    function addSelectedProduct() {
+        const key = document.getElementById("productSelect").value;
+        if (!key || !productCatalog[key]) return;
+        const prod = productCatalog[key];
+        addProductToQuote(prod, 1);
+    }
+
+    function addProductToQuote(prod, qty = 1) {
+        const brandName = prod.brand ? prod.brand.trim() : "";
+        const unitPrice = prod.price;
+
+        const existing = quoteItems.find(item => item.name.toLowerCase() === prod.name.toLowerCase() && item.brand.toLowerCase() === brandName.toLowerCase());
+        if (existing) {
+            existing.qty += qty;
+        } else {
+            quoteItems.push({
+                cat: prod.cat, brand: brandName, name: prod.name,
+                qty: qty, price: unitPrice
+            });
+        }
+        renderTable();
+    }
+
+    // 🤖 [스마트 견적 자동 산출 알고리즘]
     function generateSmartQuotation() {
+        const width = parseFloat(document.getElementById("siteWidth").value) || 10;
+        const length = parseFloat(document.getElementById("siteLength").value) || 15;
+        const height = parseFloat(document.getElementById("siteHeight").value) || 4;
+        const vocalCount = parseInt(document.getElementById("siteVocalCount").value) || 4;
+        
+        // 모니터 스피커 수량 산정 로직: 사용 체크 시 기본 2개 + 보컬 3명 초과 시 1개씩 추가 / 미사용 시 0개
+        const chkMonitor = document.getElementById("chkMonitor").checked;
+        let calculatedMonitorCount = 0;
+        if (chkMonitor) {
+            calculatedMonitorCount = 2;
+            if (vocalCount > 3) {
+                calculatedMonitorCount += (vocalCount - 3);
+            }
+        }
+        document.getElementById("siteMonitorCount").value = calculatedMonitorCount;
+
+        const chkP16 = document.getElementById("chkP16").checked;
+        const p16Count = chkP16 ? (parseInt(document.getElementById("siteP16Count").value) || 6) : 0;
+
+        const prefMixerBrands = Array.from(document.querySelectorAll('input[name="prefMixer"]:checked')).map(el => el.value);
+        const prefSpeakerBrands = Array.from(document.querySelectorAll('input[name="prefSpeaker"]:checked')).map(el => el.value);
+
+        const maxDist = Math.sqrt(width*width + length*length);
+
         quoteItems = [];
-        const vocal = parseInt(document.getElementById('siteVocalCount').value) || 0;
-        const useMonitor = document.getElementById('chkMonitor').checked;
-        const useP16 = document.getElementById('chkP16').checked;
-        const p16Qty = parseInt(document.getElementById('siteP16Count').value) || 0;
 
-        // 1. 믹서/IO
-        addProduct(productCatalog.mixer, 1);
-        addProduct(productCatalog.io, 1);
-
-        // 2. 메인 스피커
-        addProduct(productCatalog.mainSpk, 2);
-
-        // 3. 모니터 스피커 (사용시: 2대 + 보컬 3명 초과 시 1개씩 추가)
-        if (useMonitor) {
-            let monitorQty = (vocal > 3) ? (2 + (vocal - 3)) : 2;
-            addProduct(productCatalog.monSpk, monitorQty);
+        // 1. 디지털 믹서 및 대응 디지털 I/O 자동 매칭
+        let mixerProd = null;
+        for (let b of prefMixerBrands) {
+            mixerProd = findProductByKeyword(b, "Digital Mixer") || findProductByKeyword(b, "WING") || findProductByKeyword(b, "SQ") || findProductByKeyword(b, "M32");
+            if (mixerProd) break;
+        }
+        if (!mixerProd) mixerProd = Object.values(productCatalog).find(p => p.cat.includes("믹서") || p.cat.includes("Mixer"));
+        
+        if (mixerProd) {
+            addProductToQuote(mixerProd, 1);
+            let ioProd = findProductByKeyword(mixerProd.brand, "IO") || findProductByKeyword(mixerProd.brand, "Stagebox") || findProductByKeyword(mixerProd.brand, "Rio") || findProductByKeyword(mixerProd.brand, "DL");
+            if (ioProd) addProductToQuote(ioProd, 1);
         }
 
-        // 4. 무선마이크/분배기
-        if (vocal > 0) {
-            addProduct(productCatalog.mic, vocal);
-            addProduct(productCatalog.asa, Math.ceil(vocal / 4));
+        // 2. 메인 스피커 자동 매칭 (WM3210P 우선 적용)
+        let speakerProd = null;
+        for (let b of prefSpeakerBrands) {
+            speakerProd = findProductByKeyword(b, "WM3210P") || findProductByKeyword(b, "Column") || findProductByKeyword(b, "Speaker");
+            if (speakerProd) break;
+        }
+        if (!speakerProd) speakerProd = Object.values(productCatalog).find(p => p.cat.includes("스피커") || p.cat.includes("Speaker"));
+        if (speakerProd) addProductToQuote(speakerProd, 2);
+
+        // 3. 무대 모니터 스피커 자동 매칭 (UTA902DSP 우선 적용, 계산된 수량 반영)
+        if (chkMonitor && calculatedMonitorCount > 0) {
+            let monitorProd = findProductByKeyword("Audiocenter", "UTA902DSP") || findProductByKeyword("Audiocenter", "Monitor") || findProductByKeyword("Monitor");
+            if (monitorProd) addProductToQuote(monitorProd, calculatedMonitorCount);
         }
 
-        // 5. 퍼스널믹서
-        if (useP16) addProduct(productCatalog.p16, p16Qty);
+        // 4. 무선마이크 및 안테나 분배기 산출
+        let micModel = "EW-D / 835-S";
+        if (vocalCount >= 5) micModel = "EW-D / 945-S";
+        else if (vocalCount >= 3) micModel = "EW-D / 845-S";
 
-        render();
+        const wirelessProd = findProductByKeyword("Sennheiser", micModel) || findProductByKeyword("Sennheiser", "EW-D");
+        if (wirelessProd) addProductToQuote(wirelessProd, vocalCount);
+
+        if (vocalCount > 0) {
+            let asaCount = Math.ceil(vocalCount / 4);
+            const asaProd = findProductByKeyword("Sennheiser", "EW-D ASA");
+            if (asaProd) addProductToQuote(asaProd, asaCount);
+        }
+
+        // 5. 퍼스널 믹서 (P16 HQ) 산출
+        if (p16Count > 0) {
+            const p16hq = findProductByKeyword("Behringer", "P16-HQ") || findProductByKeyword("Behringer", "P16");
+            if (p16hq) addProductToQuote(p16hq, p16Count);
+        }
+
+        // 6. 케이블 인프라 산출
+        let estimatedCableMeters = Math.ceil((maxDist * 3.5) / 50) * 50;
+        if (estimatedCableMeters < 50) estimatedCableMeters = 50;
+        const cableProd = findProductByKeyword("Canare", "L-2T2S");
+        if (cableProd) addProductToQuote(cableProd, estimatedCableMeters);
+
+        alert(`🤖 스마트 견적 산출 완료!\n- 보컬 ${vocalCount}명 기준 모니터 스피커 ${calculatedMonitorCount}대 산정\n\n[견적서 작성] 탭에서 상세 내역을 확인하세요!`);
+        switchPage('quote');
     }
 
-    function addProduct(prod, qty) {
-        quoteItems.push({ ...prod, qty: qty });
+    function findProductByKeyword(brandName, keyword) {
+        const found = Object.values(productCatalog).find(p => 
+            p.brand.toLowerCase().includes(brandName.toLowerCase()) && 
+            p.name.toLowerCase().includes(keyword.toLowerCase())
+        );
+        if (found) return found;
+        return Object.values(productCatalog).find(p => p.brand.toLowerCase().includes(brandName.toLowerCase()));
     }
 
-    function render() {
-        const body = document.getElementById('quoteBody');
-        body.innerHTML = quoteItems.map((item, i) => `
-            <tr>
-                <td>${i+1}</td>
-                <td>${item.cat}</td>
-                <td>[${item.brand}] ${item.name}</td>
-                <td><input type="number" class="input-qty" value="${item.qty}" onchange="updateRow(${i}, this.value)"></td>
-                <td>${item.price.toLocaleString()}</td>
-                <td>${(item.qty * item.price).toLocaleString()}</td>
-                <td><button onclick="quoteItems.splice(${i},1); render();">✕</button></td>
-            </tr>
-        `).join('');
+    function renderTable() {
+        const tbody = document.getElementById("quotationItems");
+        tbody.innerHTML = "";
+        if (quoteItems.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">선택된 장비가 없습니다. 상단에서 장비를 추가하거나 스마트 견적을 실행해주세요.</td></tr>`;
+            calculateTotals();
+            saveLocalData();
+            return;
+        }
+        quoteItems.forEach((item, index) => {
+            const rowTotal = item.qty * item.price;
+            tbody.innerHTML += `
+                <tr>
+                    <td style="text-align:center; color:var(--text-muted);">${index + 1}</td>
+                    <td><span class="brand-tag">${escapeHtml(item.cat)}</span></td>
+                    <td><strong>[${escapeHtml(item.brand)}]</strong> ${escapeHtml(item.name)}</td>
+                    <td style="text-align:center;"><input type="number" class="input-qty" value="${item.qty}" min="1" step="1" onchange="updateQty(${index}, this.value)"></td>
+                    <td style="text-align:right;"><input type="number" class="input-price" value="${item.price}" onchange="updatePrice(${index}, this.value)"></td>
+                    <td style="text-align:right; font-weight:700; color:var(--primary-accent);">${rowTotal.toLocaleString()} 원</td>
+                    <td style="text-align:center;"><button class="btn btn-danger" onclick="removeItem(${index})">✕</button></td>
+                </tr>
+            `;
+        });
+        calculateTotals();
+        saveLocalData();
     }
 
-    function updateRow(i, qty) {
-        quoteItems[i].qty = parseInt(qty);
-        render();
+    function updateQty(i, v) { quoteItems[i].qty = Math.max(1, parseInt(v) || 1); renderTable(); }
+    function updatePrice(i, v) { quoteItems[i].price = Math.max(0, parseInt(v) || 0); renderTable(); }
+    function removeItem(i) { quoteItems.splice(i, 1); renderTable(); }
+    function resetQuote() { if(confirm("견적을 초기화하시겠습니까?")) { quoteItems = []; renderTable(); } }
+
+    function calculateTotals() {
+        let subtotal = quoteItems.reduce((sum, item) => sum + (item.qty * item.price), 0);
+        let vatType = document.getElementById("vatType").value;
+        let vat = (vatType === "EXCLUDE") ? Math.round(subtotal * 0.1) : 0;
+        document.getElementById("subtotalVal").innerText = subtotal.toLocaleString() + " 원";
+        document.getElementById("vatVal").innerText = (vatType === "EXCLUDE" ? vat.toLocaleString() + " 원" : "VAT 포함가 적용");
+        document.getElementById("totalVal").innerText = (subtotal + vat).toLocaleString() + " 원";
+    }
+
+    function sortCatalogTable(field) {
+        if (currentSortField === field) {
+            currentSortAsc = !currentSortAsc;
+        } else {
+            currentSortField = field;
+            currentSortAsc = true;
+        }
+        renderCatalogTable();
+    }
+
+    function renderCatalogTable() {
+        const tbody = document.getElementById("catalogTableBody");
+        const keyword = document.getElementById("catalogSearchInput").value.toLowerCase();
+        tbody.innerHTML = "";
+        
+        let entries = Object.entries(productCatalog).filter(([key, prod]) => {
+            return prod.name.toLowerCase().includes(keyword) || 
+                   prod.brand.toLowerCase().includes(keyword) || 
+                   prod.cat.toLowerCase().includes(keyword);
+        });
+
+        entries.sort((a, b) => {
+            let valA = a[1][currentSortField];
+            let valB = b[1][currentSortField];
+            
+            if (typeof valA === 'string') {
+                valA = valA.toLowerCase();
+                valB = valB.toLowerCase();
+            }
+
+            if (valA < valB) return currentSortAsc ? -1 : 1;
+            if (valA > valB) return currentSortAsc ? 1 : -1;
+            return 0;
+        });
+
+        entries.forEach(([key, prod]) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td style="text-align:center;"><input type="checkbox" class="row-checkbox" value="${key}"></td>
+                    <td><span class="brand-tag">${escapeHtml(prod.cat)}</span></td>
+                    <td><span class="brand-tag" style="background:#e0f2fe; color:#0369a1;">${escapeHtml(prod.brand)}</span></td>
+                    <td><strong>${escapeHtml(prod.name)}</strong></td>
+                    <td style="text-align:right; font-weight:600;">₩${prod.price.toLocaleString()}</td>
+                    <td style="text-align:center;">
+                        <button class="btn btn-outline" style="padding:4px 8px; font-size:11px;" onclick="editCatalogItem('${key}')">수정</button>
+                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteCatalogItem('${key}')">삭제</button>
+                    </td>
+                </tr>
+            `;
+        });
+        document.getElementById("catalogCount").innerText = entries.length;
+        const selectAllCb = document.getElementById("selectAllCheckbox");
+        if(selectAllCb) selectAllCb.checked = false;
+    }
+
+    function toggleSelectAll(master) {
+        const checkboxes = document.querySelectorAll('.row-checkbox');
+        checkboxes.forEach(cb => cb.checked = master.checked);
+    }
+
+    function openAddCatalogModal() {
+        editingProductKey = null;
+        document.getElementById("modalMainTitle").innerText = "신규 장비 카탈로그 등록";
+        document.getElementById("newCat").value = "";
+        document.getElementById("newBrand").value = "";
+        document.getElementById("newName").value = "";
+        document.getElementById("newPrice").value = "";
+        document.getElementById("addCatalogModal").style.display = "flex";
+    }
+
+    function editCatalogItem(key) {
+        const prod = productCatalog[key];
+        if (!prod) return;
+        editingProductKey = key;
+        document.getElementById("modalMainTitle").innerText = "장비 정보 수정";
+        document.getElementById("newCat").value = prod.cat || "";
+        document.getElementById("newBrand").value = prod.brand || "";
+        document.getElementById("newName").value = prod.name || "";
+        document.getElementById("newPrice").value = prod.price || 0;
+        document.getElementById("addCatalogModal").style.display = "flex";
+    }
+
+    function closeAddCatalogModal() {
+        document.getElementById("addCatalogModal").style.display = "none";
+    }
+
+    async function syncToGitHub(commitMsg) {
+        let githubToken = localStorage.getItem('arthur_github_token');
+        if (!githubToken) {
+            githubToken = prompt("깃허브 서버와 자동 연동하기 위한 'Personal Access Token(토큰)'을 입력하세요.");
+            if (!githubToken) return false;
+            localStorage.setItem('arthur_github_token', githubToken);
+        }
+
+        const owner = "wnvl87";
+        const repo = "estimate";
+        const path = "b2b_quotation_data.json";
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
+        try {
+            let fileSha = "";
+            const getRes = await fetch(apiUrl, { headers: { "Authorization": `Bearer ${githubToken}` } });
+            if (getRes.ok) {
+                const fileData = await getRes.json();
+                fileSha = fileData.sha;
+            }
+
+            const jsonStr = JSON.stringify(productCatalog, null, 2);
+            const base64Content = btoa(unescape(encodeURIComponent(jsonStr)));
+
+            const putRes = await fetch(apiUrl, {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${githubToken}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ message: commitMsg, content: base64Content, sha: fileSha || undefined })
+            });
+
+            if (!putRes.ok) throw new Error("GitHub 업로드 실패");
+            return true;
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
+    }
+
+    async function saveCatalogProduct() {
+        const cat = document.getElementById("newCat").value.trim() || "기타";
+        const brand = document.getElementById("newBrand").value.trim() || "기타";
+        const name = document.getElementById("newName").value.trim();
+        const price = parseInt(document.getElementById("newPrice").value) || 0;
+
+        if (!name) { alert("모델명은 필수 입력 항목입니다."); return; }
+
+        let targetKey = editingProductKey;
+        if (!targetKey) {
+            targetKey = "CAT_" + Date.now();
+        }
+
+        productCatalog[targetKey] = { cat, brand, name, price };
+        localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
+        
+        await syncToGitHub(editingProductKey ? `카탈로그 수정: [${brand}] ${name}` : `신규 장비 등록: [${brand}] ${name}`);
+
+        initDynamicFilters();
+        renderCatalogTable();
+        closeAddCatalogModal();
+        alert("장비 정보가 저장되었습니다!");
+    }
+
+    async function deleteCatalogItem(key) {
+        const prod = productCatalog[key];
+        if (!prod) return;
+        if (confirm(`[${prod.brand}] ${prod.name} 장비를 삭제하시겠습니까?`)) {
+            delete productCatalog[key];
+            localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
+            await syncToGitHub(`장비 삭제: [${prod.brand}] ${prod.name}`);
+            initDynamicFilters();
+            renderCatalogTable();
+        }
+    }
+
+    async function deleteSelectedCatalogItems() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        if (checkboxes.length === 0) { alert("삭제할 장비를 선택해주세요."); return; }
+        if (confirm(`선택한 ${checkboxes.length}개의 장비를 삭제하시겠습니까?`)) {
+            checkboxes.forEach(cb => delete productCatalog[cb.value]);
+            localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
+            await syncToGitHub(`카탈로그 일괄 삭제 (${checkboxes.length}개)`);
+            initDynamicFilters();
+            renderCatalogTable();
+        }
+    }
+
+    async function importCatalogCSV(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async function(event) {
+            event.target.result.split('\n').forEach((line, i) => {
+                if (i === 0 || !line.trim()) return;
+                const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+                if (cols.length >= 4) {
+                    const [cat, brand, name, priceStr] = cols;
+                    const price = parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
+                    if (name) {
+                        const newKey = "CAT_" + Date.now() + "_" + i;
+                        productCatalog[newKey] = { cat: cat || "기타", brand: brand || "기타", name: name, price: price };
+                    }
+                }
+            });
+            localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
+            await syncToGitHub("CSV 일괄 업데이트");
+            initDynamicFilters();
+            renderCatalogTable();
+            alert("CSV 업로드 및 동기화 완료!");
+        };
+        reader.readAsText(file, "UTF-8");
+        e.target.value = "";
+    }
+
+    function exportCatalogCSV() {
+        let csv = "카테고리,브랜드,모델명,소비자가\n";
+        Object.values(productCatalog).forEach(p => {
+            csv += `"${p.cat}","${p.brand}","${p.name}",${p.price}\n`;
+        });
+        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "catalog_export.csv";
+        link.click();
+    }
+
+    function saveLocalData() {
+        const prefMixer = Array.from(document.querySelectorAll('input[name="prefMixer"]:checked')).map(el => el.value);
+        const prefSpeaker = Array.from(document.querySelectorAll('input[name="prefSpeaker"]:checked')).map(el => el.value);
+
+        const data = {
+            items: quoteItems,
+            clientCompany: document.getElementById('clientCompany').value,
+            clientContact: document.getElementById('clientContact').value,
+            clientProject: document.getElementById('clientProject').value,
+            clientInstallDateText: document.getElementById('clientInstallDateText').value,
+            paymentTerms: document.getElementById('paymentTerms').value,
+            validityPeriod: document.getElementById('validityPeriod').value,
+            deliveryTerms: document.getElementById('deliveryTerms').value,
+            vatType: document.getElementById('vatType').value,
+            siteLocation: document.getElementById('siteLocation').value,
+            siteWidth: document.getElementById('siteWidth').value,
+            siteLength: document.getElementById('siteLength').value,
+            siteHeight: document.getElementById('siteHeight').value,
+            siteInstallDate: document.getElementById('siteInstallDate').value,
+            siteVocalCount: document.getElementById('siteVocalCount').value,
+            siteMonitorCount: document.getElementById('siteMonitorCount').value,
+            siteP16Count: document.getElementById('siteP16Count').value,
+            chkMonitor: document.getElementById('chkMonitor').checked,
+            chkP16: document.getElementById('chkP16').checked,
+            prefMixer, prefSpeaker
+        };
+        localStorage.setItem('arthur_quote_data', JSON.stringify(data));
+    }
+
+    function loadLocalData() {
+        const saved = localStorage.getItem('arthur_quote_data');
+        if (saved) {
+            try {
+                const p = JSON.parse(saved);
+                quoteItems = p.items || [];
+                if(p.clientCompany) document.getElementById('clientCompany').value = p.clientCompany;
+                if(p.clientContact) document.getElementById('clientContact').value = p.clientContact;
+                if(p.clientProject) document.getElementById('clientProject').value = p.clientProject;
+                if(p.clientInstallDateText) document.getElementById('clientInstallDateText').value = p.clientInstallDateText;
+                if(p.paymentTerms) document.getElementById('paymentTerms').value = p.paymentTerms;
+                if(p.validityPeriod) document.getElementById('validityPeriod').value = p.validityPeriod;
+                if(p.deliveryTerms) document.getElementById('deliveryTerms').value = p.deliveryTerms;
+                if(p.vatType) document.getElementById('vatType').value = p.vatType;
+
+                if(p.siteLocation) document.getElementById('siteLocation').value = p.siteLocation;
+                if(p.siteWidth) document.getElementById('siteWidth').value = p.siteWidth;
+                if(p.siteLength) document.getElementById('siteLength').value = p.siteLength;
+                if(p.siteHeight) document.getElementById('siteHeight').value = p.siteHeight;
+                if(p.siteInstallDate) document.getElementById('siteInstallDate').value = p.siteInstallDate;
+                if(p.siteVocalCount) document.getElementById('siteVocalCount').value = p.siteVocalCount;
+                if(p.siteMonitorCount) document.getElementById('siteMonitorCount').value = p.siteMonitorCount;
+                if(p.siteP16Count) document.getElementById('siteP16Count').value = p.siteP16Count;
+
+                if(p.chkMonitor !== undefined) document.getElementById('chkMonitor').checked = p.chkMonitor;
+                if(p.chkP16 !== undefined) document.getElementById('chkP16').checked = p.chkP16;
+            } catch(e) {}
+        }
+        renderTable();
+    }
+
+    function escapeHtml(text) {
+        return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 </script>
 </body>
