@@ -90,27 +90,6 @@
     "price": 7740000,
     "specs": {}
   },
-  "CAT_178661556928618": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "WM210-DSP",
-    "price": 2780000,
-    "specs": {}
-  },
-  "CAT_178661556928619": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "WM3210A Active-DSP",
-    "price": 1100000,
-    "specs": {}
-  },
-  "CAT_178661556928620": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "WM3210P Passive",
-    "price": 830000,
-    "specs": {}
-  },
   "CAT_178661556928621": {
     "cat": "스피커",
     "brand": "Audiocenter",
@@ -279,20 +258,6 @@
     "price": 5200000,
     "specs": {}
   },
-  "CAT_1786703600280_52": {
-    "cat": "디지털 믹서",
-    "brand": "Behringer",
-    "name": "X32",
-    "price": 3900000,
-    "specs": {}
-  },
-  "CAT_1786703600281_53": {
-    "cat": "디지털 믹서",
-    "brand": "Behringer",
-    "name": "X32 Compact",
-    "price": 3200000,
-    "specs": {}
-  },
   "CAT_1786703600281_54": {
     "cat": "디지털 I/O",
     "brand": "Yamaha",
@@ -375,13 +340,6 @@
     "brand": "Sennheiser",
     "name": "EW-D / 945-S SET",
     "price": 1650000,
-    "specs": {}
-  },
-  "CAT_1786703600281_69": {
-    "cat": "무선마이크",
-    "brand": "Sennheiser",
-    "name": "XSW 2-835 SET",
-    "price": 680000,
     "specs": {}
   },
   "CAT_1786703600281_70": {
@@ -729,12 +687,6 @@
     "name": "P48",
     "price": 1320000
   },
-  "CAT_1786707554273_43": {
-    "cat": "디지털 믹서",
-    "brand": "Behringer",
-    "name": "Wing Compact",
-    "price": 3800000
-  },
   "CAT_1786707554273_45": {
     "cat": "디지털 믹서",
     "brand": "Yamaha",
@@ -764,18 +716,6 @@
     "brand": "Midas",
     "name": "M32-Live",
     "price": 6500000
-  },
-  "CAT_1786707554273_50": {
-    "cat": "디지털 믹서",
-    "brand": "Behringer",
-    "name": "Wing",
-    "price": 5200000
-  },
-  "CAT_1786707554273_51": {
-    "cat": "디지털 믹서",
-    "brand": "Behringer",
-    "name": "Wing Compact",
-    "price": 3800000
   },
   "CAT_1786707554273_52": {
     "cat": "디지털 믹서",
@@ -932,24 +872,6 @@
     "brand": "VCT",
     "name": "VCT 4SQ×3C",
     "price": 4500
-  },
-  "CAT_1786707554274_79": {
-    "cat": "전원케이블",
-    "brand": "VCT",
-    "name": "VCT 6SQ×3C",
-    "price": 6800
-  },
-  "CAT_1786707554274_80": {
-    "cat": "전원케이블",
-    "brand": "VCTF",
-    "name": "VCTF 2.5SQ×3C",
-    "price": 2200
-  },
-  "CAT_1786707554274_81": {
-    "cat": "전원케이블",
-    "brand": "VCTF",
-    "name": "VCTF 1.5SQ×3C",
-    "price": 1500
   },
   "CAT_1786707554274_82": {
     "cat": "네트워크케이블",
