@@ -13,13 +13,17 @@ function formatWon(amount) {
   return currency.format(Math.round(amount));
 }
 
+function addBudgetOption(amountInMillions) {
+  const option = document.createElement('option');
+  option.value = String(amountInMillions * 1000000);
+  option.textContent = `${amountInMillions.toLocaleString('ko-KR')}만 원 이하`;
+  budgetSelect.appendChild(option);
+}
+
 function populateBudgets() {
-  for (let million = 1; million < 100; million += 1) {
-    const option = document.createElement('option');
-    option.value = String(million * 1000000);
-    option.textContent = `${million.toLocaleString('ko-KR')}00만 원 이하`;
-    budgetSelect.appendChild(option);
-  }
+  for (let amount = 100; amount <= 2000; amount += 100) addBudgetOption(amount);
+  for (let amount = 2500; amount <= 5000; amount += 500) addBudgetOption(amount);
+  for (let amount = 6000; amount <= 10000; amount += 1000) addBudgetOption(amount);
 }
 
 function getChannelCount() {
@@ -190,20 +194,13 @@ function calculateMaterialEstimate(items, space, channels) {
 }
 
 function renderMaterials(materials) {
-  const rows = [
-    ['마이크·라인 신호 케이블', `${materials.signalLength.toLocaleString('ko-KR')}m`],
-    ['디지털 네트워크 케이블', materials.networkLength ? `${materials.networkLength.toLocaleString('ko-KR')}m` : '해당 없음'],
-    ['전원 케이블', `${materials.powerLength.toLocaleString('ko-KR')}m`]
-  ];
-  if (materials.speakerLength) rows.push(['패시브 스피커 케이블', `${materials.speakerLength.toLocaleString('ko-KR')}m`]);
   const mezzanineNote = materials.hasMezzanine
     ? `<p class="mezzanine-material-note">준이층·발코니 구역이 반영되었습니다. 추가 구역 음향 보강은 ${materials.mezzanineAudio === 'required' ? '별도 보강 필요' : '현장 실사'} 기준으로 최종 확인합니다.</p>`
     : '';
   return `
     <div class="material-estimate">
-      <p>예상 케이블·전원 물량 <span>기준 경로 ${materials.routeLongestSide}m × 1.5 = ${materials.runLength}m</span></p>
-      <ul class="material-list">${rows.map(([label, value]) => `<li><span>${label}</span><strong>${value}</strong></li>`).join('')}</ul>
-      <p class="material-note">실제 배선 경로, 전원 회로, 포설·매립 조건과 커넥터·랙·분배기는 현장 실사 후 확정합니다.</p>
+      <p>배선·전원·커넥터·랙·분배기 물량은 실제 경로와 시공 조건을 확인한 뒤 확정합니다.</p>
+      <p class="material-note">온라인 예상 견적에는 부정확할 수 있는 케이블·전원 수량을 표시하지 않습니다. 현장 실사 후 상세 견적으로 안내합니다.</p>
       ${mezzanineNote}
     </div>`;
 }
@@ -281,6 +278,33 @@ form.addEventListener('submit', (event) => {
   resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
+const draftFields = ['spaceType', 'audience', 'width', 'length', 'height', 'usage', 'hasMezzanine', 'mezzanineDistance', 'mezzanineAudio', 'vocalCount', 'monitorCount', 'personalMixerCount', 'mixerPreference', 'budget', 'speakerPreference', 'mixerPreference', 'acknowledge'];
+const draftStatus = document.getElementById('draftStatus');
+function saveDraft() {
+  const draft = Object.fromEntries(draftFields.map((id) => {
+    const input = document.getElementById(id);
+    return [id, input.type === 'checkbox' ? input.checked : input.value];
+  }));
+  localStorage.setItem('arthur-estimate-draft-v1', JSON.stringify(draft));
+  draftStatus.textContent = '이 브라우저에 임시 저장했습니다.';
+}
+function loadDraft() {
+  const raw = localStorage.getItem('arthur-estimate-draft-v1');
+  if (!raw) { draftStatus.textContent = '저장된 견적이 없습니다.'; return; }
+  const draft = JSON.parse(raw);
+  draftFields.forEach((id) => {
+    const input = document.getElementById(id);
+    if (!(id in draft)) return;
+    if (input.type === 'checkbox') input.checked = Boolean(draft[id]);
+    else input.value = draft[id];
+  });
+  syncMezzanineFields();
+  updateChannelPreview();
+  draftStatus.textContent = '임시 저장한 입력을 복원했습니다.';
+}
+
+document.getElementById('saveDraft').addEventListener('click', saveDraft);
+document.getElementById('loadDraft').addEventListener('click', loadDraft);
 document.getElementById('printQuote').addEventListener('click', () => window.print());
 document.querySelectorAll('.instrument-item input').forEach((input) => input.addEventListener('input', updateChannelPreview));
 document.querySelectorAll('.instrument-item input[type="checkbox"]').forEach((input) => input.addEventListener('change', updateChannelPreview));
