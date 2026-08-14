@@ -17,14 +17,13 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background-color: var(--bg-gray); color: var(--text-main); padding: 30px; display: flex; justify-content: center; }
         
-        /* 💡 좌측 책갈피 탭을 품기 위한 전체 레이아웃 구조 */
         .app-wrapper { display: flex; width: 100%; max-width: 1250px; position: relative; }
 
         /* 좌측 책갈피 스타일 탭 */
         .bookmark-tabs { display: flex; flex-direction: column; gap: 8px; position: absolute; left: -150px; top: 20px; width: 140px; }
         .tab-btn { padding: 12px 16px; background: #94a3b8; color: #ffffff; font-weight: 700; font-size: 13px; border: none; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; text-align: left; transition: all 0.2s; box-shadow: -3px 2px 8px rgba(0,0,0,0.05); }
         .tab-btn.active { background: #ffffff; color: var(--primary-accent); border-left: 4px solid var(--primary-accent); box-shadow: -5px 3px 12px rgba(0,0,0,0.08); }
-        .tab-btn.admin-tab { background: #475569; font-size: 12px; } /* 차후 관리자 전용 숨김 처리용 */
+        .tab-btn.admin-tab { background: #475569; font-size: 12px; }
 
         .container { width: 100%; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.1); padding: 40px; z-index: 10; }
 
@@ -38,7 +37,7 @@
         .doc-meta { text-align: right; font-size: 13px; color: var(--text-muted); }
         .doc-meta input { border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 13px; width: 140px; outline: none; }
 
-        /* 💡 현장 정보 입력 섹션 스타일 */
+        /* 현장 정보 입력 섹션 스타일 */
         .site-info-box { background-color: #f8fafc; border: 1px solid var(--border-color); border-radius: 10px; padding: 25px; margin-bottom: 25px; }
         .site-info-box h3 { font-size: 16px; color: var(--primary); margin-bottom: 18px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
         .site-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -78,6 +77,7 @@
         .btn-outline { background-color: white; border: 1px solid var(--border-color); color: var(--text-main); }
         .btn-danger { background-color: #ef4444; color: white; padding: 3px 6px; font-size: 11px; border-radius: 4px; }
         .btn-danger-large { background-color: #ef4444; color: white; }
+        .btn-success { background-color: #10b981; color: white; }
 
         /* Items Table */
         .table-wrapper { overflow-x: auto; margin-bottom: 25px; }
@@ -134,21 +134,20 @@
 <body>
 
 <div class="app-wrapper">
-    <!-- 💡 좌측 책갈피형 탭 메뉴 -->
+    <!-- 좌측 책갈피형 탭 메뉴 -->
     <div class="bookmark-tabs">
         <button class="tab-btn active" id="tabSite" onclick="switchPage('site')">📐 현장 정보</button>
         <button class="tab-btn" id="tabQuote" onclick="switchPage('quote')">📄 견적서 작성</button>
-        <!-- 차후 관리자만 볼 수 있게 숨길 카탈로그 관리 탭 -->
         <button class="tab-btn admin-tab" id="tabCatalog" onclick="switchPage('catalog')">📦 카탈로그 관리</button>
     </div>
 
     <div class="container">
-        <!-- 💡 1. 첫 번째 페이지: 현장 정보 입력 및 맞춤 추천 기점 -->
+        <!-- 1. 현장 정보 입력 및 맞춤 추천 기점 페이지 -->
         <div class="page-section active-page" id="pageSite">
             <div class="header">
                 <div class="header-title">
                     <h1>현장 정보 및 시스템 요구사항</h1>
-                    <p>현장 실측 제원 및 채널 구성을 입력하시면 최적의 음향 시스템을 제안합니다.</p>
+                    <p>현장 실측 제원 및 채널 구성을 입력하시면 알고리즘이 최적의 장비 견적을 자동 산출합니다.</p>
                 </div>
             </div>
 
@@ -158,14 +157,14 @@
                     <div>
                         <div class="form-field">
                             <label>현장 장소명</label>
-                            <input type="text" id="siteLocation" placeholder="예: ○○교회 본당, 공연장, 체육관 등" onchange="saveLocalData()">
+                            <input type="text" id="siteLocation" placeholder="예: ○○교회 본당, 공연장 등" onchange="saveLocalData()">
                         </div>
                         <div class="form-field">
                             <label>공간 제원 (가로 × 세로 × 높이)</label>
                             <div class="dim-inputs">
-                                <input type="text" id="siteWidth" placeholder="가로(m)" onchange="saveLocalData()"> <span>m</span> ×
-                                <input type="text" id="siteLength" placeholder="세로(m)" onchange="saveLocalData()"> <span>m</span> ×
-                                <input type="text" id="siteHeight" placeholder="높이(m)" onchange="saveLocalData()"> <span>m</span>
+                                <input type="number" id="siteWidth" placeholder="가로(m)" onchange="saveLocalData()"> <span>m</span> ×
+                                <input type="number" id="siteLength" placeholder="세로(m)" onchange="saveLocalData()"> <span>m</span> ×
+                                <input type="number" id="siteHeight" placeholder="높이(m)" onchange="saveLocalData()"> <span>m</span>
                             </div>
                         </div>
                         <div class="form-field">
@@ -176,18 +175,23 @@
                     <div>
                         <div class="form-field">
                             <label>사용 입력 채널 - 악기 구성</label>
-                            <textarea id="siteInstruments" rows="3" placeholder="예: 드럼, 베이스, 일렉기타 2, 어쿠스틱, 건반 2 등" onchange="saveLocalData()"></textarea>
+                            <textarea id="siteInstruments" rows="3" placeholder="예: 드럼, 베이스, 일렉기타 2, 건반 2 등" onchange="saveLocalData()"></textarea>
                         </div>
                         <div class="form-field">
-                            <label>사용 입력 채널 - 보컬 수</label>
-                            <input type="text" id="siteVocalCount" placeholder="예: 메인 보컬 2명, 코러스 3명 (총 5명)" onchange="saveLocalData()">
+                            <label>사용 입력 채널 - 보컬 수 (명)</label>
+                            <input type="number" id="siteVocalCount" placeholder="예: 4 (숫자 입력 시 무선마이크 자동산출)" onchange="saveLocalData()">
+                        </div>
+                        <div class="form-field">
+                            <label>퍼스널 믹서 (P16 HQ) 필요 인원수 (명)</label>
+                            <input type="number" id="siteP16Count" placeholder="예: 6 (연주자/싱어 인원 입력)" onchange="saveLocalData()">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div style="text-align: right; margin-top: 20px;">
-                <button class="btn btn-primary" style="padding: 12px 24px; font-size: 15px;" onclick="switchPage('quote')">➡️ 맞춤 견적서 및 추천으로 이동</button>
+            <div style="text-align: right; display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-success" style="padding: 12px 20px; font-size: 15px;" onclick="generateSmartQuotation()">🤖 스마트 견적 자동 산출하기</button>
+                <button class="btn btn-primary" style="padding: 12px 24px; font-size: 15px;" onclick="switchPage('quote')">➡️ 견적서로 이동</button>
             </div>
         </div>
 
@@ -381,7 +385,7 @@
 </div>
 
 <script>
-    const BRAND_DEFAULT_DC = { "Audiocenter": 15, "Shure": 0, "Yamaha": 0 };
+    const BRAND_DEFAULT_DC = { "Audiocenter": 15, "Shure": 0, "Yamaha": 0, "Sennheiser": 0, "Behringer": 0 };
     let productCatalog = {};
     let quoteItems = [];
     let editingProductKey = null;
@@ -478,24 +482,107 @@
         const key = document.getElementById("productSelect").value;
         if (!key || !productCatalog[key]) return;
         const prod = productCatalog[key];
+        addProductToQuote(prod, 1);
+    }
+
+    function addProductToQuote(prod, qty = 1) {
         const brandName = prod.brand ? prod.brand.trim() : "";
-        
         const normalizedDc = Object.keys(BRAND_DEFAULT_DC).find(k => k.toLowerCase() === brandName.toLowerCase());
         const defaultDc = normalizedDc ? BRAND_DEFAULT_DC[normalizedDc] : 0;
         const discountedPrice = Math.round(prod.price * (1 - (defaultDc / 100)));
 
-        quoteItems.push({
-            cat: prod.cat, brand: brandName, name: prod.name,
-            qty: 1, msrp: prod.price, dcRate: defaultDc, price: discountedPrice, specs: prod.specs || {}
-        });
+        // 이미 견적서에 있는 품목이면 수량 누적
+        const existing = quoteItems.find(item => item.name.toLowerCase() === prod.name.toLowerCase() && item.brand.toLowerCase() === brandName.toLowerCase());
+        if (existing) {
+            existing.qty += qty;
+        } else {
+            quoteItems.push({
+                cat: prod.cat, brand: brandName, name: prod.name,
+                qty: qty, msrp: prod.price, dcRate: defaultDc, price: discountedPrice
+            });
+        }
         renderTable();
+    }
+
+    // 🤖 [핵심] 스마트 견적 자동 산출 알고리즘
+    function generateSmartQuotation() {
+        const width = parseFloat(document.getElementById("siteWidth").value) || 10;
+        const length = parseFloat(document.getElementById("siteLength").value) || 15;
+        const height = parseFloat(document.getElementById("siteHeight").value) || 4;
+        const vocalCount = parseInt(document.getElementById("siteVocalCount").value) || 2;
+        const p16Count = parseInt(document.getElementById("siteP16Count").value) || 4;
+
+        const volume = width * length * height; // 체적 산출
+        const maxDist = Math.sqrt(width*width + length*length); // 대각선 거리 (배선 및 케이블 산출용)
+
+        // 1. 기존 견적 클리어 후 자동 산출 시작
+        quoteItems = [];
+
+        // 2. 무선마이크 자동 매칭 (보컬 수 기준 EW-D 세트 매칭, 없으면 기본 835-S)
+        let micModel = "EW-D / 835-S SET";
+        if (vocalCount >= 5) micModel = "EW-D / 945-S SET";
+        else if (vocalCount >= 3) micModel = "EW-D / 845-S SET";
+
+        const wirelessProd = findProductByKeyword("Sennheiser", micModel) || findProductByKeyword("Sennheiser", "EW-D");
+        if (wirelessProd) addProductToQuote(wirelessProd, vocalCount);
+
+        // 안테나 분배 시스템 자동 추가 (무선마이크가 있으면 ASA + ADP 세트 추가)
+        if (vocalCount > 0) {
+            const asaProd = findProductByKeyword("Sennheiser", "EW-D ASA");
+            const adpProd = findProductByKeyword("Sennheiser", "ADP UHF");
+            if (asaProd) addProductToQuote(asaProd, 1);
+            if (adpProd) addProductToQuote(adpProd, 2);
+        }
+
+        // 3. 퍼스널 믹서 (P16 HQ) 및 분배기 자동 산출
+        if (p16Count > 0) {
+            const p16hq = findProductByKeyword("Behringer", "P16-HQ") || findProductByKeyword("Behringer", "P16-M");
+            const p16mb = findProductByKeyword("Behringer", "P16-MB");
+            const p16d = findProductByKeyword("Behringer", "P16-D");
+            if (p16hq) addProductToQuote(p16hq, p16Count);
+            if (p16mb) addProductToQuote(p16mb, p16Count);
+            if (p16d) {
+                let hubCount = Math.ceil(p16Count / 6); // P16-D 하나당 6개 지원
+                addProductToQuote(p16d, hubCount);
+            }
+        }
+
+        // 4. 공간 규모별 케이블 50m 단위 자동 산출 (대각선 거리 기반, 최소 50m 단위 올림 처리)
+        // 주 배선 거리 추정: 대각선 거리의 3배 (왕복 및 입스/아웃 랙 분배 고려) + 여유분
+        let estimatedCableMeters = Math.ceil((maxDist * 3.5) / 50) * 50;
+        if (estimatedCableMeters < 50) estimatedCableMeters = 50;
+        let cableUnits = estimatedCableMeters / 50; // 50m 단위 수량
+
+        // 주요 케이블 자동 매칭추가
+        const micCable = findProductByKeyword("Canare", "L-2T2S");
+        const spkCable = findProductByKeyword("Canare", "L-4S11");
+        const powerCable = findProductByKeyword("VCT", "4SQ");
+        const netCable = findProductByKeyword("Neutrik", "실드랜케이블") || findProductByKeyword("Roxtone", "CAT6A");
+
+        if (micCable) addProductToQuote(micCable, cableUnits);
+        if (spkCable) addProductToQuote(spkCable, cableUnits);
+        if (powerCable) addProductToQuote(powerCable, Math.max(1, cableUnits / 2));
+        if (netCable) addProductToQuote(netCable, cableUnits);
+
+        alert(`🤖 스마트 견적 분석 완료!\n- 공간 체적: ${volume.toFixed(1)}㎥ (추정 배선거리: ${maxDist.toFixed(1)}m)\n- 무선마이크: ${vocalCount}대\n- P16 퍼스널믹서: ${p16Count}대\n- 케이블 자동 산출: 각 품목 ${estimatedCableMeters}m (${cableUnits}묶음)\n\n[견적서 작성] 탭에서 결과를 확인하세요!`);
+        switchPage('quote');
+    }
+
+    function findProductByKeyword(brandName, keyword) {
+        const found = Object.values(productCatalog).find(p => 
+            p.brand.toLowerCase().includes(brandName.toLowerCase()) && 
+            p.name.toLowerCase().includes(keyword.toLowerCase())
+        );
+        if (found) return found;
+        // 차선책으로 브랜드만 맞는 것 검색
+        return Object.values(productCatalog).find(p => p.brand.toLowerCase().includes(brandName.toLowerCase()));
     }
 
     function renderTable() {
         const tbody = document.getElementById("quotationItems");
         tbody.innerHTML = "";
         if (quoteItems.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:20px;">선택된 장비가 없습니다. 상단에서 장비를 추가해주세요.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:20px;">선택된 장비가 없습니다. 상단에서 장비를 추가하거나 스마트 견적을 실행해주세요.</td></tr>`;
             calculateTotals();
             saveLocalData();
             return;
@@ -811,14 +898,14 @@
             validityPeriod: document.getElementById('validityPeriod').value,
             deliveryTerms: document.getElementById('deliveryTerms').value,
             vatType: document.getElementById('vatType').value,
-            // 💡 현장 정보 입력값도 로컬에 함께 안전하게 저장
             siteLocation: document.getElementById('siteLocation').value,
             siteWidth: document.getElementById('siteWidth').value,
             siteLength: document.getElementById('siteLength').value,
             siteHeight: document.getElementById('siteHeight').value,
             siteInstallDate: document.getElementById('siteInstallDate').value,
             siteInstruments: document.getElementById('siteInstruments').value,
-            siteVocalCount: document.getElementById('siteVocalCount').value
+            siteVocalCount: document.getElementById('siteVocalCount').value,
+            siteP16Count: document.getElementById('siteP16Count').value
         };
         localStorage.setItem('arthur_quote_data', JSON.stringify(data));
     }
@@ -838,7 +925,6 @@
             if(p.deliveryTerms) document.getElementById('deliveryTerms').value = p.deliveryTerms;
             if(p.vatType) document.getElementById('vatType').value = p.vatType;
 
-            // 💡 저장된 현장 정보 불러오기
             if(p.siteLocation) document.getElementById('siteLocation').value = p.siteLocation;
             if(p.siteWidth) document.getElementById('siteWidth').value = p.siteWidth;
             if(p.siteLength) document.getElementById('siteLength').value = p.siteLength;
@@ -846,6 +932,7 @@
             if(p.siteInstallDate) document.getElementById('siteInstallDate').value = p.siteInstallDate;
             if(p.siteInstruments) document.getElementById('siteInstruments').value = p.siteInstruments;
             if(p.siteVocalCount) document.getElementById('siteVocalCount').value = p.siteVocalCount;
+            if(p.siteP16Count) document.getElementById('siteP16Count').value = p.siteP16Count;
         }
         renderTable();
     }
