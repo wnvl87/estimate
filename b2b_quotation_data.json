@@ -302,10 +302,9 @@
   },
   "CAT_1786695729053": {
     "cat": "디지털 I/O",
-    "brand": "Behringer",
+    "brand": "Midas",
     "name": "DL16",
-    "price": 1250000,
-    "specs": {}
+    "price": 1250000
   },
   "CAT_1786703600280_45": {
     "cat": "디지털 믹서",
