@@ -93,9 +93,8 @@
 
         .brand-tag { font-size: 10px; background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 1px 5px; border-radius: 4px; }
 
-        .input-qty { width: 65px; text-align: center; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
-        .input-price { width: 100px; text-align: right; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
-        .input-dc { width: 50px; text-align: center; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
+        .input-qty { width: 70px; text-align: center; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
+        .input-price { width: 120px; text-align: right; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
 
         /* Summary Section */
         .summary-wrapper { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
@@ -152,7 +151,7 @@
             <div class="header">
                 <div class="header-title">
                     <h1>현장 정보 및 시스템 요구사항</h1>
-                    <p>현장 실측 제원 및 선호 브랜드, 옵션을 선택하시면 알고리즘이 믹서·스피커·무선·케이블 맞춤형 견적을 자동 산출합니다.</p>
+                    <p>현장 실측 제원 및 선호 브랜드, 옵션을 선택하시면 알고리즘이 믹서·I/O·스피커·무선·케이블 맞춤형 견적을 자동 산출합니다.</p>
                 </div>
             </div>
 
@@ -187,7 +186,7 @@
                             <input type="number" id="siteVocalCount" placeholder="예: 4 (무선마이크 자동산출 기준)" onchange="saveLocalData()">
                         </div>
 
-                        <!-- 🎛️ 선호 브랜드 및 옵션 체크박스 영역 -->
+                        <!-- 선호 브랜드 및 옵션 체크박스 영역 -->
                         <div class="form-field">
                             <label>믹서 선호 브랜드 선택</label>
                             <div class="checkbox-group">
@@ -225,12 +224,12 @@
             </div>
         </div>
 
-        <!-- 2. 견적서 페이지 -->
+        <!-- 2. 견적서 페이지 (소비자용 개편) -->
         <div class="page-section" id="pageQuote">
             <div class="header">
                 <div class="header-title">
-                    <h1>B2B 사업자 견 적 서 (QUOTATION)</h1>
-                    <p>Audiocenter & Professional Audio System Solutions</p>
+                    <h1>음 향 시스템 견 적 서 (QUOTATION)</h1>
+                    <p>Professional Audio System Solutions</p>
                 </div>
                 <div class="doc-meta">
                     <p><strong>견적번호:</strong> <input type="text" value="EST-20260813-01"></p>
@@ -245,19 +244,17 @@
                         <tr><td class="label">상 호 명</td><td>주식회사 아더 (ARTHUR Co., Ltd.)</td></tr>
                         <tr><td class="label">사업자번호</td><td>419-88-03010</td></tr>
                         <tr><td class="label">대 표 자</td><td>김상복</td></tr>
-                        <tr><td class="label">업태 / 종목</td><td>제조, 도소매 / 음향, 영상, 조명장비</td></tr>
+                        <tr><td class="label">연 락 처</td><td>010-9773-8904</td></tr>
                         <tr><td class="label">사업장주소</td><td>경기 시흥시 매화산단로 95, 215호</td></tr>
-                        <tr><td class="label">담당 / 연락처</td><td>최동주 이사 (010-9773-8904)</td></tr>
                     </table>
                 </div>
                 <div class="info-card">
-                    <h3>수신자 정보 (Client / Dealer)</h3>
+                    <h3>수신자 정보 (Client)</h3>
                     <table class="info-table">
-                        <tr><td class="label">업 체 명</td><td><input type="text" value="(주)파트너음향시스템" id="clientCompany" onchange="saveLocalData()"></td></tr>
-                        <tr><td class="label">사업자번호</td><td><input type="text" value="123-86-00000" id="clientBizNo" onchange="saveLocalData()"></td></tr>
-                        <tr><td class="label">대 표 자</td><td><input type="text" value="홍길동 대표" id="clientCEO" onchange="saveLocalData()"></td></tr>
-                        <tr><td class="label">담 당 자</td><td><input type="text" value="김철수 팀장 (010-1234-5678)" id="clientContact" onchange="saveLocalData()"></td></tr>
-                        <tr><td class="label">현 장 명</td><td><input type="text" value="○○교회 / 공연장 음향 시스템 보강" id="clientProject" onchange="saveLocalData()"></td></tr>
+                        <tr><td class="label">고 객 명</td><td><input type="text" value="○○교회 / 담당자님" id="clientCompany" onchange="saveLocalData()"></td></tr>
+                        <tr><td class="label">연 락 처</td><td><input type="text" value="010-1234-5678" id="clientContact" onchange="saveLocalData()"></td></tr>
+                        <tr><td class="label">설치장소</td><td><input type="text" value="본당 음향 시스템 보강" id="clientProject" onchange="saveLocalData()"></td></tr>
+                        <tr><td class="label">설치희망</td><td><input type="text" value="협의 후 결정" id="clientInstallDateText" onchange="saveLocalData()"></td></tr>
                     </table>
                 </div>
             </div>
@@ -273,19 +270,18 @@
                 </div>
             </div>
 
+            <!-- 💡 소비자용 견적서 테이블 항목 개편 (No. / 품목 / 브랜드 및 모델명 / 수량 / 단가 / 합계 / 삭제) -->
             <div class="table-wrapper">
                 <table class="items-table">
                     <thead>
                         <tr>
-                            <th style="width: 40px; text-align: center;">No.</th>
-                            <th style="width: 100px;">구분</th>
-                            <th>품명 및 모델명</th>
-                            <th style="width: 75px; text-align: center;">수량(m단위)</th>
-                            <th style="width: 100px; text-align: right;">소비자가(원)</th>
-                            <th style="width: 60px; text-align: center;">할인율</th>
-                            <th style="width: 110px; text-align: right;">공급단가(원)</th>
-                            <th style="width: 130px; text-align: right;">공급가액(원)</th>
-                            <th style="width: 40px; text-align: center;">삭제</th>
+                            <th style="width: 50px; text-align: center;">No.</th>
+                            <th style="width: 120px;">품목</th>
+                            <th>브랜드 및 모델명</th>
+                            <th style="width: 80px; text-align: center;">수량</th>
+                            <th style="width: 130px; text-align: right;">단가(원)</th>
+                            <th style="width: 140px; text-align: right;">합계(원)</th>
+                            <th style="width: 50px; text-align: center;">삭제</th>
                         </tr>
                     </thead>
                     <tbody id="quotationItems"></tbody>
@@ -296,7 +292,7 @@
                 <div class="bank-info-box">
                     <h4>📌 입금 계좌 및 안내사항</h4>
                     <p><strong>입금계좌:</strong> 기업은행 067-509928-04-014 (예금주: 주식회사 아더)</p>
-                    <p><strong>비고:</strong> 본 견적서는 B2B 파트너 전용 공급가 기준입니다.</p>
+                    <p><strong>비고:</strong> 본 견적서는 표준 소비자가 기준으로 산출되었습니다.</p>
                 </div>
                 <div class="summary-box">
                     <table class="summary-table">
@@ -321,7 +317,7 @@
                 </div>
                 <div>
                     <label>🚚 납품 조건</label>
-                    <input type="text" value="화물/택배" id="deliveryTerms" onchange="saveLocalData()">
+                    <input type="text" value="화물/택배 및 설치" id="deliveryTerms" onchange="saveLocalData()">
                 </div>
                 <div>
                     <label>🧾 부가세 구분</label>
@@ -415,7 +411,6 @@
 </div>
 
 <script>
-    const BRAND_DEFAULT_DC = { "Audiocenter": 15, "Shure": 0, "Yamaha": 0, "Sennheiser": 0, "Behringer": 0 };
     let productCatalog = {};
     let quoteItems = [];
     let editingProductKey = null;
@@ -517,9 +512,7 @@
 
     function addProductToQuote(prod, qty = 1) {
         const brandName = prod.brand ? prod.brand.trim() : "";
-        const normalizedDc = Object.keys(BRAND_DEFAULT_DC).find(k => k.toLowerCase() === brandName.toLowerCase());
-        const defaultDc = normalizedDc ? BRAND_DEFAULT_DC[normalizedDc] : 0;
-        const discountedPrice = Math.round(prod.price * (1 - (defaultDc / 100)));
+        const unitPrice = prod.price; // 소비자용은 원본 소비자가 적용
 
         const existing = quoteItems.find(item => item.name.toLowerCase() === prod.name.toLowerCase() && item.brand.toLowerCase() === brandName.toLowerCase());
         if (existing) {
@@ -527,13 +520,13 @@
         } else {
             quoteItems.push({
                 cat: prod.cat, brand: brandName, name: prod.name,
-                qty: qty, msrp: prod.price, dcRate: defaultDc, price: discountedPrice
+                qty: qty, price: unitPrice
             });
         }
         renderTable();
     }
 
-    // 🤖 [완성형 핵심] 스마트 견적 자동 산출 알고리즘 (믹서, 스피커, 무선, P16, 케이블 통합 매칭)
+    // 🤖 [완성형 스마트 견적 알고리즘] (믹서, I/O, 무선, 스피커, P16, 케이블 통합 산출)
     function generateSmartQuotation() {
         const width = parseFloat(document.getElementById("siteWidth").value) || 10;
         const length = parseFloat(document.getElementById("siteLength").value) || 15;
@@ -544,41 +537,44 @@
         const chkP16 = document.getElementById("chkP16").checked;
         const p16Count = chkP16 ? (parseInt(document.getElementById("siteP16Count").value) || 6) : 0;
 
-        // 선택된 선호 브랜드 수집
         const prefMixerBrands = Array.from(document.querySelectorAll('input[name="prefMixer"]:checked')).map(el => el.value);
         const prefSpeakerBrands = Array.from(document.querySelectorAll('input[name="prefSpeaker"]:checked')).map(el => el.value);
 
         const volume = width * length * height; 
-        const maxDist = Math.sqrt(width*width + length*length); // 대각선 거리
+        const maxDist = Math.sqrt(width*width + length*length);
 
         quoteItems = [];
 
-        // 1. 디지털 믹서 및 I/O 자동 매칭 (선호 브랜드 우선 검색)
+        // 1. 디지털 믹서 및 대응 디지털 I/O 자동 매칭
         let mixerProd = null;
         for (let b of prefMixerBrands) {
             mixerProd = findProductByKeyword(b, "Digital Mixer") || findProductByKeyword(b, "WING") || findProductByKeyword(b, "SQ") || findProductByKeyword(b, "M32");
             if (mixerProd) break;
         }
         if (!mixerProd) mixerProd = Object.values(productCatalog).find(p => p.cat.includes("믹서") || p.cat.includes("Mixer"));
-        if (mixerProd) addProductToQuote(mixerProd, 1);
+        if (mixerProd) {
+            addProductToQuote(mixerProd, 1);
+            // I/O 박스 매칭 (믹서 브랜드에 대응하는 I/O)
+            let ioProd = findProductByKeyword(mixerProd.brand, "IO") || findProductByKeyword(mixerProd.brand, "Stagebox") || findProductByKeyword(mixerProd.brand, "Rio") || findProductByKeyword(mixerProd.brand, "DL");
+            if (ioProd) addProductToQuote(ioProd, 1);
+        }
 
-        // 2. 스피커 자동 매칭 (공간 체적 기준 규모 판단 + 선호 스피커 브랜드)
-        let targetSpeakerKeyword = volume > 400 ? "Main" : "Column"; // 대형은 메인/라인아레이, 중소형은 컬럼 스피커 등
+        // 2. 스피커 자동 매칭
+        let targetSpeakerKeyword = volume > 400 ? "Main" : "Column";
         let speakerProd = null;
         for (let b of prefSpeakerBrands) {
             speakerProd = findProductByKeyword(b, targetSpeakerKeyword) || findProductByKeyword(b, "Speaker") || findProductByKeyword(b, "DS");
             if (speakerProd) break;
         }
         if (!speakerProd) speakerProd = Object.values(productCatalog).find(p => p.cat.includes("스피커") || p.cat.includes("Speaker"));
-        if (speakerProd) addProductToQuote(speakerProd, 2); // 좌우 스테레오 1조
+        if (speakerProd) addProductToQuote(speakerProd, 2);
 
-        // 모니터 스피커 추가
         if (chkMonitor) {
             let monitorProd = findProductByKeyword("Audiocenter", "Monitor") || findProductByKeyword("JBL", "Monitor") || findProductByKeyword("Speaker");
-            if (monitorProd) addProductToQuote(monitorProd, 2); // 기본 모니터 2통
+            if (monitorProd) addProductToQuote(monitorProd, 2);
         }
 
-        // 3. 무선마이크 자동 매칭
+        // 3. 무선마이크 및 안테나 분배기 산출
         let micModel = "EW-D / 835-S SET";
         if (vocalCount >= 5) micModel = "EW-D / 945-S SET";
         else if (vocalCount >= 3) micModel = "EW-D / 845-S SET";
@@ -586,7 +582,6 @@
         const wirelessProd = findProductByKeyword("Sennheiser", micModel) || findProductByKeyword("Sennheiser", "EW-D");
         if (wirelessProd) addProductToQuote(wirelessProd, vocalCount);
 
-        // 안테나 분배 시스템 자동 산출 (ASA 단계별 규칙 & ADP 2개 고정)
         if (vocalCount > 0) {
             let asaCount = 1;
             if (vocalCount >= 12) asaCount = 4;
@@ -613,7 +608,7 @@
             }
         }
 
-        // 5. 케이블 50m 단위 자동 산출 (50, 100, 150... 미터 단위)
+        // 5. 케이블 50m 단위 자동 산출 (미터 단위)
         let estimatedCableMeters = Math.ceil((maxDist * 3.5) / 50) * 50;
         if (estimatedCableMeters < 50) estimatedCableMeters = 50;
 
@@ -627,7 +622,7 @@
         if (powerCable) addProductToQuote(powerCable, Math.max(50, Math.floor(estimatedCableMeters / 2)));
         if (netCable) addProductToQuote(netCable, estimatedCableMeters);
 
-        alert(`🤖 스마트 맞춤 견적 산출 완료!\n- 선호 브랜드 및 공간 체적 반영 완료\n- 믹서 및 스피커/무선/케이블 자동 구성 완료\n\n[견적서 작성] 탭에서 상세 내역을 확인하세요!`);
+        alert(`🤖 소비자용 스마트 견적 산출 완료!\n- 믹서 및 디지털 I/O, 스피커/무선/케이블 자동 구성 완료\n\n[견적서 작성] 탭에서 상세 내역을 확인하세요!`);
         switchPage('quote');
     }
 
@@ -640,11 +635,12 @@
         return Object.values(productCatalog).find(p => p.brand.toLowerCase().includes(brandName.toLowerCase()));
     }
 
+    // 💡 소비자용 테이블 렌더링 (No. / 품목 / 브랜드 및 모델명 / 수량 / 단가 / 합계 / 삭제)
     function renderTable() {
         const tbody = document.getElementById("quotationItems");
         tbody.innerHTML = "";
         if (quoteItems.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-muted); padding:20px;">선택된 장비가 없습니다. 상단에서 장비를 추가하거나 스마트 견적을 실행해주세요.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:20px;">선택된 장비가 없습니다. 상단에서 장비를 추가하거나 스마트 견적을 실행해주세요.</td></tr>`;
             calculateTotals();
             saveLocalData();
             return;
@@ -654,12 +650,10 @@
             tbody.innerHTML += `
                 <tr>
                     <td style="text-align:center; color:var(--text-muted);">${index + 1}</td>
-                    <td><span class="brand-tag">${escapeHtml(item.brand)}</span></td>
-                    <td><strong>${escapeHtml(item.name)}</strong></td>
+                    <td><span class="brand-tag">${escapeHtml(item.cat)}</span></td>
+                    <td><strong>[${escapeHtml(item.brand)}]</strong> ${escapeHtml(item.name)}</td>
                     <td style="text-align:center;"><input type="number" class="input-qty" value="${item.qty}" min="1" step="1" onchange="updateQty(${index}, this.value)"></td>
-                    <td style="text-align:right;"><input type="number" class="input-price" value="${item.msrp}" onchange="updateMSRP(${index}, this.value)"></td>
-                    <td style="text-align:center;"><input type="number" class="input-dc" value="${item.dcRate}" min="0" max="100" onchange="updateDC(${index}, this.value)">%</td>
-                    <td style="text-align:right; font-weight:600;">${item.price.toLocaleString()} 원</td>
+                    <td style="text-align:right;"><input type="number" class="input-price" value="${item.price}" onchange="updatePrice(${index}, this.value)"></td>
                     <td style="text-align:right; font-weight:700; color:var(--primary-accent);">${rowTotal.toLocaleString()} 원</td>
                     <td style="text-align:center;"><button class="btn btn-danger" onclick="removeItem(${index})">✕</button></td>
                 </tr>
@@ -670,9 +664,7 @@
     }
 
     function updateQty(i, v) { quoteItems[i].qty = Math.max(1, parseInt(v) || 1); renderTable(); }
-    function updateMSRP(i, v) { quoteItems[i].msrp = Math.max(0, parseInt(v) || 0); recalcRow(i); renderTable(); }
-    function updateDC(i, v) { quoteItems[i].dcRate = Math.min(100, Math.max(0, parseFloat(v) || 0)); recalcRow(i); renderTable(); }
-    function recalcRow(i) { const item = quoteItems[i]; item.price = Math.round(item.msrp * (1 - (item.dcRate / 100))); }
+    function updatePrice(i, v) { quoteItems[i].price = Math.max(0, parseInt(v) || 0); renderTable(); }
     function removeItem(i) { quoteItems.splice(i, 1); renderTable(); }
     function resetQuote() { if(confirm("견적을 초기화하시겠습니까?")) { quoteItems = []; renderTable(); } }
 
@@ -955,10 +947,9 @@
         const data = {
             items: quoteItems,
             clientCompany: document.getElementById('clientCompany').value,
-            clientBizNo: document.getElementById('clientBizNo').value,
-            clientCEO: document.getElementById('clientCEO').value,
             clientContact: document.getElementById('clientContact').value,
             clientProject: document.getElementById('clientProject').value,
+            clientInstallDateText: document.getElementById('clientInstallDateText').value,
             paymentTerms: document.getElementById('paymentTerms').value,
             validityPeriod: document.getElementById('validityPeriod').value,
             deliveryTerms: document.getElementById('deliveryTerms').value,
@@ -985,10 +976,9 @@
             const p = JSON.parse(saved);
             quoteItems = p.items || [];
             if(p.clientCompany) document.getElementById('clientCompany').value = p.clientCompany;
-            if(p.clientBizNo) document.getElementById('clientBizNo').value = p.clientBizNo;
-            if(p.clientCEO) document.getElementById('clientCEO').value = p.clientCEO;
             if(p.clientContact) document.getElementById('clientContact').value = p.clientContact;
             if(p.clientProject) document.getElementById('clientProject').value = p.clientProject;
+            if(p.clientInstallDateText) document.getElementById('clientInstallDateText').value = p.clientInstallDateText;
             if(p.paymentTerms) document.getElementById('paymentTerms').value = p.paymentTerms;
             if(p.validityPeriod) document.getElementById('validityPeriod').value = p.validityPeriod;
             if(p.deliveryTerms) document.getElementById('deliveryTerms').value = p.deliveryTerms;
