@@ -4,6 +4,30 @@
  */
 window.ARTHUR_COMBINATION_RULES = [
   {
+    name: 'DS10 패시브 포인트소스 기본 구성',
+    description: '더 좁은 스피치 중심 공간에서 DS10과 UTA902DSP를 우선 검토합니다.',
+    priority: 15,
+    conditions: {
+      speakerProductId: 'legacy-cat-178661556928627',
+      amplifierProductId: 'legacy-cat-178661556928639',
+      sourceCategory: 'main_system',
+      speakerCategory: 'point_source',
+      powerType: 'passive',
+      amplifierChannels: 2,
+      amplifierOutputWatts: 500,
+      minPerSide: 1,
+      recommendedPerSide: 2,
+      pairQuantity: 1,
+      usages: ['speech', 'worship', 'event'],
+      minRoomLength: null,
+      maxRoomLength: 12,
+      maxRoomHeight: 5,
+      highEnd: false
+    },
+    recommendedProducts: ['legacy-cat-178661556928627', 'legacy-cat-178661556928639'],
+    exceptionNotes: '최종 출력·채널·설치 위치는 현장 실사 후 확정'
+  },
+  {
     name: 'DS12 패시브 포인트소스 기본 구성',
     description: '세로거리 20m·높이 5m 이내의 스피치·예배·행사 공간에서 DS12와 UTA902DSP를 우선 검토합니다.',
     priority: 20,

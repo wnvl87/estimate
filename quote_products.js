@@ -8,7 +8,7 @@ window.QUOTE_PRODUCTS = [
   { id: 'ac-l83-l83s', cat: '스피커', brand: 'Audiocenter', name: 'L83+L83S (조)', price: 5760000, isPrimaryProduct: true },
   { id: 'ac-kla12a', cat: '스피커', brand: 'Audiocenter', name: 'K-LA12A', price: 3800000, isPrimaryProduct: true, lineArray: true, minPerSide: 4 },
   { id: 'legacy-cat-178661556928628', cat: '스피커', brand: 'Audiocenter', name: 'DS12', price: 1100000, isPrimaryProduct: true, passive: true },
-  { id: 'ac-ds10', cat: '스피커', brand: 'Audiocenter', name: 'DS10', price: 890000, isPrimaryProduct: true, passive: true },
+  { id: 'legacy-cat-178661556928627', cat: '스피커', brand: 'Audiocenter', name: 'DS10', price: 890000, isPrimaryProduct: true, passive: true },
   { id: 'ac-dsl45', cat: '스피커', brand: 'Audiocenter', name: 'DSL 45', price: 2100000, isPrimaryProduct: true, passive: true, lineArray: true, minPerSide: 4 },
   { id: 'ac-t45-passive', cat: '스피커', brand: 'Audiocenter', name: 'T45-Passive', price: 2100000, isPrimaryProduct: true, passive: true, lineArray: true, minPerSide: 4 },
   { id: 'ac-kla218-dsp', cat: '서브우퍼', brand: 'Audiocenter', name: 'K-LA218-DSP', price: 6600000, isPrimaryProduct: true },
