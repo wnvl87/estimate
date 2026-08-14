@@ -47,12 +47,15 @@
         .dim-inputs { display: flex; gap: 8px; align-items: center; }
         .dim-inputs span { font-size: 13px; color: var(--text-muted); }
 
-        /* 🎛️ 악기 구성 체크박스 및 수량 그리드 스타일 */
+        /* 악기 구성 및 수량 그리드 스타일 */
         .instrument-box { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
         .instrument-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .instrument-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; padding: 4px 0; }
         .instrument-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary-accent); cursor: pointer; }
         .instrument-row input[type="number"] { width: 55px; padding: 4px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px; outline: none; }
+
+        /* 모니터 및 퍼스널믹서 수량 설정 서브박스 */
+        .option-subbox { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
         /* 체크박스 그룹 스타일 */
         .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
@@ -158,7 +161,7 @@
             <div class="header">
                 <div class="header-title">
                     <h1>현장 정보 및 시스템 요구사항</h1>
-                    <p>현장 실측 제원 및 악기 구성, 선호 브랜드를 설정하시면 정확한 시스템 견적이 자동 산출됩니다.</p>
+                    <p>현장 실측 제원 및 악기 구성, 모니터/퍼스널믹서 수량을 설정하시면 맞춤형 견적이 자동 산출됩니다.</p>
                 </div>
             </div>
 
@@ -183,7 +186,7 @@
                             <input type="date" id="siteInstallDate" onchange="saveLocalData()">
                         </div>
 
-                        <!-- 🎛️ 정돈된 악기 구성 및 채널 산정 영역 -->
+                        <!-- 🎛️ 악기 구성 및 채널 산정 영역 -->
                         <div class="form-field">
                             <label>악기 구성 및 수량 선택 (입력 채널 연동)</label>
                             <div class="instrument-box">
@@ -215,6 +218,23 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- 🎚️ 모니터 및 퍼스널 믹서 수량 설정 (악기 구성 바로 아래 배치) -->
+                        <div class="form-field">
+                            <label>모니터 및 퍼스널 믹서 수량 설정</label>
+                            <div class="option-subbox">
+                                <div>
+                                    <label style="font-size: 12px; margin-bottom: 4px; display:block;">모니터 스피커 수량</label>
+                                    <input type="number" id="siteMonitorCount" value="2" min="0" onchange="saveLocalData()" title="기본 2개 + 3명당 1개 자동계산">
+                                    <span style="font-size: 11px; color: var(--text-muted);">* 기본 2개 (3명당 +1개)</span>
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; margin-bottom: 4px; display:block;">퍼스널 믹서 (P16) 인원수</label>
+                                    <input type="number" id="siteP16Count" value="6" min="0" onchange="saveLocalData()">
+                                    <span style="font-size: 11px; color: var(--text-muted);">* 도입 인원수 (명)</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <div class="form-field">
@@ -236,19 +256,18 @@
                         <div class="form-field">
                             <label>스피커 선호 브랜드 선택</label>
                             <div class="checkbox-group">
-                                <label class="checkbox-label"><input type="checkbox" name="prefSpeaker" value="Audiocenter" onchange="saveLocalData()" checked> 오디오센터</label>
+                                <label class="checkbox-label"><input type="checkbox" name="prefSpeaker" value="Audiocenter" onchange="saveLocalData()" checked> 오디오센터 (WM3210P 등)</label>
                                 <label class="checkbox-label"><input type="checkbox" name="prefSpeaker" value="Bose" onchange="saveLocalData()"> 보스</label>
                                 <label class="checkbox-label"><input type="checkbox" name="prefSpeaker" value="JBL" onchange="saveLocalData()"> JBL</label>
                             </div>
                         </div>
 
                         <div class="form-field">
-                            <label>모니터 및 퍼스널 믹서 옵션</label>
+                            <label>시스템 추가 옵션</label>
                             <div class="checkbox-group">
-                                <label class="checkbox-label"><input type="checkbox" id="chkMonitor" onchange="saveLocalData()" checked> 무대 모니터 스피커 구성 필요</label>
-                                <label class="checkbox-label"><input type="checkbox" id="chkP16" onchange="saveLocalData()" checked> 퍼스널 믹서 (P16 HQ) 도입</label>
+                                <label class="checkbox-label"><input type="checkbox" id="chkMonitor" onchange="saveLocalData()" checked> 무대 모니터 스피커 구성 활성화</label>
+                                <label class="checkbox-label"><input type="checkbox" id="chkP16" onchange="saveLocalData()" checked> 퍼스널 믹서 (P16 HQ) 시스템 도입</label>
                             </div>
-                            <input type="number" id="siteP16Count" placeholder="퍼스널 믹서 필요 인원수 (명)" style="margin-top: 8px;" onchange="saveLocalData()" value="6">
                         </div>
                     </div>
                 </div>
@@ -431,7 +450,7 @@
             </div>
             <div class="form-group">
                 <label>모델명 (Model Name)</label>
-                <input type="text" id="newName" placeholder="예: DS06">
+                <input type="text" id="newName" placeholder="예: WM3210P">
             </div>
             <div class="form-group">
                 <label>소비자가 (MSRP)</label>
@@ -561,21 +580,29 @@
         renderTable();
     }
 
-    // 🤖 [스마트 견적 자동 산출 알고리즘 - 악기 구성 및 채널 수 연동]
+    // 🤖 [스마트 견적 자동 산출 알고리즘 - WM3210P + UTA902DSP 및 동적 모니터 수량 반영]
     function generateSmartQuotation() {
         const width = parseFloat(document.getElementById("siteWidth").value) || 10;
         const length = parseFloat(document.getElementById("siteLength").value) || 15;
         const height = parseFloat(document.getElementById("siteHeight").value) || 4;
         const vocalCount = parseInt(document.getElementById("siteVocalCount").value) || 4;
         
-        // 악기 구성 체크 여부 및 수량 수집
+        // 악기 구성 채널 및 인원 산정
         let totalChannels = vocalCount;
-        if (document.getElementById("chkAcousticDrum").checked) totalChannels += (parseInt(document.getElementById("qtyAcousticDrum").value) * 8);
-        if (document.getElementById("chkElecDrum").checked) totalChannels += (parseInt(document.getElementById("qtyElecDrum").value) * 2);
-        if (document.getElementById("chkBass").checked) totalChannels += parseInt(document.getElementById("qtyBass").value);
-        if (document.getElementById("chkElecGuitar").checked) totalChannels += parseInt(document.getElementById("qtyElecGuitar").value);
-        if (document.getElementById("chkKeyboard").checked) totalChannels += (parseInt(document.getElementById("qtyKeyboard").value) * 2);
-        if (document.getElementById("chkAcousticGuitar").checked) totalChannels += parseInt(document.getElementById("qtyAcousticGuitar").value);
+        let instrumentPerformers = 0;
+
+        if (document.getElementById("chkAcousticDrum").checked) { totalChannels += (parseInt(document.getElementById("qtyAcousticDrum").value) * 8); instrumentPerformers += parseInt(document.getElementById("qtyAcousticDrum").value); }
+        if (document.getElementById("chkElecDrum").checked) { totalChannels += (parseInt(document.getElementById("qtyElecDrum").value) * 2); instrumentPerformers += parseInt(document.getElementById("qtyElecDrum").value); }
+        if (document.getElementById("chkBass").checked) { totalChannels += parseInt(document.getElementById("qtyBass").value); instrumentPerformers += parseInt(document.getElementById("qtyBass").value); }
+        if (document.getElementById("chkElecGuitar").checked) { totalChannels += parseInt(document.getElementById("qtyElecGuitar").value); instrumentPerformers += parseInt(document.getElementById("qtyElecGuitar").value); }
+        if (document.getElementById("chkKeyboard").checked) { totalChannels += (parseInt(document.getElementById("qtyKeyboard").value) * 2); instrumentPerformers += parseInt(document.getElementById("qtyKeyboard").value); }
+        if (document.getElementById("chkAcousticGuitar").checked) { totalChannels += parseInt(document.getElementById("qtyAcousticGuitar").value); instrumentPerformers += parseInt(document.getElementById("qtyAcousticGuitar").value); }
+
+        const totalPerformers = vocalCount + instrumentPerformers;
+
+        // 모니터 스피커 수량 자동 계산 (기본 2개 + 3명당 1개)
+        const calculatedMonitorCount = 2 + Math.floor(totalPerformers / 3);
+        document.getElementById("siteMonitorCount").value = calculatedMonitorCount;
 
         const chkMonitor = document.getElementById("chkMonitor").checked;
         const chkP16 = document.getElementById("chkP16").checked;
@@ -603,23 +630,22 @@
             if (ioProd) addProductToQuote(ioProd, 1);
         }
 
-        // 2. 액티브 스피커 자동 매칭 (메인 1조 = 2대)
-        let targetSpeakerKeyword = volume > 400 ? "Main" : "Column";
+        // 2. 메인 스피커 자동 매칭 (선택 1안: WM3210P 우선 적용)
         let speakerProd = null;
         for (let b of prefSpeakerBrands) {
-            speakerProd = findProductByKeyword(b, targetSpeakerKeyword) || findProductByKeyword(b, "Speaker") || findProductByKeyword(b, "DS");
+            speakerProd = findProductByKeyword(b, "WM3210P") || findProductByKeyword(b, "Column") || findProductByKeyword(b, "Speaker");
             if (speakerProd) break;
         }
         if (!speakerProd) speakerProd = Object.values(productCatalog).find(p => p.cat.includes("스피커") || p.cat.includes("Speaker"));
-        if (speakerProd) addProductToQuote(speakerProd, 2);
+        if (speakerProd) addProductToQuote(speakerProd, 2); // 스테레오 1조 (2대)
 
-        // 무대 모니터 스피커 추가 (액티브 모니터 2대)
-        if (chkMonitor) {
-            let monitorProd = findProductByKeyword("Audiocenter", "Monitor") || findProductByKeyword("JBL", "Monitor") || findProductByKeyword("Monitor") || findProductByKeyword("Speaker");
-            if (monitorProd) addProductToQuote(monitorProd, 2);
+        // 3. 무대 모니터 스피커 자동 매칭 (선택 1안: UTA902DSP 우선 적용, 계산된 수량 반영)
+        if (chkMonitor && calculatedMonitorCount > 0) {
+            let monitorProd = findProductByKeyword("Audiocenter", "UTA902DSP") || findProductByKeyword("Audiocenter", "Monitor") || findProductByKeyword("JBL", "Monitor") || findProductByKeyword("Monitor");
+            if (monitorProd) addProductToQuote(monitorProd, calculatedMonitorCount);
         }
 
-        // 3. 무선마이크 및 안테나 분배기 산출
+        // 4. 무선마이크 및 안테나 분배기 산출
         let micModel = "EW-D / 835-S SET";
         if (vocalCount >= 5) micModel = "EW-D / 945-S SET";
         else if (vocalCount >= 3) micModel = "EW-D / 845-S SET";
@@ -640,7 +666,7 @@
             if (adpProd) addProductToQuote(adpProd, 2);
         }
 
-        // 4. 퍼스널 믹서 (P16 HQ) 및 부속 산출
+        // 5. 퍼스널 믹서 (P16 HQ) 및 부속 산출
         if (p16Count > 0) {
             const p16hq = findProductByKeyword("Behringer", "P16-HQ") || findProductByKeyword("Behringer", "P16-M");
             const p16mb = findProductByKeyword("Behringer", "P16-MB");
@@ -653,7 +679,7 @@
             }
         }
 
-        // 5. 액티브 스피커 시스템 배선 인프라 산출 (미터 단위)
+        // 6. 액티브 스피커 시스템 배선 인프라 산출 (미터 단위)
         let estimatedCableMeters = Math.ceil((maxDist * 3.5) / 50) * 50;
         if (estimatedCableMeters < 50) estimatedCableMeters = 50;
 
@@ -665,7 +691,7 @@
         if (powerCable) addProductToQuote(powerCable, estimatedCableMeters);
         if (netCable) addProductToQuote(netCable, estimatedCableMeters);
 
-        alert(`🤖 스마트 견적 산출 완료!\n- 총 가늠 채널수: ${totalChannels}채널\n- 악기 구성 및 액티브 스피커/배선 인프라 반영 완료\n\n[견적서 작성] 탭에서 상세 내역을 확인하세요!`);
+        alert(`🤖 스마트 견적 산출 완료!\n- 연주자/보컬 총 ${totalPerformers}명 기준 모니터 스피커 ${calculatedMonitorCount}대 산정 (WM3210P + UTA902DSP 패키지 적용)\n\n[견적서 작성] 탭에서 상세 내역을 확인하세요!`);
         switchPage('quote');
     }
 
@@ -1002,6 +1028,7 @@
             siteHeight: document.getElementById('siteHeight').value,
             siteInstallDate: document.getElementById('siteInstallDate').value,
             siteVocalCount: document.getElementById('siteVocalCount').value,
+            siteMonitorCount: document.getElementById('siteMonitorCount').value,
             siteP16Count: document.getElementById('siteP16Count').value,
             chkAcousticDrum: document.getElementById('chkAcousticDrum').checked,
             qtyAcousticDrum: document.getElementById('qtyAcousticDrum').value,
@@ -1043,6 +1070,7 @@
             if(p.siteHeight) document.getElementById('siteHeight').value = p.siteHeight;
             if(p.siteInstallDate) document.getElementById('siteInstallDate').value = p.siteInstallDate;
             if(p.siteVocalCount) document.getElementById('siteVocalCount').value = p.siteVocalCount;
+            if(p.siteMonitorCount) document.getElementById('siteMonitorCount').value = p.siteMonitorCount;
             if(p.siteP16Count) document.getElementById('siteP16Count').value = p.siteP16Count;
 
             if(p.chkAcousticDrum !== undefined) document.getElementById('chkAcousticDrum').checked = p.chkAcousticDrum;
