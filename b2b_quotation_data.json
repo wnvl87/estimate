@@ -434,14 +434,14 @@
     "specs": {}
   },
   "CAT_1786703600281_64": {
-    "cat": "안테나분배기",
+    "cat": "무선마이크",
     "brand": "Sennheiser",
     "name": "EW-D ASA",
     "price": 1400000,
     "specs": {}
   },
   "CAT_1786703600281_65": {
-    "cat": "지향성안테나",
+    "cat": "무선마이크",
     "brand": "Sennheiser",
     "name": "ADP UHF",
     "price": 810000,
@@ -571,6 +571,27 @@
     "brand": "DW",
     "name": "Cat6-UTP",
     "price": 1100,
+    "specs": {}
+  },
+  "CAT_1786703792393_84": {
+    "cat": "퍼스널믹서",
+    "brand": "Behringer",
+    "name": "P16-HQ",
+    "price": 450000,
+    "specs": {}
+  },
+  "CAT_1786703792393_85": {
+    "cat": "퍼스널믹서",
+    "brand": "Behringer",
+    "name": "P16-D",
+    "price": 450000,
+    "specs": {}
+  },
+  "CAT_1786703792393_86": {
+    "cat": "퍼스널믹서",
+    "brand": "Behringer",
+    "name": "P16-MB",
+    "price": 45000,
     "specs": {}
   }
 }
