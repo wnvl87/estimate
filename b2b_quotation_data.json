@@ -167,13 +167,6 @@
     "price": 620000,
     "specs": {}
   },
-  "CAT_178661556928631": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "DS 212S",
-    "price": 2400000,
-    "specs": {}
-  },
   "CAT_178661556928632": {
     "cat": "스피커",
     "brand": "Audiocenter",
@@ -681,18 +674,6 @@
     "brand": "Audiocenter",
     "name": "DS 212S",
     "price": 2400000
-  },
-  "CAT_1786707554273_32": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "DS 115S",
-    "price": 2100000
-  },
-  "CAT_1786707554273_33": {
-    "cat": "스피커",
-    "brand": "Audiocenter",
-    "name": "DS 118S",
-    "price": 2000000
   },
   "CAT_1786707554273_34": {
     "cat": "스피커",
