@@ -49,6 +49,10 @@ function productByName(fragment) {
   return catalog.find((product) => normalize(product.name).includes(key));
 }
 
+function productById(productId) {
+  return catalog.find((product) => product.id === productId) || null;
+}
+
 function productByCategoryAndBrand(category, brand) {
   return catalog.find((product) => product.cat === category && product.brand === brand);
 }
@@ -83,11 +87,39 @@ function speakerProfile(space) {
   return level;
 }
 
+function activeCombinationRule(speaker, usage, space, highEnd) {
+  if (!speaker) return null;
+  const rules = Array.isArray(window.ARTHUR_COMBINATION_RULES) ? window.ARTHUR_COMBINATION_RULES : [];
+  return rules
+    .filter((rule) => {
+      const conditions = rule?.conditions || {};
+      if (conditions.speakerProductId !== speaker.id) return false;
+      if (Boolean(conditions.highEnd) !== Boolean(highEnd)) return false;
+      if (!Array.isArray(conditions.usages) || !conditions.usages.includes(usage)) return false;
+      if (conditions.minRoomLength != null && space.length < Number(conditions.minRoomLength)) return false;
+      if (conditions.maxRoomLength != null && space.length > Number(conditions.maxRoomLength)) return false;
+      if (conditions.maxRoomHeight != null && space.height > Number(conditions.maxRoomHeight)) return false;
+      return productById(conditions.amplifierProductId) !== null;
+    })
+    .sort((left, right) => Number(left.priority || 100) - Number(right.priority || 100))[0] || null;
+}
+
 function speakerProducts(level, usage, isExpansion, space) {
   const selection = window.ArthurRecommendationRules?.selectSpeaker({ catalog, level, usage, isExpansion, space });
-  const items = selection?.product ? [{ product: selection.product, quantity: level >= 2 && isExpansion ? 4 : level >= 2 ? 2 : 1 }] : [];
+  const baseQuantity = level >= 2 && isExpansion ? 4 : level >= 2 ? 2 : 1;
+  const combinationRule = activeCombinationRule(selection?.product, usage, space, isExpansion);
+  const ruleConditions = combinationRule?.conditions || null;
+  const ruleIsLineArray = ruleConditions?.speakerCategory === 'line_array';
+  const metadataIsLineArray = selection?.product?.lineArray === true;
+  const minPerSide = Number(ruleConditions?.minPerSide || selection?.product?.minPerSide || 4);
+  const recommendedPerSide = Number(ruleConditions?.recommendedPerSide || minPerSide);
+  const quantity = ruleIsLineArray || metadataIsLineArray
+    ? Math.max((isExpansion ? recommendedPerSide : minPerSide) * 2, 8)
+    : Math.max(baseQuantity, Number(ruleConditions?.minPerSide || 1));
+  const items = selection?.product ? [{ product: selection.product, quantity }] : [];
   items.recommendationReason = selection?.reason || '';
   items.requiresConsultation = selection?.requiresConsultation === true;
+  items.combinationRule = combinationRule;
   if ((usage === 'worship' || usage === 'event') && level >= 1) {
     const subwoofer = productByName('K-LA218-DSP') || productByName('Pro S5118A');
     if (subwoofer) items.push({ product: subwoofer, quantity: isExpansion && level === 2 ? 2 : 1 });
@@ -97,6 +129,7 @@ function speakerProducts(level, usage, isExpansion, space) {
 
 function withVat(product) {
   if (product.price === null || product.price === undefined || product.price === '') return null;
+  if (product.priceIncludesVat === true) return Math.round(Number(product.price));
   return Math.round(Number(product.price) * VAT_RATE);
 }
 
@@ -128,10 +161,12 @@ function buildConfiguration(tier, space, channels, options) {
   if (speakers.requiresConsultation) missingPrimary.push('주력 스피커 상태 확인');
   speakers.forEach(({ product, quantity }) => addItem(items, product, quantity, '메인 시스템'));
 
-  const passiveSpeaker = speakers.some(({ product }) => product?.passive === true || /DS10|DS12/.test(product?.name || ''));
+  const passiveSpeaker = speakers.some(({ product }) => product?.passive === true || /DS10|DS12|DSL\s*45|T45-Passive/.test(product?.name || ''));
   if (passiveSpeaker) {
-    const passiveAmp = productByName('T4800') || productByName('UTA902DSP');
-    if (passiveAmp) addItem(items, passiveAmp, 1, '패시브 DS10·DS12 구동용 앰프');
+    const combinationRule = speakers.combinationRule;
+    const lineArraySpeaker = combinationRule?.conditions?.speakerCategory === 'line_array' || speakers.some(({ product }) => product?.lineArray === true);
+    const passiveAmp = combinationRule ? productById(combinationRule.conditions.amplifierProductId) : (lineArraySpeaker ? (productByName('T8800') || productByName('T4800')) : (productByName('UTA902DSP') || productByName('T4800')));
+    if (passiveAmp) addItem(items, passiveAmp, 1, combinationRule ? `${combinationRule.name} · 패시브 구동용 앰프` : (lineArraySpeaker ? '라인어레이 패시브 구동용 앰프' : '패시브 스피커 구동용 앰프'));
     else missingPrimary.push('패시브 스피커용 앰프');
   }
 
@@ -169,8 +204,9 @@ function buildConfiguration(tier, space, channels, options) {
     expansion: { label: '확장안', description: '더 넓은 커버리지와 향후 운영 확장을 고려한 안입니다.' }
   };
   const selectedSpeaker = speakers[0]?.product?.name || null;
+  const ruleNote = speakers.combinationRule ? ` 활성 조합 규칙 '${speakers.combinationRule.name}'을 적용했습니다.` : '';
   const speakerNote = selectedSpeaker
-    ? `${speakers.recommendationReason || `공간 조건과 용도에 따라 주력상품 ${selectedSpeaker}를 우선 제안했습니다.`}${/DS10|DS12/.test(selectedSpeaker) ? ' 패시브 구동용 앰프를 함께 구성합니다.' : ''} 최종 모델·수량은 현장 실사 후 확정합니다.`
+    ? `${speakers.recommendationReason || `공간 조건과 용도에 따라 주력상품 ${selectedSpeaker}를 우선 제안했습니다.`}${/DS10|DS12|DSL\s*45|T45-Passive/.test(selectedSpeaker) ? ' 패시브 구동용 앰프를 함께 구성합니다.' : ''}${ruleNote} 최종 모델·수량은 현장 실사 후 확정합니다.`
     : '해당 공간 규모에 맞는 주력 스피커가 부족합니다. 관리자 상담 후 제안이 필요합니다.';
   return { tier, ...labels[tier], items, total, materials, level, mixer, missingPrimary, speakerNote };
 }
