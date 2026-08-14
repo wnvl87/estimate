@@ -67,7 +67,8 @@
         /* Items Table */
         .table-wrapper { overflow-x: auto; margin-bottom: 25px; }
         table.items-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        table.items-table th { background-color: #f1f5f9; color: var(--primary); font-weight: 700; padding: 10px; border-bottom: 2px solid var(--border-color); text-align: left; }
+        table.items-table th { background-color: #f1f5f9; color: var(--primary); font-weight: 700; padding: 10px; border-bottom: 2px solid var(--border-color); text-align: left; cursor: pointer; user-select: none; }
+        table.items-table th:hover { background-color: #e2e8f0; }
         table.items-table td { padding: 10px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
 
         .model-badge { color: var(--primary-accent); font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
@@ -260,18 +261,17 @@
         </div>
         <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
             <input type="text" id="catalogSearchInput" placeholder="카탈로그 검색..." onkeyup="renderCatalogTable()" style="padding: 8px; width: 300px; border:1px solid var(--border-color); border-radius:6px; outline:none;">
-            <span style="font-size: 13px; color: var(--text-muted);">총 등록 장비: <strong id="catalogCount">0</strong>개</span>
+            <span style="font-size: 13px; color: var(--text-muted);">총 등록 장비: <strong id="catalogCount">0</strong>개 (헤더 클릭 시 정렬 변경)</span>
         </div>
         <div class="table-wrapper">
             <table class="items-table">
                 <thead>
                     <tr>
                         <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th>
-                        <th style="width: 40px; text-align: center;">No.</th>
-                        <th style="width: 130px;">품목</th>
-                        <th style="width: 120px;">브랜드</th>
-                        <th>모델명</th>
-                        <th style="text-align: right; width: 120px;">소비자가</th>
+                        <th style="width: 140px;" onclick="sortCatalogTable('cat')">품목 ↕</th>
+                        <th style="width: 130px;" onclick="sortCatalogTable('brand')">브랜드 ↕</th>
+                        <th onclick="sortCatalogTable('name')">모델명 ↕</th>
+                        <th style="text-align: right; width: 120px;" onclick="sortCatalogTable('price')">소비자가 ↕</th>
                         <th style="text-align: center; width: 110px;">관리</th>
                     </tr>
                 </thead>
@@ -318,6 +318,10 @@
     let productCatalog = {};
     let quoteItems = [];
     let editingProductKey = null;
+
+    // 💡 정렬 상태 관리 변수
+    let currentSortField = 'cat';
+    let currentSortAsc = true;
 
     window.onload = async function() {
         await loadCatalog();
@@ -461,19 +465,48 @@
         document.getElementById("totalVal").innerText = (subtotal + vat).toLocaleString() + " 원";
     }
 
+    // 💡 헤더 클릭 시 정렬 필드 변경 및 토글 함수
+    function sortCatalogTable(field) {
+        if (currentSortField === field) {
+            currentSortAsc = !currentSortAsc; // 같은 필드 클릭 시 오름차순/내림차순 토글
+        } else {
+            currentSortField = field;
+            currentSortAsc = true; // 새로운 필드 클릭 시 기본 오름차순
+        }
+        renderCatalogTable();
+    }
+
     function renderCatalogTable() {
         const tbody = document.getElementById("catalogTableBody");
         const keyword = document.getElementById("catalogSearchInput").value.toLowerCase();
         tbody.innerHTML = "";
-        let count = 0, idx = 1;
         
-        Object.entries(productCatalog).forEach(([key, prod]) => {
-            if (!prod.name.toLowerCase().includes(keyword) && !prod.brand.toLowerCase().includes(keyword) && !prod.cat.toLowerCase().includes(keyword)) return;
-            count++;
+        // 검색 필터링 적용된 배열 추출
+        let entries = Object.entries(productCatalog).filter(([key, prod]) => {
+            return prod.name.toLowerCase().includes(keyword) || 
+                   prod.brand.toLowerCase().includes(keyword) || 
+                   prod.cat.toLowerCase().includes(keyword);
+        });
+
+        // 정렬 적용 (품목, 브랜드, 모델명, 소비자가)
+        entries.sort((a, b) => {
+            let valA = a[1][currentSortField];
+            let valB = b[1][currentSortField];
+            
+            if (typeof valA === 'string') {
+                valA = valA.toLowerCase();
+                valB = valB.toLowerCase();
+            }
+
+            if (valA < valB) return currentSortAsc ? -1 : 1;
+            if (valA > valB) return currentSortAsc ? 1 : -1;
+            return 0;
+        });
+
+        entries.forEach(([key, prod]) => {
             tbody.innerHTML += `
                 <tr>
                     <td style="text-align:center;"><input type="checkbox" class="row-checkbox" value="${key}"></td>
-                    <td style="text-align:center; color:var(--text-muted);">${idx++}</td>
                     <td><span class="brand-tag">${escapeHtml(prod.cat)}</span></td>
                     <td><span class="brand-tag" style="background:#e0f2fe; color:#0369a1;">${escapeHtml(prod.brand)}</span></td>
                     <td><strong>${escapeHtml(prod.name)}</strong></td>
@@ -485,7 +518,7 @@
                 </tr>
             `;
         });
-        document.getElementById("catalogCount").innerText = count;
+        document.getElementById("catalogCount").innerText = entries.length;
         const selectAllCb = document.getElementById("selectAllCheckbox");
         if(selectAllCb) selectAllCb.checked = false;
     }
@@ -579,18 +612,26 @@
             return;
         }
 
-        const key = editingProductKey ? editingProductKey : ("CAT_" + Date.now());
-        productCatalog[key] = { cat, brand, name, price, specs: productCatalog[key]?.specs || {} };
+        let targetKey = editingProductKey;
+        if (!targetKey) {
+            const existingEntry = Object.entries(productCatalog).find(([k, p]) => 
+                p.brand.trim().toLowerCase() === brand.toLowerCase() && 
+                p.name.trim().toLowerCase() === name.toLowerCase()
+            );
+            targetKey = existingEntry ? existingEntry[0] : ("CAT_" + Date.now());
+        }
+
+        productCatalog[targetKey] = { cat, brand, name, price, specs: productCatalog[targetKey]?.specs || {} };
 
         localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
         
-        const commitMsg = editingProductKey ? `카탈로그 수정: [${brand}] ${name}` : `신규 장비 등록: [${brand}] ${name}`;
+        const commitMsg = editingProductKey ? `카탈로그 수정: [${brand}] ${name}` : `신규 장비 등록/갱신: [${brand}] ${name}`;
         await syncToGitHub(commitMsg);
 
         initDynamicFilters();
         renderCatalogTable();
         closeAddCatalogModal();
-        alert(editingProductKey ? "장비 정보가 수정되고 깃허브에 반영되었습니다!" : "신규 장비가 등록되고 깃허브에 반영되었습니다!");
+        alert("장비 정보가 저장되고 깃허브에 반영되었습니다!");
     }
 
     async function deleteCatalogItem(key) {
@@ -608,7 +649,6 @@
         }
     }
 
-    // 💡 선택된 여러 장비 일괄 삭제 기능
     async function deleteSelectedCatalogItems() {
         const checkboxes = document.querySelectorAll('.row-checkbox:checked');
         if (checkboxes.length === 0) {
@@ -636,24 +676,48 @@
 
     async function importCatalogCSV(e) {
         const file = e.target.files[0];
+        if (!file) return;
         const reader = new FileReader();
         reader.onload = async function(event) {
+            let addedCount = 0;
+            let updatedCount = 0;
+
             event.target.result.split('\n').forEach((line, i) => {
                 if (i === 0 || !line.trim()) return;
-                const [cat, brand, name, price] = line.split(',');
-                if (name) {
-                    productCatalog["CAT_" + Date.now() + i] = { cat: cat.trim(), brand: brand.trim(), name: name.trim(), price: parseInt(price) || 0, specs: {} };
+                const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+                if (cols.length >= 4) {
+                    const [cat, brand, name, priceStr] = cols;
+                    const price = parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
+                    if (name) {
+                        const existingEntry = Object.entries(productCatalog).find(([k, p]) => 
+                            p.brand.trim().toLowerCase() === brand.toLowerCase() && 
+                            p.name.trim().toLowerCase() === name.toLowerCase()
+                        );
+
+                        if (existingEntry) {
+                            const key = existingEntry[0];
+                            productCatalog[key].price = price;
+                            productCatalog[key].cat = cat || productCatalog[key].cat;
+                            updatedCount++;
+                        } else {
+                            const newKey = "CAT_" + Date.now() + "_" + i;
+                            productCatalog[newKey] = { cat: cat || "기타", brand: brand || "기타", name: name, price: price, specs: {} };
+                            addedCount++;
+                        }
+                    }
                 }
             });
+
             localStorage.setItem('arthur_local_custom_catalog', JSON.stringify(productCatalog));
             
-            await syncToGitHub("CSV 일괄 카탈로그 업데이트");
+            await syncToGitHub(`CSV 일괄 업데이트 (신규 ${addedCount}개, 갱신 ${updatedCount}개)`);
 
             initDynamicFilters();
             renderCatalogTable();
-            alert("CSV 카탈로그 일괄 업로드 및 깃허브 서버 동기화가 완료되었습니다!");
+            alert(`CSV 업로드 완료!\n- 신규 등록: ${addedCount}개\n- 기존 가격 갱신(중복 방지): ${updatedCount}개\n(깃허브 서버 동기화 완료)`);
         };
         reader.readAsText(file, "UTF-8");
+        e.target.value = "";
     }
 
     function exportCatalogCSV() {
