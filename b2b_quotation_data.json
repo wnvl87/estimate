@@ -307,13 +307,6 @@
     "price": 1250000,
     "specs": {}
   },
-  "CAT_17866981704552": {
-    "cat": "\"스피커\"",
-    "brand": "\"Audiocenter\"",
-    "name": "\"AVANDA 218A\"",
-    "price": 7700000,
-    "specs": {}
-  },
   "CAT_17866981704553": {
     "cat": "\"스피커\"",
     "brand": "\"Audiocenter\"",
@@ -669,34 +662,6 @@
     "brand": "\"CANARE\"",
     "name": "\"4S11\"",
     "price": 35000,
-    "specs": {}
-  },
-  "CAT_178669817045556": {
-    "cat": "\"우퍼케이블\"",
-    "brand": "\"CANARE\"",
-    "name": "\"2S11F\"",
-    "price": 40000,
-    "specs": {}
-  },
-  "CAT_178669817045558": {
-    "cat": "\"랜케이블\"",
-    "brand": "\"DW\"",
-    "name": "\"CAT6 UTP\"",
-    "price": 15000,
-    "specs": {}
-  },
-  "CAT_178669817045559": {
-    "cat": "\"랜케이블\"",
-    "brand": "\"Roxtone\"",
-    "name": "\"CAT6A\"",
-    "price": 30000,
-    "specs": {}
-  },
-  "CAT_178669817045561": {
-    "cat": "\"전기선\"",
-    "brand": "\"Dongil\"",
-    "name": "\"VCTF 2.5SQ×3C\"",
-    "price": 30000,
     "specs": {}
   }
 }
