@@ -140,12 +140,13 @@ function buildConfiguration(tier, space, channels, options) {
   }
 
   const total = items.reduce((sum, item) => sum + item.subtotal, 0);
+  const materials = calculateMaterialEstimate(items, space, channels);
   const labels = {
     economy: { label: '절약안', description: '현재 사용 목적에 필요한 핵심 구성을 우선한 안입니다.' },
     standard: { label: '표준안', description: '입력하신 공간과 운영 규모를 기준으로 한 권장 구성입니다.' },
     expansion: { label: '확장안', description: '더 넓은 커버리지와 향후 운영 확장을 고려한 안입니다.' }
   };
-  return { tier, ...labels[tier], items, total, level, mixer };
+  return { tier, ...labels[tier], items, total, materials, level, mixer };
 }
 
 function renderItems(items) {
@@ -161,12 +162,61 @@ function escapeHtml(value) {
   return String(value || '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
 }
 
+function roundUpToFive(value) {
+  return Math.ceil(value / 5) * 5;
+}
+
+function calculateMaterialEstimate(items, space, channels) {
+  const roomLongestSide = Math.max(space.width, space.length);
+  const routeLongestSide = space.hasMezzanine && space.mezzanineDistance > 0
+    ? Math.max(roomLongestSide, space.mezzanineDistance)
+    : roomLongestSide;
+  const runLength = roundUpToFive(routeLongestSide * 1.5);
+  const quantityFor = (predicate) => items.filter(predicate).reduce((sum, item) => sum + item.quantity, 0);
+  const activeCategories = ['스피커', '서브우퍼', '모니터스피커', '디지털 믹서', '디지털 I/O', '퍼스널믹서', '무선마이크'];
+  const activeUnitCount = quantityFor((item) => activeCategories.includes(item.product.cat));
+  const networkRuns = Number(items.some((item) => item.product.cat === '디지털 I/O')) + Number(items.some((item) => item.product.cat === '퍼스널믹서'));
+  const passiveSpeakerCount = quantityFor((item) => /passive/i.test(item.product.name));
+  return {
+    routeLongestSide,
+    runLength,
+    signalLength: roundUpToFive(channels * runLength),
+    networkLength: networkRuns ? roundUpToFive(networkRuns * runLength) : 0,
+    powerLength: activeUnitCount ? roundUpToFive(activeUnitCount * runLength) : 0,
+    speakerLength: passiveSpeakerCount ? roundUpToFive(passiveSpeakerCount * runLength) : 0,
+    hasMezzanine: space.hasMezzanine,
+    mezzanineAudio: space.mezzanineAudio
+  };
+}
+
+function renderMaterials(materials) {
+  const rows = [
+    ['마이크·라인 신호 케이블', `${materials.signalLength.toLocaleString('ko-KR')}m`],
+    ['디지털 네트워크 케이블', materials.networkLength ? `${materials.networkLength.toLocaleString('ko-KR')}m` : '해당 없음'],
+    ['전원 케이블', `${materials.powerLength.toLocaleString('ko-KR')}m`]
+  ];
+  if (materials.speakerLength) rows.push(['패시브 스피커 케이블', `${materials.speakerLength.toLocaleString('ko-KR')}m`]);
+  const mezzanineNote = materials.hasMezzanine
+    ? `<p class="mezzanine-material-note">준이층·발코니 구역이 반영되었습니다. 추가 구역 음향 보강은 ${materials.mezzanineAudio === 'required' ? '별도 보강 필요' : '현장 실사'} 기준으로 최종 확인합니다.</p>`
+    : '';
+  return `
+    <div class="material-estimate">
+      <p>예상 케이블·전원 물량 <span>기준 경로 ${materials.routeLongestSide}m × 1.5 = ${materials.runLength}m</span></p>
+      <ul class="material-list">${rows.map(([label, value]) => `<li><span>${label}</span><strong>${value}</strong></li>`).join('')}</ul>
+      <p class="material-note">실제 배선 경로, 전원 회로, 포설·매립 조건과 커넥터·랙·분배기는 현장 실사 후 확정합니다.</p>
+      ${mezzanineNote}
+    </div>`;
+}
+
 function renderQuotes(configurations, budget) {
+  const hasBudget = Number.isFinite(budget) && budget > 0;
   quoteCards.innerHTML = configurations.map((configuration) => {
-    const isOverBudget = configuration.total > budget;
-    const status = isOverBudget
-      ? `선택 예산보다 ${formatWon(configuration.total - budget)} 높습니다. 현장 상담으로 조정할 수 있습니다.`
-      : `선택 예산 내 구성입니다. 남은 예산 ${formatWon(budget - configuration.total)}`;
+    const isOverBudget = hasBudget && configuration.total > budget;
+    const status = !hasBudget
+      ? '예산을 입력하면 이 구성과 예산의 적합도를 더 정교하게 비교할 수 있습니다.'
+      : isOverBudget
+        ? `선택 예산보다 ${formatWon(configuration.total - budget)} 높습니다. 현장 상담으로 조정할 수 있습니다.`
+        : `선택 예산 내 구성입니다. 남은 예산 ${formatWon(budget - configuration.total)}`;
     return `
       <article class="quote-card ${configuration.tier === 'standard' ? 'recommended' : ''}">
         ${configuration.tier === 'standard' ? '<span class="quote-badge">권장</span>' : ''}
@@ -176,6 +226,7 @@ function renderQuotes(configurations, budget) {
         <div class="quote-total"><span>예상 장비 판매가 · 부가세 포함</span><strong>${formatWon(configuration.total)}</strong></div>
         <p class="quote-status ${isOverBudget ? 'over' : ''}">${status}</p>
         <ul class="item-list">${renderItems(configuration.items)}</ul>
+        ${renderMaterials(configuration.materials)}
         <p class="quote-footnote">설치·배선·운송·튜닝·시공 비용은 현장 실사 후 상세 견적으로 별도 안내합니다.</p>
       </article>`;
   }).join('');
@@ -186,8 +237,7 @@ function validateForm() {
     ['spaceType', '공간 유형을 선택해 주세요.'],
     ['width', '공간의 가로 길이를 입력해 주세요.'],
     ['length', '공간의 세로 길이를 입력해 주세요.'],
-    ['height', '공간의 높이를 입력해 주세요.'],
-    ['budget', '장비 예산 상한을 선택해 주세요.']
+    ['height', '공간의 높이를 입력해 주세요.']
   ];
   for (const [id, message] of required) {
     const input = document.getElementById(id);
@@ -208,7 +258,10 @@ form.addEventListener('submit', (event) => {
     width: Number(document.getElementById('width').value),
     length: Number(document.getElementById('length').value),
     height: Number(document.getElementById('height').value),
-    audience: Number(document.getElementById('audience').value || 0)
+    audience: Number(document.getElementById('audience').value || 0),
+    hasMezzanine: document.getElementById('hasMezzanine').checked,
+    mezzanineDistance: Number(document.getElementById('mezzanineDistance').value || 0),
+    mezzanineAudio: document.getElementById('mezzanineAudio').value
   };
   const options = {
     usage: document.getElementById('usage').value,
@@ -218,7 +271,8 @@ form.addEventListener('submit', (event) => {
     mixerPreference: document.getElementById('mixerPreference').value
   };
   const channels = getChannelCount();
-  const budget = Number(document.getElementById('budget').value);
+  const budgetValue = document.getElementById('budget').value;
+  const budget = budgetValue ? Number(budgetValue) : null;
   const configurations = ['economy', 'standard', 'expansion'].map((tier) => buildConfiguration(tier, space, channels, options));
   const area = Math.round(space.width * space.length);
   document.getElementById('resultSummary').textContent = `${area}㎡ 공간 · 예상 ${space.audience || '미입력'}명 · ${channels}ch 운영 기준으로 구성했습니다.`;
@@ -231,6 +285,23 @@ document.getElementById('printQuote').addEventListener('click', () => window.pri
 document.querySelectorAll('.instrument-item input').forEach((input) => input.addEventListener('input', updateChannelPreview));
 document.querySelectorAll('.instrument-item input[type="checkbox"]').forEach((input) => input.addEventListener('change', updateChannelPreview));
 document.getElementById('vocalCount').addEventListener('input', updateChannelPreview);
+
+const mezzanineToggle = document.getElementById('hasMezzanine');
+const mezzanineFields = document.getElementById('mezzanineFields');
+const mezzanineDistance = document.getElementById('mezzanineDistance');
+const mezzanineAudio = document.getElementById('mezzanineAudio');
+function syncMezzanineFields() {
+  const enabled = mezzanineToggle.checked;
+  mezzanineFields.setAttribute('aria-disabled', String(!enabled));
+  mezzanineDistance.disabled = !enabled;
+  mezzanineAudio.disabled = !enabled;
+  if (!enabled) {
+    mezzanineDistance.value = '';
+    mezzanineAudio.value = 'review';
+  }
+}
+mezzanineToggle.addEventListener('change', syncMezzanineFields);
+syncMezzanineFields();
 
 populateBudgets();
 updateChannelPreview();

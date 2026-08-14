@@ -12,9 +12,8 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="홈으로 이동">
-      <span class="brand-mark" aria-hidden="true">A</span>
-      <span class="brand-text"><strong>ARTHUR</strong><small>주식회사 아더 · AUDIO SOLUTIONS</small></span>
+    <a class="brand" href="#top" aria-label="주식회사 아더 홈으로 이동">
+      <img class="brand-logo" src="assets/arthur-logo.jpg" alt="주식회사 아더 Arthur Co., Ltd." />
     </a>
     <nav class="header-nav" aria-label="주요 메뉴">
       <a href="#process">이용 안내</a>
@@ -66,7 +65,7 @@
         <p class="eyebrow">STEP BY STEP ESTIMATE</p>
         <h2 id="estimate-title">내 공간에 맞는<br />예상 시스템을 구성해 보세요.</h2>
         <p>선택한 정보는 이 브라우저 안에서만 계산에 사용됩니다. 전체 카탈로그가 아닌, 현재 조건에 맞는 추천 구성만 표시됩니다.</p>
-        <div class="estimate-legend"><span><b></b>필수 입력</span><span><b></b>부가세 포함 판매가 기준</span></div>
+        <div class="estimate-legend"><span><b></b>필수 입력</span><span><b></b>예산 입력 시 추천 정확도 향상</span></div>
       </div>
 
       <form id="estimateForm" class="estimate-form" novalidate>
@@ -109,6 +108,13 @@
               <option value="event">행사·공연·다목적 사용</option>
             </select>
           </label>
+          <div class="mezzanine-box">
+            <label class="mezzanine-toggle"><input id="hasMezzanine" type="checkbox" /><span><strong>준이층·발코니가 있습니다</strong><small>추가 구역의 배선 경로와 음향 보강 필요 여부를 함께 확인합니다.</small></span></label>
+            <div class="mezzanine-fields" id="mezzanineFields" aria-disabled="true">
+              <label class="form-field"><span>무대에서 추가 구역까지 최장 거리</span><div class="unit-input"><input id="mezzanineDistance" type="number" min="1" step="0.1" placeholder="예: 28" disabled /><small>m</small></div></label>
+              <label class="form-field"><span>추가 구역 음향 보강</span><select id="mezzanineAudio" disabled><option value="review">현장 실사 후 검토</option><option value="required">별도 보강이 필요함</option><option value="not-required">별도 보강이 필요하지 않음</option></select></label>
+            </div>
+          </div>
         </fieldset>
 
         <fieldset class="form-panel" data-step="2">
@@ -132,15 +138,15 @@
 
         <fieldset class="form-panel" data-step="3">
           <legend><span>03</span> 예산과 브랜드 선호</legend>
-          <p class="panel-description">예산은 장비 판매가 기준입니다. 설치·배선·운송·튜닝 비용은 현장 실사 후 상세 견적으로 안내합니다.</p>
+          <p class="panel-description">예산은 선택 입력입니다. 예산을 알려주시면 공간에 더 적합한 장비 조합을 추천해 드립니다.</p>
           <div class="form-grid two-columns">
-            <label class="form-field"><span>장비 예산 상한 <em>필수</em></span><select id="budget" required><option value="">100만 원 단위로 선택</option></select></label>
+            <label class="form-field"><span>장비 예산 상한 <em>선택</em></span><select id="budget"><option value="">예산을 선택하지 않고 추천받기</option></select><small class="accuracy-helper">예산을 입력하면 구성과 금액을 더 정교하게 비교할 수 있습니다.</small></label>
             <label class="form-field"><span>스피커 선호</span><select id="speakerPreference"><option value="audiocenter">AudioCenter 우선 추천</option><option value="other">다른 브랜드도 상담 후 검토</option></select></label>
           </div>
           <label class="form-field full-width"><span>믹서 선호 브랜드</span>
             <select id="mixerPreference"><option value="auto">추천에 맡기기</option><option value="Behringer">Behringer</option><option value="Allen & Heath">Allen & Heath</option><option value="Midas">Midas</option><option value="Yamaha">Yamaha</option></select>
           </label>
-          <label class="consent-row"><input id="acknowledge" type="checkbox" required /><span>온라인 견적은 <strong>부가세 포함 장비 판매가 기준의 예상 견적</strong>이며, 시공·설치·배선 비용은 현장 실사 후 별도 안내됨을 확인했습니다.</span></label>
+          <label class="consent-row"><input id="acknowledge" type="checkbox" required /><span>온라인 구성은 <strong>현장 실사 전 예상 안내</strong>이며, 설치·배선·운송·튜닝·시공 범위는 현장 실사 후 상세 견적으로 안내됨을 확인했습니다.</span></label>
         </fieldset>
 
         <div class="form-actions"><button type="submit" class="button button-primary button-large">예상 견적 확인하기 <span aria-hidden="true">→</span></button><p>입력하신 정보는 별도로 전송되거나 저장되지 않습니다.</p></div>
@@ -149,7 +155,7 @@
     </section>
 
     <section class="result-section" id="result" aria-live="polite" hidden>
-      <div class="result-heading"><div><p class="eyebrow">YOUR PRELIMINARY ESTIMATE</p><h2>공간 맞춤 예상 구성</h2><p id="resultSummary">입력하신 조건을 기준으로 구성했습니다.</p></div><button id="printQuote" class="button button-outline">인쇄하기</button></div>
+      <div class="result-heading"><div><div class="print-brand"><img src="assets/arthur-logo.jpg" alt="주식회사 아더 Arthur Co., Ltd." /><span>주식회사 아더 · Arthur Co., Ltd.</span></div><p class="eyebrow">YOUR PRELIMINARY ESTIMATE</p><h2>공간 맞춤 예상 구성</h2><p id="resultSummary">입력하신 조건을 기준으로 구성했습니다.</p></div><button id="printQuote" class="button button-outline">인쇄하기</button></div>
       <div id="quoteCards" class="quote-cards"></div>
       <div class="result-note-grid">
         <article><span class="note-icon" aria-hidden="true">01</span><h3>품목별 판매가 공개</h3><p>아래 금액은 부가세가 포함된 장비 판매가 기준입니다.</p></article>
@@ -168,7 +174,7 @@
     </section>
   </main>
 
-  <footer class="site-footer"><span>주식회사 아더 · ARTHUR AUDIO SOLUTIONS</span><p>온라인 예상 견적은 현장 실사 전 장비 판매가 기준의 참고용 정보입니다.</p></footer>
+  <footer class="site-footer"><span>주식회사 아더 · Arthur Co., Ltd.</span><p>온라인 예상 견적은 현장 실사 전 장비 판매가 기준의 참고용 정보입니다.</p></footer>
   <script src="quote_products.js"></script>
   <script src="app.js"></script>
 </body>

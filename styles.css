@@ -85,3 +85,36 @@ h1 em { font-style: normal; color: var(--accent); }
 @media (max-width: 620px) { .site-header { height: 67px; padding: 0 18px; }.brand-text small { display: none; }.header-cta { font-size: 10px; padding: 7px 10px; }.hero-content { padding: 64px 24px; }.hero-visual { min-height: 285px; }.speaker-figure { width: 215px; height: 215px; padding: 19px; border-width: 8px; }.speaker-figure i { border-width: 7px; }.visual-card { padding: 10px 12px; min-width: 130px; }.visual-card-bottom { bottom: 12%; }.process-section, .result-section { padding: 72px 24px; }.process-grid { grid-template-columns: 1fr; }.process-card { border-right: 0; border-bottom: 1px solid var(--line); min-height: auto; padding: 23px 0; }.estimate-section { padding: 70px 18px; }.estimate-form { padding: 23px 18px; }.step-indicator { gap: 5px; font-size: 9px; }.step-indicator b { width: 18px; height: 18px; }.step-indicator i { min-width: 8px; }.two-columns, .three-columns, .instrument-grid { grid-template-columns: 1fr; }.dimension-box { display: block; }.dimension-inputs { margin-top: 12px; }.dimension-inputs label { width: calc((100vw - 92px) / 3); }.form-actions { display: block; }.form-actions .button { width: 100%; }.form-actions p { margin-top: 11px; }.result-heading { align-items: flex-start; flex-direction: column; }.result-note-grid { grid-template-columns: 1fr; gap: 0; }.consultation-section { padding: 70px 24px; }.consultation-card { padding: 19px; }.site-footer { display: block; }.site-footer p { margin-top: 7px; } }
 
 @media print { .site-header, .hero, .process-section, .estimate-section, .consultation-section, .site-footer, .result-note-grid, #printQuote { display: none !important; }.result-section { padding: 0; background: white; }.quote-cards { grid-template-columns: repeat(3, 1fr); gap: 10px; }.quote-card { padding: 12px; border: 1px solid #ddd; box-shadow: none !important; }.quote-card h3 { font-size: 18px; }.quote-total strong { font-size: 19px; }.item-list li { padding: 6px 0; }.result-heading { margin-bottom: 18px; } }
+
+.accuracy-helper { color: var(--accent-deep); font-size: 10px; font-weight: 500; line-height: 1.45; }
+.mezzanine-box { margin-top: 16px; padding: 16px; border: 1px solid #d7dde5; background: #fafbfc; }
+.mezzanine-toggle { display: flex; align-items: flex-start; gap: 9px; cursor: pointer; }
+.mezzanine-toggle input { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--accent); }
+.mezzanine-toggle strong { display: block; font-size: 12px; color: var(--ink); }
+.mezzanine-toggle small { display: block; margin-top: 2px; font-size: 10px; color: var(--ink-soft); line-height: 1.5; }
+.mezzanine-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e3e6ea; }
+.mezzanine-fields[aria-disabled="true"] { opacity: .45; }
+.unit-input { display: flex; align-items: center; height: 46px; border: 1px solid #cfd5dd; background: white; }
+.unit-input input { height: 44px; min-width: 0; flex: 1; padding: 0 12px; border: 0; outline: none; font-size: 13px; }
+.unit-input small { padding-right: 12px; color: var(--ink-soft); font-size: 11px; }
+.material-estimate { margin-top: 18px; padding: 14px 13px; background: #f3f5f1; border-left: 3px solid #879d78; }
+.material-estimate > p { margin: 0 0 8px; color: #384638; font-size: 11px; font-weight: 800; }
+.material-estimate > p span { font-weight: 500; color: #687367; margin-left: 5px; }
+.material-list { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.material-list li { display: flex; justify-content: space-between; gap: 9px; color: #556155; font-size: 10px; line-height: 1.45; }
+.material-list strong { color: #384638; font-size: 10px; }
+.material-note { margin: 9px 0 0; color: #6b7569; font-size: 9px; line-height: 1.5; }
+.mezzanine-material-note { margin: 9px 0 0; padding-top: 8px; border-top: 1px solid #d5ded1; color: #596854; font-size: 9px; line-height: 1.5; }
+@media (max-width: 620px) { .mezzanine-fields { grid-template-columns: 1fr; } }
+
+.brand-logo { display: block; width: 168px; height: auto; mix-blend-mode: multiply; }
+.print-brand { display: none; }
+@media (max-width: 620px) { .brand-logo { width: 128px; } }
+@media print {
+  .print-brand { display: flex; align-items: center; gap: 14px; margin: 0 0 14px; }
+  .print-brand img { display: block; width: 160px; height: auto; mix-blend-mode: multiply; }
+  .print-brand span { font-size: 9px; color: #263448; letter-spacing: .04em; }
+  .material-estimate { margin-top: 9px; padding: 8px 9px; }
+  .material-estimate > p, .material-list li { font-size: 8px; }
+  .material-note, .mezzanine-material-note { font-size: 7px; }
+}
