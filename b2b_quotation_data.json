@@ -299,5 +299,12 @@
     "name": "Wing Compact",
     "price": 3800000,
     "specs": {}
+  },
+  "CAT_1786695729053": {
+    "cat": "디지털 I/O",
+    "brand": "Behringer",
+    "name": "DL16",
+    "price": 1250000,
+    "specs": {}
   }
 }
